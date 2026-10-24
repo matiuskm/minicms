@@ -1,6 +1,8 @@
 <?php
 
+use App\Models\AuditLog;
 use App\Models\User;
+use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Illuminate\Support\Facades\Hash;
 use PragmaRX\Google2FA\Google2FA;
 
@@ -104,4 +106,35 @@ test('the bypass switch is ignored in production', function () {
 
 test('by default the requirement is on and nothing is flagged as bypassed', function () {
     $this->actingAs(User::factory()->create())->get('/dashboard')->assertInertia(fn ($p) => $p->where('twoFactorBypassed', false));
+});
+
+test('local-only bypass also skips the login challenge for accounts that already enabled 2FA', function () {
+    config(['cms.require_admin_2fa' => false]);
+    $user = User::factory()->admin()->withTwoFactor(SECRET)->create();
+
+    $this->post('/login', ['email' => $user->email, 'password' => PW])->assertRedirect('/dashboard');
+    $this->assertAuthenticatedAs($user);
+});
+
+test('in production the login challenge is never skipped', function () {
+    config(['cms.require_admin_2fa' => false]);
+    app()->detectEnvironment(fn () => 'production');
+    $user = User::factory()->admin()->withTwoFactor(SECRET)->create();
+
+    // CSRF skipping is tied to the testing environment, which this test deliberately leaves.
+    $this->withoutMiddleware(ValidateCsrfToken::class);
+    $this->post('/login', ['email' => $user->email, 'password' => PW])->assertRedirect('/two-factor-challenge');
+    $this->assertGuest();
+});
+
+test('cms:reset-2fa removes 2FA, ends sessions and is audited', function () {
+    $user = User::factory()->admin()->withTwoFactor()->create();
+    DB::table('sessions')->insert(['id' => 's1', 'user_id' => $user->id, 'payload' => '', 'last_activity' => time()]);
+
+    $this->artisan('cms:reset-2fa', ['email' => strtoupper($user->email)])->assertSuccessful();
+
+    expect($user->fresh()->hasTwoFactor())->toBeFalse()->and($user->fresh()->two_factor_secret)->toBeNull();
+    expect(DB::table('sessions')->where('user_id', $user->id)->count())->toBe(0);
+    expect(AuditLog::where('action', '2fa.reset_cli')->exists())->toBeTrue();
+    $this->artisan('cms:reset-2fa', ['email' => 'nobody@example.com'])->assertFailed();
 });

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Middleware\EnforceSessionPolicy;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Models\AuditLog;
 use App\Models\User;
@@ -28,7 +29,8 @@ class AuthenticatedSessionController extends Controller
         $user = $request->authenticate();
 
         // Password is correct but 2FA is pending: don't log in yet.
-        if ($user->hasTwoFactor()) {
+        // The local-only bypass (CMS_REQUIRE_ADMIN_2FA=false) also skips the challenge; it never applies in production.
+        if ($user->hasTwoFactor() && EnforceSessionPolicy::twoFactorRequired()) {
             $request->session()->regenerate();
             $request->session()->put([
                 'login.id' => $user->id,
