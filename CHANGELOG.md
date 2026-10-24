@@ -16,6 +16,7 @@ Definition of Done (PRD section 11) is met.
 - Tag merge and published-post counters; deleting a category moves its posts to "Uncategorized"; media in use can no longer be deleted.
 ### Changed
 - Sanitizer only accepts images from `/storage/uploads/`.
+- CI runs on every pull request, including PRs stacked on phase branches.
 
 ## [0.3.0] - 2026-10-24 — P-02 Taxonomy, media & editor
 ### Added
