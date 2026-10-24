@@ -18,6 +18,7 @@ Definition of Done (PRD section 11) is met.
 - Uploaded image URLs are relative (`/storage/...`) so the sanitizer accepts them in content.
 - Admin status messages (flash) are now shown.
 ### Fixed
+- Home feature card: the title sits on a frosted (blurred, tinted) panel so it stays readable on light featured images, as in the design reference.
 - Inertia page lookup in tests used a capitalised `Pages` path that only worked on case-insensitive filesystems.
 ### Removed
 - Static `public/robots.txt` (served dynamically).
