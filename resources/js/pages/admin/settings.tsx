@@ -25,6 +25,8 @@ type Settings = {
     mail_from_name: string;
     mail_from_address: string;
     maintenance_mode: boolean;
+    analytics_enabled: boolean;
+    analytics_retention_days: number;
 };
 
 interface Props {
@@ -169,6 +171,41 @@ export default function SettingsPage({ settings, logo: logo0, favicon: favicon0,
                             </span>
                         </span>
                     </label>
+                </section>
+
+                <section className="bg-card space-y-4 rounded-xl border p-5 shadow-xs">
+                    <h2 className="font-semibold">Visitor statistics</h2>
+                    <label className="flex items-start gap-3 text-sm">
+                        <input
+                            type="checkbox"
+                            className="mt-1"
+                            checked={form.data.analytics_enabled}
+                            onChange={(ev) => form.setData('analytics_enabled', ev.target.checked)}
+                        />
+                        <span>
+                            <strong>Count visits</strong>
+                            <span className="text-muted-foreground block text-xs">
+                                No cookies and no IP addresses are stored; staff visits, bots and “Do Not Track” browsers are ignored. A visitor is
+                                recognised only within one day.
+                            </span>
+                        </span>
+                    </label>
+                    <Field
+                        id="analytics_retention_days"
+                        label="Keep visit records for (days)"
+                        hint="30–365. Older records are deleted every night."
+                        error={e.analytics_retention_days}
+                    >
+                        <Input
+                            id="analytics_retention_days"
+                            type="number"
+                            min={30}
+                            max={365}
+                            className="max-w-32"
+                            value={form.data.analytics_retention_days}
+                            onChange={(ev) => form.setData('analytics_retention_days', Number(ev.target.value))}
+                        />
+                    </Field>
                 </section>
 
                 <section className="bg-card space-y-4 rounded-xl border p-5 shadow-xs">

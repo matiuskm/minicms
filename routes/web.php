@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AnalyticsController;
 use App\Http\Controllers\Admin\AppearanceController;
 use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\CategoryController;
@@ -16,6 +17,7 @@ use App\Http\Controllers\FeedController;
 use App\Http\Controllers\MediaController;
 use App\Http\Controllers\PublicController;
 use App\Http\Controllers\ThemeController;
+use App\Http\Middleware\TrackVisit;
 use Illuminate\Support\Facades\Route;
 
 // Public PDF downloads (attachment-only, sandboxed).
@@ -88,6 +90,8 @@ Route::middleware(['auth', 'role:admin', 'throttle:admin'])->prefix('admin')->na
     Route::put('tags/{tag}', [TagController::class, 'update'])->name('tags.update');
     Route::delete('tags/{tag}', [TagController::class, 'destroy'])->name('tags.destroy');
 
+    Route::get('analytics', [AnalyticsController::class, 'index'])->name('analytics.index');
+
     Route::get('appearance', [AppearanceController::class, 'index'])->name('appearance.index');
     Route::post('appearance/palettes', [AppearanceController::class, 'store'])->name('appearance.palettes.store');
     Route::put('appearance/palettes/{palette}', [AppearanceController::class, 'update'])->name('appearance.palettes.update');
@@ -120,10 +124,13 @@ Route::get('sitemap.xml', [FeedController::class, 'sitemap'])->name('sitemap');
 Route::get('robots.txt', [FeedController::class, 'robots'])->name('robots');
 Route::get('rss.xml', [FeedController::class, 'rss'])->name('rss');
 Route::get('theme.css', ThemeController::class)->name('theme');
-Route::get('/', [PublicController::class, 'home'])->name('home');
-Route::get('blog', [PublicController::class, 'blog'])->name('blog');
-Route::get('blog/{slug}', [PublicController::class, 'post'])->name('post');
-Route::get('category/{slug}', [PublicController::class, 'category'])->name('category');
-Route::get('tag/{slug}', [PublicController::class, 'tag'])->name('tag');
-Route::get('author/{slug}', [PublicController::class, 'author'])->name('author');
-Route::get('{slug}', [PublicController::class, 'page'])->where('slug', '[a-z0-9]+(?:-[a-z0-9]+)*')->name('page');
+// Visit counting applies to these public pages only (never admin, feeds, search or files).
+Route::middleware(TrackVisit::class)->group(function () {
+    Route::get('/', [PublicController::class, 'home'])->name('home');
+    Route::get('blog', [PublicController::class, 'blog'])->name('blog');
+    Route::get('blog/{slug}', [PublicController::class, 'post'])->name('post');
+    Route::get('category/{slug}', [PublicController::class, 'category'])->name('category');
+    Route::get('tag/{slug}', [PublicController::class, 'tag'])->name('tag');
+    Route::get('author/{slug}', [PublicController::class, 'author'])->name('author');
+    Route::get('{slug}', [PublicController::class, 'page'])->where('slug', '[a-z0-9]+(?:-[a-z0-9]+)*')->name('page');
+});

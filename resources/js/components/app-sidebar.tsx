@@ -3,6 +3,7 @@ import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, Sid
 import { type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
 import {
+    BarChart3,
     File,
     FolderTree,
     Image,
@@ -27,6 +28,7 @@ const mainNavItems: NavItem[] = [
 
 const adminNavItems: NavItem[] = [
     { title: 'Pages', url: '/admin/pages', icon: File },
+    { title: 'Statistics', url: '/admin/analytics', icon: BarChart3 },
     { title: 'Categories', url: '/admin/categories', icon: FolderTree },
     { title: 'Tags', url: '/admin/tags', icon: Tags },
     { title: 'Menus', url: '/admin/menus', icon: ListTree },

@@ -18,6 +18,8 @@ function live(array $attrs = [], int $count = 1)
 
 function queries(string $url): int
 {
+    // Visit counting adds a few deferred queries after the response; this test measures page rendering only.
+    Setting::put(['analytics_enabled' => false]);
     Cache::flush();
     DB::flushQueryLog();
     DB::enableQueryLog();

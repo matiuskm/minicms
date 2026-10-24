@@ -38,3 +38,4 @@ Project dir: repo root (this repo)
   - Diverifikasi di Chrome sungguhan lewat skrip CDP (login, 10+ halaman, dialog media): 0 pelanggaran CSP. Menemukan dan memperbaiki `<style>` injeksi dari progress bar Inertia.
   - Backup nyata di dev: `cms:backup` menghasilkan dump + arsip; restore ke DB uji lewat test (commit-then-restore).
   - MANUAL CHECK sebelum 1.0.0: jalankan `cms:check-production` di VPS sungguhan, restore drill di staging, konfirmasi nginx (storage tanpa eksekusi PHP, TC-F05-05), SSR di Supervisor, cron aktif, SMTP nyata untuk email notifikasi.
+- 2026-10-24 P-07 DONE (branch `phase/p-07-analytics`, release 0.8.0, ditumpuk di P-06): F-14 Visitor Statistics atas permintaan user. Keputusan di PRD A-19. Diverifikasi di Chrome (CDP): halaman Statistics tanpa pelanggaran CSP; lalu lintas contoh (utm ig/wa, Referer facebook/google/situs lain, UA Instagram) terklasifikasi benar. Data contoh dan akun uji dihapus setelah verifikasi.

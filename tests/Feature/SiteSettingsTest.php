@@ -17,6 +17,7 @@ function settingsPayload(array $o = []): array
         'site_name' => 'Essos', 'tagline' => 'Stories', 'logo_media_id' => null, 'favicon_media_id' => null,
         'content_language' => 'en', 'posts_per_page' => 6, 'cta_label' => '', 'cta_url' => '', 'pdf_max_mb' => 10,
         'mail_from_name' => '', 'mail_from_address' => '', 'maintenance_mode' => false,
+        'analytics_enabled' => true, 'analytics_retention_days' => 90,
     ], ...$o];
 }
 

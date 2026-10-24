@@ -116,7 +116,7 @@ autostart=true
 autorestart=true
 ```
 
-Cron runs the scheduler once a minute. It publishes scheduled posts, checks content integrity every 15 minutes and takes the daily backup:
+Cron runs the scheduler once a minute. It publishes scheduled posts, checks content integrity every 15 minutes, takes the daily backup and prunes old visit records:
 
 ```cron
 * * * * * cd /var/www/cms && php artisan schedule:run >> /dev/null 2>&1
@@ -137,6 +137,12 @@ php artisan cms:check-integrity
 ```
 
 `--force` is required because the restore replaces every table in the configured database.
+
+### Visitor statistics
+
+Visits are counted by the application itself (no cookies, no IPs stored). Behind a proxy or CDN, configure trusted proxies so
+`request()->ip()` is the visitor and not the proxy; otherwise everyone looks like one visitor. A busy site (tens of thousands of views a day)
+should use Redis as the cache driver, because counting does a few cache operations per visit.
 
 ## 8. When something looks wrong
 

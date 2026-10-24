@@ -35,6 +35,7 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON mini_cms.settings              TO 'cms_a
 GRANT SELECT, INSERT, UPDATE, DELETE ON mini_cms.menu_items            TO 'cms_app'@'localhost';
 GRANT SELECT, INSERT, UPDATE, DELETE ON mini_cms.palettes              TO 'cms_app'@'localhost';
 GRANT SELECT, INSERT, UPDATE, DELETE ON mini_cms.known_devices         TO 'cms_app'@'localhost';
+GRANT SELECT, INSERT, DELETE         ON mini_cms.page_views            TO 'cms_app'@'localhost';
 
 -- Append-only: the application can write and read the audit trail but never alter or delete it.
 GRANT SELECT, INSERT ON mini_cms.audit_logs TO 'cms_app'@'localhost';

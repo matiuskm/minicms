@@ -46,6 +46,8 @@ class Setting extends Model
         'font_heading' => 'system-sans',
         'font_body' => 'system-sans',
         'font_size' => 'm',
+        'analytics_enabled' => true,
+        'analytics_retention_days' => 90,
         'lockdown' => false,
         'integrity_last' => null,
         'backup_last' => null,

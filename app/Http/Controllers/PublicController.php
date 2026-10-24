@@ -54,6 +54,7 @@ class PublicController extends Controller
         });
 
         abort_if($data === null, 404);
+        $request->attributes->set('analytics.key', 'home');
 
         return $this->render('public/home', $data, ['title' => null, 'description' => null], $request, canonical: $page > 1 ? "/?page={$page}" : '/');
     }
@@ -150,6 +151,8 @@ class PublicController extends Controller
             return $this->redirectOrFail($request);
         }
 
+        $request->attributes->set('analytics.key', 'post:'.$data['post']['id']);
+
         return $this->render('public/post', ['post' => $data['post']], $data['seo'], $request, canonical: "/blog/{$slug}");
     }
 
@@ -159,7 +162,7 @@ class PublicController extends Controller
             $page = Page::published()->where('slug', $slug)->first();
 
             return $page ? [
-                'page' => ['title' => $page->title, 'body' => ContentRenderer::render($page->body)],
+                'page' => ['id' => $page->id, 'title' => $page->title, 'body' => ContentRenderer::render($page->body)],
                 'seo' => [
                     'title' => $page->meta_title ?: $page->title,
                     'description' => $page->meta_description ?: Str::limit(trim(strip_tags($page->body)), 155),
@@ -172,12 +175,15 @@ class PublicController extends Controller
             return $this->redirectOrFail($request);
         }
 
+        $request->attributes->set('analytics.key', 'page:'.$data['page']['id']);
+
         return $this->render('public/page', ['page' => $data['page']], $data['seo'], $request, canonical: "/{$slug}");
     }
 
     private function archive(Request $request, string $heading, ?string $intro, callable $scope, string $path, string $cacheKey): Response
     {
         $page = $this->pageNumber($request);
+        $request->attributes->set('analytics.key', str_replace('.', ':', $cacheKey));
 
         $data = PublicCache::remember("archive.{$cacheKey}.{$page}", function () use ($scope, $path, $page, $heading, $intro) {
             $posts = $scope($this->published())->paginate(PublicData::perPage(), ['*'], 'page', $page);

@@ -44,6 +44,8 @@ class SettingsController extends Controller
             'mail_from_name' => ['nullable', 'string', 'max:60'],
             'mail_from_address' => ['nullable', 'email', 'max:190'],
             'maintenance_mode' => ['required', 'boolean'],
+            'analytics_enabled' => ['required', 'boolean'],
+            'analytics_retention_days' => ['required', 'integer', 'between:30,365'],
         ]);
 
         $before = Setting::everything();

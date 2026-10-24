@@ -6,6 +6,14 @@ Definition of Done (PRD section 11) is met.
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-10-24 — P-07 Visitor statistics
+### Added
+- Cookie-less, first-party visit counting for public pages: no IP or user agent stored, unique visitors recognised only within a day, bots / link previews / staff / Do-Not-Track / prefetches ignored.
+- Traffic sources from `utm_source`, the Referer header and in-app browsers (Instagram, Facebook, TikTok, LINE, X); Google/Bing/other sites; direct; inside the site.
+- Statistics screen: views, unique visitors, daily chart, sources, most viewed, campaigns, referring websites, per-page source breakdown.
+- Tracked link builder for sharing on Instagram, WhatsApp, Facebook, X, Telegram, TikTok, LINE, email, etc.
+- Settings: switch counting off, retention 30–365 days; nightly pruning (`cms:prune-analytics`).
+
 ## [0.7.0] - 2026-10-24 — P-06 Hardening & operations
 ### Added
 - Nonce-based Content-Security-Policy on every response, plus COOP and a tighter Permissions-Policy.
@@ -94,7 +102,8 @@ _Shipped inside the initial commit together with 0.2.0; no separate tag._
 - Laravel 12 + React 19 + Inertia 2 (SSR) skeleton, MySQL, Pest 3, Vitest, CI with MySQL service and dependency audits.
 - `Model::preventLazyLoading()` outside production (N+1 guard).
 
-[Unreleased]: https://github.com/matiuskm/minicms/compare/v0.7.0...HEAD
+[Unreleased]: https://github.com/matiuskm/minicms/compare/v0.8.0...HEAD
+[0.8.0]: https://github.com/matiuskm/minicms/compare/v0.7.0...v0.8.0
 [0.7.0]: https://github.com/matiuskm/minicms/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/matiuskm/minicms/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/matiuskm/minicms/compare/v0.4.0...v0.5.0
