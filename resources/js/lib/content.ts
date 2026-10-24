@@ -40,3 +40,8 @@ export async function postJson<T>(url: string, body: unknown, method = 'POST'): 
     });
     return { status: res.status, data: (await res.json().catch(() => ({}))) as T };
 }
+
+/** The CSP nonce of the current page, for libraries that inject <style> tags themselves. */
+export function cspNonce(): string | undefined {
+    return document.querySelector<HTMLMetaElement>('meta[name="csp-nonce"]')?.content || undefined;
+}

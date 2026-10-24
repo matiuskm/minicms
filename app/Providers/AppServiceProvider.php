@@ -47,6 +47,8 @@ class AppServiceProvider extends ServiceProvider
             Limit::perMinute(20)->by($r->user()?->id ?: $r->ip()),
             Limit::perHour(20)->by($r->user()?->id ?: $r->ip()),
         ]);
+        // NFR-08: every admin and editor action is throttled per user, so a stolen session cannot be scripted at speed.
+        RateLimiter::for('admin', fn (Request $r) => Limit::perMinute(240)->by($r->user()?->id ?: $r->ip()));
         RateLimiter::for('preview', fn (Request $r) => Limit::perMinute(60)->by($r->user()?->id ?: $r->ip()));
         RateLimiter::for('two-factor', fn (Request $r) => Limit::perMinute(5)
             ->by($r->session()->get('login.id', 'none').'|'.$r->ip()));

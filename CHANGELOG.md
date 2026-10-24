@@ -6,6 +6,19 @@ Definition of Done (PRD section 11) is met.
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-10-24 — P-06 Hardening & operations
+### Added
+- Nonce-based Content-Security-Policy on every response, plus COOP and a tighter Permissions-Policy.
+- Security centre: lockdown (writers signed out and blocked), content-integrity check (every 15 minutes, email alert once per change, confirm or restore), backup status.
+- Email notices for sign-ins from a new browser, role changes, password changes and 2FA being turned off.
+- Daily backups (database + uploads, retention 14, off-site disk supported), `cms:restore`, failure alerts.
+- `cms:check-production` deploy gate, `cms:check-integrity`, `docs/DEPLOY.md` (VPS guide) and per-account database grants.
+- Role-aware dashboard: review queue or "sent back to you", recent activity, sign-in/integrity/backup health.
+- Admin/editor actions are throttled per user; public search limited to 30 requests/minute.
+### Changed
+- Inertia's progress-bar styles ship in `app.css` instead of being injected at runtime (needed for the strict CSP).
+- Page titles no longer repeat the site name.
+
 ## [0.6.0] - 2026-10-24 — P-05 Appearance
 ### Added
 - Appearance screen: six built-in palettes (Light Classic, Dark, Ocean, Forest, Sunset, Monochrome), custom palettes (create, edit, duplicate, delete), one live palette at a time, live preview, WCAG AA contrast warnings.
@@ -81,7 +94,8 @@ _Shipped inside the initial commit together with 0.2.0; no separate tag._
 - Laravel 12 + React 19 + Inertia 2 (SSR) skeleton, MySQL, Pest 3, Vitest, CI with MySQL service and dependency audits.
 - `Model::preventLazyLoading()` outside production (N+1 guard).
 
-[Unreleased]: https://github.com/matiuskm/minicms/compare/v0.6.0...HEAD
+[Unreleased]: https://github.com/matiuskm/minicms/compare/v0.7.0...HEAD
+[0.7.0]: https://github.com/matiuskm/minicms/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/matiuskm/minicms/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/matiuskm/minicms/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/matiuskm/minicms/compare/v0.3.0...v0.4.0

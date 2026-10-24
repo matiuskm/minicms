@@ -48,6 +48,8 @@ PHP's own limits must be at least as high: set `upload_max_filesize = 12M` and `
 
 ## Production
 
+Full VPS guide: [docs/DEPLOY.md](docs/DEPLOY.md). Gate a deploy with `php artisan cms:check-production`.
+
 See `database/hardening/production-grants.sql` for least-privilege DB accounts (audit log is append-only).
 
 Web server rules for uploads (NFR-03, manual check TC-F05-05): never execute PHP from the storage directory, e.g. in nginx

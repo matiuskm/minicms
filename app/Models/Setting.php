@@ -46,6 +46,9 @@ class Setting extends Model
         'font_heading' => 'system-sans',
         'font_body' => 'system-sans',
         'font_size' => 'm',
+        'lockdown' => false,
+        'integrity_last' => null,
+        'backup_last' => null,
     ];
 
     /** @return array<string, mixed> every setting, defaults filled in; one query, cached until a setting changes. */

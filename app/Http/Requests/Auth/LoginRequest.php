@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Auth;
 
 use App\Models\AuditLog;
+use App\Models\Setting;
 use App\Models\User;
 use App\Notifications\AccountLockedNotification;
 use Illuminate\Foundation\Http\FormRequest;
@@ -42,6 +43,12 @@ class LoginRequest extends FormRequest
         }
 
         $locked = $user?->locked_until?->isFuture() ?? false;
+
+        // Lockdown (FR-70): only admins may sign in. The visitor sees the usual generic failure.
+        if ($valid && $user && ! $user->isAdmin() && Setting::get('lockdown')) {
+            AuditLog::record('login.blocked_lockdown', $user, [], $user->id);
+            throw ValidationException::withMessages(['email' => __('auth.failed')]);
+        }
 
         if (! $user || ! $valid || ! $user->isActive() || $locked) {
             $this->fail($user, $locked);

@@ -1,6 +1,7 @@
 import { CaptionedImage, VideoEmbed } from '@/components/editor/extensions';
 import { MediaPicker } from '@/components/editor/media-picker';
 import { Button } from '@/components/ui/button';
+import { cspNonce } from '@/lib/content';
 import { type MediaItem } from '@/lib/media';
 import { parseVideoUrl } from '@/lib/video';
 import { TableCell, Table as TableExt, TableHeader, TableRow } from '@tiptap/extension-table';
@@ -89,6 +90,7 @@ export function RichEditor({ value, onChange, canEditSource = false }: Props) {
         ],
         content: value,
         immediatelyRender: false,
+        injectNonce: cspNonce(),
         editorProps: { attributes: { class: 'prose-editor min-h-72 px-4 py-3 outline-none', 'aria-label': 'Content' } },
         onUpdate: ({ editor }) => {
             setHtml(editor.getHTML());

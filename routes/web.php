@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\MenuController;
 use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\PostController;
+use App\Http\Controllers\Admin\SecurityController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\TagController;
 use App\Http\Controllers\Admin\UserController;
@@ -30,7 +31,7 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('media/{id}', [MediaController::class, 'destroy'])->name('media.destroy');
 
     // Posts: admins and writers; the policy and data scope decide what each may do.
-    Route::prefix('admin/posts')->name('admin.posts.')->group(function () {
+    Route::prefix('admin/posts')->middleware('throttle:admin')->name('admin.posts.')->group(function () {
         Route::get('/', [PostController::class, 'index'])->name('index');
         Route::get('create', [PostController::class, 'create'])->name('create');
         Route::post('/', [PostController::class, 'store'])->name('store');
@@ -53,7 +54,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('content/preview', ContentPreviewController::class)->middleware('throttle:preview')->name('content.preview');
 });
 
-Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'role:admin', 'throttle:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('users', [UserController::class, 'index'])->name('users.index');
     Route::post('users', [UserController::class, 'store'])->name('users.store');
     Route::put('users/{user}', [UserController::class, 'update'])->name('users.update');
@@ -96,6 +97,11 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::put('appearance/typography', [AppearanceController::class, 'typography'])->name('appearance.typography');
     Route::post('appearance/reset', [AppearanceController::class, 'reset'])->name('appearance.reset');
 
+    Route::get('security', [SecurityController::class, 'index'])->name('security.index');
+    Route::post('security/lockdown', [SecurityController::class, 'lockdown'])->name('security.lockdown');
+    Route::post('security/integrity/check', [SecurityController::class, 'check'])->name('security.check');
+    Route::post('security/integrity/reseal', [SecurityController::class, 'reseal'])->name('security.reseal');
+
     Route::get('settings', [SettingsController::class, 'edit'])->name('settings.edit');
     Route::put('settings', [SettingsController::class, 'update'])->name('settings.update');
     Route::get('menus', [MenuController::class, 'edit'])->name('menus.edit');
@@ -109,7 +115,7 @@ require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';
 
 // Public site (F-09). Keep these last: the single-segment page route would otherwise shadow everything above.
-Route::middleware('throttle:60,1')->get('search', [PublicController::class, 'search'])->name('search');
+Route::middleware('throttle:30,1')->get('search', [PublicController::class, 'search'])->name('search');
 Route::get('sitemap.xml', [FeedController::class, 'sitemap'])->name('sitemap');
 Route::get('robots.txt', [FeedController::class, 'robots'])->name('robots');
 Route::get('rss.xml', [FeedController::class, 'rss'])->name('rss');

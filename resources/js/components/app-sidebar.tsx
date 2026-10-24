@@ -2,7 +2,21 @@ import { NavMain } from '@/components/nav-main';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { File, FolderTree, Image, LayoutGrid, ListTree, Newspaper, Palette, ScrollText, SlidersHorizontal, Tags, UserCog, Users } from 'lucide-react';
+import {
+    File,
+    FolderTree,
+    Image,
+    LayoutGrid,
+    ListTree,
+    Newspaper,
+    Palette,
+    ScrollText,
+    ShieldCheck,
+    SlidersHorizontal,
+    Tags,
+    UserCog,
+    Users,
+} from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
@@ -19,6 +33,7 @@ const adminNavItems: NavItem[] = [
     { title: 'Appearance', url: '/admin/appearance', icon: Palette },
     { title: 'Team', url: '/admin/users', icon: Users },
     { title: 'Audit log', url: '/admin/audit-logs', icon: ScrollText },
+    { title: 'Security', url: '/admin/security', icon: ShieldCheck },
     { title: 'Site settings', url: '/admin/settings', icon: SlidersHorizontal },
 ];
 

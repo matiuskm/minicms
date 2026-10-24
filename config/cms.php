@@ -45,4 +45,12 @@ return [
     'font_sizes' => ['s' => 93.75, 'm' => 100, 'l' => 112.5],
 
     'max_custom_palettes' => 20,
+
+    // F-13: scheduled backups. Point BACKUP_DISK at an off-site disk (e.g. s3) in production.
+    'backup' => [
+        'disk' => env('BACKUP_DISK', 'backups'),
+        'keep' => 14,
+        'mysqldump' => env('MYSQLDUMP_BINARY', 'mysqldump'),
+        'mysql' => env('MYSQL_BINARY', 'mysql'),
+    ],
 ];

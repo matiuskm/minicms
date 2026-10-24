@@ -10,3 +10,5 @@ Artisan::command('inspire', function () {
 
 // Needs `* * * * * php artisan schedule:run` in cron (see README).
 Schedule::command('cms:publish-scheduled')->everyMinute()->withoutOverlapping();
+Schedule::command('cms:check-integrity')->everyFifteenMinutes()->withoutOverlapping();
+Schedule::command('cms:backup')->dailyAt('02:30')->withoutOverlapping();

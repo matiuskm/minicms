@@ -10,7 +10,7 @@ Project dir: repo root (this repo)
 | P-03 Konten | done (awaiting review) | PP-F06-01..03, PP-F07-01..02 PASS; deferred P-02 items closed (TC-F04-02/05, FR-22/23, FR-27, BR-18) | Pest 199 passed (1940 assertions); Vitest 24; tsc, eslint, prettier, pint clean; build + build:ssr OK; composer/npm audit 0 | PR phase/p-03-posts-pages |
 | P-04 Situs publik & pengaturan | done (awaiting review) | PP-F09-01..04, PP-F10-01 PASS (PP-F09-03 SSR: dicek manual lewat curl + screenshot) | Pest 233 passed (2597 assertions); Vitest 25; tsc, eslint, prettier, pint clean; build + build:ssr OK; Herd: semua rute publik 200, SSR menyajikan HTML penuh, screenshot desktop/mobile sesuai referensi | PR phase/p-04-public-site |
 | P-05 Tampilan | done (awaiting review) | PP-F08-01..03 PASS | Pest 253 passed; Vitest 37; tsc, eslint, prettier, pint clean; build + build:ssr OK; Herd: tema Dark + Merriweather/Open Sans tampil benar di screenshot, font diserve dari /build/assets | PR phase/p-05-appearance |
-| P-06 Hardening & operasi | todo | | | |
+| P-06 Hardening & operasi | done (awaiting review) | PP-F12-01..04, PP-F13-01..02 PASS | Pest 283 passed (3070 assertions); Vitest 37; lint/tsc/audits clean; Chrome (CDP) 0 CSP violations di 10+ halaman; backup nyata + restore teruji | PR phase/p-06-hardening |
 
 ## Log
 - 2026-10-24 P-00: pre-flight OK (PHP 8.4.25, Composer 2.10.2, Node 26.5.0, npm 11.14.1, MySQL 9.2.0, git 2.54). Folder bukan git repo; git init menunggu persetujuan user. Gallery/Slider ditunda ke Phase 2 (PRD v1.2).
@@ -34,3 +34,7 @@ Project dir: repo root (this repo)
   - Bug nyata yang baru terlihat lewat screenshot: Vite menyisipkan ulang `app.css` setelah `theme.css` saat runtime sehingga tema tertimpa; diperbaiki dengan selektor `html .site`.
   - Dev DB sudah dikembalikan ke Light Classic + font sistem setelah pengujian.
   - MANUAL CHECK: layar admin Appearance (picker warna, preview) belum dilihat di browser sungguhan (butuh login + 2FA); hanya teruji lewat test komponen.
+- 2026-10-24 P-06 DONE (branch `phase/p-06-hardening`, release 0.7.0): CSP bernonce, lockdown, integritas konten, notifikasi email, backup/restore, cek produksi, dashboard, rate limit, DEPLOY.md. Keputusan di PRD A-18.
+  - Diverifikasi di Chrome sungguhan lewat skrip CDP (login, 10+ halaman, dialog media): 0 pelanggaran CSP. Menemukan dan memperbaiki `<style>` injeksi dari progress bar Inertia.
+  - Backup nyata di dev: `cms:backup` menghasilkan dump + arsip; restore ke DB uji lewat test (commit-then-restore).
+  - MANUAL CHECK sebelum 1.0.0: jalankan `cms:check-production` di VPS sungguhan, restore drill di staging, konfirmasi nginx (storage tanpa eksekusi PHP, TC-F05-05), SSR di Supervisor, cron aktif, SMTP nyata untuk email notifikasi.

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Settings;
 
 use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
+use App\Notifications\SecurityNotice;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -31,6 +32,7 @@ class PasswordController extends Controller
         $user->update(['password' => Hash::make($validated['password'])]);
         $user->endSessions($request->session()->getId());
         AuditLog::record('password.changed', $user);
+        $user->notify(new SecurityNotice('Your password was changed', ['The password of your account was just changed and your other sessions were signed out.']));
 
         return back();
     }

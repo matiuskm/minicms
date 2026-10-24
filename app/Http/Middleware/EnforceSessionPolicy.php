@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Setting;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -27,7 +28,7 @@ class EnforceSessionPolicy
         $idle = config("cms.idle_minutes.{$user->role}", 30) * 60;
         $last = $request->session()->get('last_seen', now()->timestamp);
 
-        if (! $user->isActive() || now()->timestamp - $last > $idle) {
+        if (! $user->isActive() || now()->timestamp - $last > $idle || (! $user->isAdmin() && Setting::get('lockdown'))) {
             Auth::guard('web')->logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
