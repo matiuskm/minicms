@@ -2,7 +2,7 @@
 
 | Item | Detail |
 |---|---|
-| Version | 1.0 |
+| Version | 1.3 |
 | Date | 2026-10-24 |
 | Author | anakodok@gmail.com (generated with PRD Generator) |
 | Source | docs/SA-mini-cms-2026-10-24.md |
@@ -18,6 +18,8 @@
 - A-05 — Jawaban user (v1.1): SA-Q-01 PDF **ya**, ukuran dibatasi (default 10 MB, gambar tetap 5 MB). SA-Q-02 embed video **ya**, YouTube/Vimeo allowlist. SA-Q-03 Writer **boleh** membuat tag. SA-Q-04 hosting **VPS**. SA-Q-05 multi-bahasa/komentar **tidak** (Phase 2).
 - A-08 — UI (admin dan elemen antarmuka publik seperti tombol, label, pesan error) **bahasa Inggris, hardcoded**; tanpa lapisan i18n. Konten (Posts/Pages) bebas bahasa apa pun (UTF-8). `<html lang>` diambil dari setting `content_language` (default `en`) dan bisa dioverride per post/page bila perlu (Phase 2). Menggantikan SA-A-01 soal bahasa; timezone tetap Asia/Jakarta.
 - A-09 — Editor = WYSIWYG klasik (TipTap), bukan block editor ala Gutenberg. Alasan: permukaan serangan lebih kecil, sesuai permintaan awal; upgrade ke node/block ringan mungkin di Phase 2.
+- A-10 — **Acuan desain UI admin:** `docs/design/reference-editor.jpg` (v1.3). Diadopsi: sidebar navy kiri (logo + Dashboard, Posts, Pages, Media, Team, Settings di bawah), top bar (search, avatar), area konten terang berlatar biru pucat, kartu putih rounded, aksen biru, chip untuk category/tag, toggle hijau, tab Content/Meta/SEO, panel samping kanan di editor (author, tanggal terbit, category, tag, status). Token (perkiraan visual, disetel saat implementasi): sidebar #0B2A66 / item aktif #123F8F, primary #3B82F6, latar #F4F7FC, kartu #FFFFFF, border #E3E9F3, teks #334155, muted #8A94A6, sukses #5CC98A, radius 8–12 px. Tema admin ini tetap (tidak ikut palet situs F-08). Tidak diadopsi: pemilih bahasa dan "Published in English" (A-08), notifikasi bell (tidak ada fitur notifikasi in-app), "Add block" (block editor ditunda Phase 2, A-09). Blok Text dan Image pada referensi dipenuhi satu editor TipTap: teks plus node gambar `<figure><img><figcaption>` (caption opsional).
+- A-11 — Per-post/page SEO: kolom `meta_title` (≤ 70) dan `meta_description` (≤ 160) ditambahkan di `posts` dan `pages` (tab SEO). Tab Meta berisi slug, excerpt, featured image.
 - A-06 — Posts yang di-trash memakai soft delete (`deleted_at`); purge hanya Admin.
 - A-07 — Konten publik di-cache per halaman (TTL 10 menit) dan di-invalidasi saat konten/tema berubah.
 
@@ -27,6 +29,7 @@
 - v1.0 2026-10-24 — draft awal dari SA-mini-cms-2026-10-24.
 - v1.1 2026-10-24 — upload PDF diizinkan (F-05), UI Inggris/konten bebas bahasa (A-08), keputusan editor WYSIWYG (A-09), Q-01..Q-05 ditutup.
 - v1.2 2026-10-24 — keputusan user: block Gallery & Slider (custom TipTap node, simpan ID media, render server-side) ditunda ke **Phase 2**, bukan bagian P-00..P-06. Eksekusi dimulai.
+- v1.3 2026-10-24 — acuan desain UI (A-10), kolom meta_title/meta_description (A-11), layout editor dan navigasi admin mengikuti referensi.
 
 ## 1. Executive Summary
 Mini CMS adalah CMS satu-situs berbahasa Indonesia untuk menerbitkan Posts dan Pages, dengan taksonomi Categories dan Tags. Dua role staf (Admin, Writer) bekerja lewat editor WYSIWYG yang menghasilkan HTML aman (allowlist, disanitasi di server). Publik (tanpa akun) membaca halaman yang di-render server-side dan SEO-friendly. Admin mengatur palet warna (preset dan custom) dan font secara global. Prioritas desain: ketahanan terhadap pembobolan dan deface (defense-in-depth, revision, audit log) serta database tanpa N+1 query.
@@ -102,6 +105,7 @@ flowchart LR
 - **Source:** M-03, FL-02, BR-08..12
 - **FR:** FR-29 CRUD post; FR-30 pilih 1 category + banyak tag; FR-31 featured image + excerpt; FR-32 slug otomatis unik, redirect 301 bila slug berubah setelah publish; FR-33 status workflow (draft → pending_review → rejected/published/scheduled → archived; trashed via soft delete); FR-34 Admin publish/jadwalkan/tolak (catatan wajib saat tolak); FR-35 scheduler memublikasikan post terjadwal ≤ 1 menit; FR-36 revision tiap simpan konten (maks 50) + restore; FR-37 autosave draft + optimistic lock (peringatan konflik); FR-38 daftar admin dengan filter status/kategori/penulis/cari, paginasi.
 - **Rules:** submit butuh title, body, category; Writer hanya edit post miliknya saat Draft/Rejected; Admin yang menulis sendiri boleh publish langsung; post dalam PendingReview terkunci untuk Writer; `content_hash` dihitung tiap simpan.
+- **UI/UX (acuan A-10):** halaman editor = judul besar di atas + tombol Preview dan Save (dropdown: Save draft / Submit for review / Publish sesuai role). Kartu utama bertab **Content** (editor TipTap dengan toolbar paragraf, bold, italic, list, tabel, link, code, align, gambar) / **Meta** (slug, excerpt, featured image) / **SEO** (meta title, meta description, dengan penghitung karakter). Panel kanan: Author, Post date + time, Category (chip + tombol tambah), Tag (chip + tambah), toggle status. Daftar post: tabel dengan filter dan badge status. Mobile: panel kanan turun di bawah kartu.
 - **API:** `GET/POST /admin/posts`, `GET/PUT/DELETE /admin/posts/{id}`, `POST /admin/posts/{id}/submit|publish|schedule|reject|unpublish|archive|restore`, `GET /admin/posts/{id}/revisions`, `POST /admin/posts/{id}/revisions/{rev}/restore`.
 - **Edge:** Writer mengakses post writer lain → 404; race dua editor → 409 dengan versi terbaru; slug bentrok ditambah sufiks.
 - **Dependencies:** F-03, F-04, F-05.
@@ -121,7 +125,7 @@ flowchart LR
 
 ### F-09 — Public Site (SEO) (Must)
 - **Source:** M-09, FL-05, BR-28..30
-- **FR:** FR-51 home (post terbaru, paginasi ≤ 50); FR-52 halaman post; FR-53 halaman page; FR-54 arsip category/tag/penulis; FR-55 pencarian fulltext dengan rate limit; FR-56 meta title/description/OpenGraph/canonical, JSON-LD Article; FR-57 `sitemap.xml`, `robots.txt`, `rss.xml`; FR-58 halaman 404/500 generik, 301 dari tabel redirects, cache halaman + invalidasi.
+- **FR:** FR-51 home (post terbaru, paginasi ≤ 50); FR-52 halaman post; FR-53 halaman page; FR-54 arsip category/tag/penulis; FR-55 pencarian fulltext dengan rate limit; FR-56 meta title/description (dari `meta_title`/`meta_description`, fallback ke title/excerpt)/OpenGraph/canonical, JSON-LD Article; FR-57 `sitemap.xml`, `robots.txt`, `rss.xml`; FR-58 halaman 404/500 generik, 301 dari tabel redirects, cache halaman + invalidasi.
 - **Rules:** hanya Published dan `published_at ≤ now`; SSR aktif; admin tidak diindeks (`noindex`, robots disallow `/admin`).
 - **API:** `GET /`, `/{slug}` (page), `/blog/{slug}` (post), `/category/{slug}`, `/tag/{slug}`, `/author/{id}`, `/search`.
 - **Query budget:** home, post, arsip ≤ 8 query (eager load author, category, tags, featured media; select kolom ringkas di list).
@@ -242,6 +246,7 @@ CREATE TABLE posts (
   featured_media_id BIGINT UNSIGNED NULL,
   title VARCHAR(200) NOT NULL, slug VARCHAR(220) NOT NULL UNIQUE,
   excerpt VARCHAR(500) NULL, body MEDIUMTEXT NOT NULL,
+  meta_title VARCHAR(70) NULL, meta_description VARCHAR(160) NULL,
   status ENUM('draft','pending_review','rejected','scheduled','published','archived') NOT NULL DEFAULT 'draft',
   review_note VARCHAR(500) NULL,
   published_at TIMESTAMP NULL,
@@ -272,6 +277,7 @@ CREATE TABLE pages (
   updated_by BIGINT UNSIGNED NOT NULL,
   title VARCHAR(200) NOT NULL, slug VARCHAR(220) NOT NULL UNIQUE,
   body MEDIUMTEXT NOT NULL,
+  meta_title VARCHAR(70) NULL, meta_description VARCHAR(160) NULL,
   status ENUM('draft','published') NOT NULL DEFAULT 'draft',
   sort_order SMALLINT UNSIGNED NOT NULL DEFAULT 0,
   content_hash CHAR(64) NOT NULL,

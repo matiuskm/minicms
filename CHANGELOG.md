@@ -5,6 +5,8 @@ Each PRD phase ships as a minor release while below 1.0.0; `1.0.0` is cut when t
 Definition of Done (PRD section 11) is met.
 
 ## [Unreleased]
+### Changed
+- Docs: PRD v1.3 adopts the UI reference in `docs/design/` (navy sidebar, tabbed editor with side panel); adds per-post/page SEO fields to the plan.
 
 ## [0.2.1] - 2026-10-24
 ### Fixed
