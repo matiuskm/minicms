@@ -48,6 +48,7 @@ class Setting extends Model
         'font_size' => 'm',
         'analytics_enabled' => true,
         'analytics_retention_days' => 90,
+        'update_notified' => null,
         'lockdown' => false,
         'integrity_last' => null,
         'backup_last' => null,

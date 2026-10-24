@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\PostController;
 use App\Http\Controllers\Admin\SecurityController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\TagController;
+use App\Http\Controllers\Admin\UpdateController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\ContentPreviewController;
 use App\Http\Controllers\DashboardController;
@@ -100,6 +101,11 @@ Route::middleware(['auth', 'role:admin', 'throttle:admin'])->prefix('admin')->na
     Route::post('appearance/palettes/{palette}/duplicate', [AppearanceController::class, 'duplicate'])->name('appearance.palettes.duplicate');
     Route::put('appearance/typography', [AppearanceController::class, 'typography'])->name('appearance.typography');
     Route::post('appearance/reset', [AppearanceController::class, 'reset'])->name('appearance.reset');
+
+    Route::get('updates', [UpdateController::class, 'index'])->name('updates.index');
+    Route::post('updates/check', [UpdateController::class, 'check'])->name('updates.check');
+    Route::post('updates/install', [UpdateController::class, 'install'])->name('updates.install');
+    Route::get('updates/status', [UpdateController::class, 'status'])->name('updates.status');
 
     Route::get('security', [SecurityController::class, 'index'])->name('security.index');
     Route::post('security/lockdown', [SecurityController::class, 'lockdown'])->name('security.lockdown');

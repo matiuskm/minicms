@@ -19,6 +19,7 @@ export interface NavItem {
     url: string;
     icon?: LucideIcon | null;
     isActive?: boolean;
+    badge?: string;
 }
 
 export interface SharedData {
@@ -26,6 +27,7 @@ export interface SharedData {
     quote?: { message: string; author: string };
     auth: Auth;
     twoFactorBypassed?: boolean;
+    updateAvailable?: string | null;
     [key: string]: unknown;
 }
 

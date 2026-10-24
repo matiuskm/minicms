@@ -53,4 +53,14 @@ return [
         'mysqldump' => env('MYSQLDUMP_BINARY', 'mysqldump'),
         'mysql' => env('MYSQL_BINARY', 'mysql'),
     ],
+
+    // F-15: one-click updates. The web app only *requests* an update; a separate privileged process applies it
+    // (scripts/apply-update.sh). Off unless the server is set up for it (docs/DEPLOY.md, "One-click updates").
+    'update' => [
+        'enabled' => env('CMS_UPDATES', false),
+        'repo' => env('CMS_UPDATE_REPO', 'matiuskm/minicms'),
+        'api' => env('CMS_UPDATE_API', 'https://api.github.com'),
+        'public_key_file' => base_path('release-public.key'),
+        'check_ttl' => 6 * 3600,
+    ],
 ];

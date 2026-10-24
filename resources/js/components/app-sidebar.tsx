@@ -11,6 +11,7 @@ import {
     ListTree,
     Newspaper,
     Palette,
+    RefreshCw,
     ScrollText,
     ShieldCheck,
     SlidersHorizontal,
@@ -36,12 +37,16 @@ const adminNavItems: NavItem[] = [
     { title: 'Team', url: '/admin/users', icon: Users },
     { title: 'Audit log', url: '/admin/audit-logs', icon: ScrollText },
     { title: 'Security', url: '/admin/security', icon: ShieldCheck },
+    { title: 'Updates', url: '/admin/updates', icon: RefreshCw },
     { title: 'Site settings', url: '/admin/settings', icon: SlidersHorizontal },
 ];
 
 export function AppSidebar() {
     const { auth } = usePage<SharedData>().props;
-    const items = auth.user.role === 'admin' ? [...mainNavItems, ...adminNavItems] : mainNavItems;
+    const { updateAvailable } = usePage<SharedData>().props;
+    const items = (auth.user.role === 'admin' ? [...mainNavItems, ...adminNavItems] : mainNavItems).map((i) =>
+        i.url === '/admin/updates' && updateAvailable ? { ...i, badge: updateAvailable } : i,
+    );
 
     return (
         <Sidebar collapsible="icon" variant="sidebar">

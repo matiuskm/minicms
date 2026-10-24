@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Support\Updates\Updater;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -42,6 +43,8 @@ class HandleInertiaRequests extends Middleware
             'flash' => fn () => ['status' => $request->session()->get('status')],
             // Shown as a warning in the admin header while the local-only 2FA bypass is on.
             'twoFactorBypassed' => ! EnforceSessionPolicy::twoFactorRequired(),
+            // Admins see a hint when a newer release is already known (cache only, never a network call here).
+            'updateAvailable' => fn () => $request->user()?->isAdmin() ? (Updater::cachedAvailable()['version'] ?? null) : null,
             'auth' => [
                 'user' => $request->user()?->only('id', 'name', 'display_name', 'email', 'role'),
             ],
