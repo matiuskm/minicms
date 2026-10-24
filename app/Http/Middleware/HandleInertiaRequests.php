@@ -38,6 +38,8 @@ class HandleInertiaRequests extends Middleware
         return array_merge(parent::share($request), [
             ...parent::share($request),
             'name' => config('app.name'),
+            // One-shot message set by controllers via ->with('status', ...).
+            'flash' => fn () => ['status' => $request->session()->get('status')],
             'auth' => [
                 'user' => $request->user()?->only('id', 'name', 'display_name', 'email', 'role'),
             ],

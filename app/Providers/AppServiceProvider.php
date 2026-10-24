@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Models\Page;
 use App\Models\Post;
+use App\Models\Setting;
 use App\Support\HtmlSanitizer;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Model;
@@ -24,6 +25,11 @@ class AppServiceProvider extends ServiceProvider
     {
         // N+1 guard (NFR-04): lazy loading throws outside production.
         Model::preventLazyLoading(! $this->app->isProduction());
+
+        // F-10: sender identity for outgoing mail comes from Settings when set.
+        if ($from = Setting::get('mail_from_address')) {
+            config(['mail.from.address' => $from, 'mail.from.name' => Setting::get('mail_from_name') ?: config('app.name')]);
+        }
 
         // revisions.revisionable_type stores these aliases, not class names.
         Relation::enforceMorphMap(['post' => Post::class, 'page' => Page::class]);

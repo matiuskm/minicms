@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Casts\SanitizedHtml;
+use App\Models\Concerns\BustsPublicCache;
 use App\Models\Concerns\HasRevisions;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -13,7 +14,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Page extends Model
 {
-    use HasFactory, HasRevisions, SoftDeletes;
+    use BustsPublicCache, HasFactory, HasRevisions, SoftDeletes;
 
     protected $guarded = ['id'];
 

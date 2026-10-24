@@ -8,7 +8,7 @@ Project dir: repo root (this repo)
 | P-01 Identitas & jejak | done (awaiting user review) | PP-F01-01..03, PP-F02-01..02, PP-F11-01 PASS; PP-F11-02 PASS (model) + MANUAL CHECK (DB grants) | Pest 48 passed (225 assertions); Vitest 1; tsc + eslint clean; build + build:ssr OK; composer/npm audit 0; Herd smoke: headers + 404 /register + 302 /admin/users | not committed (no git) |
 | P-02 Taksonomi, media, editor | done (awaiting review) | PP-F03-01..03, PP-F04-01..02, PP-F05-01..02 PASS (F05-02 server config = MANUAL CHECK); TC-F04-02/05 deferred to P-03 | Pest 158 passed (1636 assertions); Vitest 18; tsc, eslint, prettier, pint clean; build + build:ssr OK; composer/npm audit 0 | PR phase/p-02-taxonomy-media-editor |
 | P-03 Konten | done (awaiting review) | PP-F06-01..03, PP-F07-01..02 PASS; deferred P-02 items closed (TC-F04-02/05, FR-22/23, FR-27, BR-18) | Pest 199 passed (1940 assertions); Vitest 24; tsc, eslint, prettier, pint clean; build + build:ssr OK; composer/npm audit 0 | PR phase/p-03-posts-pages |
-| P-04 Situs publik & pengaturan | todo | | | |
+| P-04 Situs publik & pengaturan | done (awaiting review) | PP-F09-01..04, PP-F10-01 PASS (PP-F09-03 SSR: dicek manual lewat curl + screenshot) | Pest 233 passed (2597 assertions); Vitest 25; tsc, eslint, prettier, pint clean; build + build:ssr OK; Herd: semua rute publik 200, SSR menyajikan HTML penuh, screenshot desktop/mobile sesuai referensi | PR phase/p-04-public-site |
 | P-05 Tampilan | todo | | | |
 | P-06 Hardening & operasi | todo | | | |
 
@@ -26,3 +26,7 @@ Project dir: repo root (this repo)
   - Belum diverifikasi visual di browser: editor baru dipakai di form Post/Page (P-03); sekarang tervalidasi lewat Vitest (render, toolbar, source toggle, word count) + build. MANUAL CHECK TC-F05-05 (eksekusi PHP di folder upload) dan PHP `upload_max_filesize` 2M di Herd → naikkan ke 12M (README).
 - 2026-10-24 P-03 DONE (branch `phase/p-03-posts-pages`, release 0.4.0, stacked on P-02): Posts + Pages + revisions + redirects + scheduler + tag merge/counters + media in-use guard. Lihat PRD A-13 untuk keputusan (satu request save+transisi, 422 untuk konflik versi di Save dan 409 di autosave, waktu UTC, batas gambar `/storage/uploads/`).
   - Belum diverifikasi visual di browser (halaman React baru hanya lolos tsc/lint/build/test komponen; tidak ada uji browser otomatis). MANUAL CHECK: alur penulis → review → publish di browser, tombol Save dropdown, autosave 30 dtk, tag input, revisions dialog.
+- 2026-10-24 P-04 DONE (branch `phase/p-04-public-site`, release 0.5.0, ditumpuk di P-03): situs publik sesuai referensi, SEO/SSR/sitemap/RSS/robots, cache berversi, settings + menu, maintenance, error pages, "Visit Website", dashboard. Keputusan di PRD A-15/A-16.
+  - Diverifikasi di browser headless (Chrome) untuk beranda desktop, halaman post, dan layout 500 px; panel admin belum dicek visual (butuh login + 2FA) → MANUAL CHECK: Settings, Menus, dropdown Save, tombol Visit Website.
+  - Bug yang ditemukan dan diperbaiki sepanjang jalan: URL gambar absolut ditolak sanitizer (sekarang relatif), flash message admin tidak pernah tampil, `public/robots.txt` statis menimpa route.
+  - Data demo (10 post, 1 halaman, menu) dimasukkan ke database dev lewat DemoContentSeeder.

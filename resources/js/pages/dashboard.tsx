@@ -1,34 +1,65 @@
-import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
-import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem } from '@/types';
-import { Head } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
+import { ExternalLink, FilePlus2, Newspaper } from 'lucide-react';
 
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Dashboard',
-        href: '/dashboard',
-    },
+import { Button } from '@/components/ui/button';
+import AppLayout from '@/layouts/app-layout';
+import { type BreadcrumbItem, type SharedData } from '@/types';
+
+const breadcrumbs: BreadcrumbItem[] = [{ title: 'Dashboard', href: '/dashboard' }];
+
+const LABELS: [string, string][] = [
+    ['pending_review', 'Waiting for review'],
+    ['draft', 'Drafts'],
+    ['scheduled', 'Scheduled'],
+    ['published', 'Published'],
 ];
 
-export default function Dashboard() {
+export default function Dashboard({ counts }: { counts: Record<string, number> }) {
+    const { auth } = usePage<SharedData>().props;
+    const isAdmin = auth.user.role === 'admin';
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />
-            <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
-                <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-                    <div className="border-sidebar-border/70 dark:border-sidebar-border relative aspect-video overflow-hidden rounded-xl border">
-                        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
+
+            <div className="space-y-6 p-4">
+                <div className="bg-card flex flex-wrap items-center justify-between gap-4 rounded-xl border p-5 shadow-xs">
+                    <div>
+                        <h1 className="text-xl font-semibold">Welcome back, {auth.user.name.split(' ')[0]}</h1>
+                        <p className="text-muted-foreground text-sm">See your changes on the live site, or keep writing.</p>
                     </div>
-                    <div className="border-sidebar-border/70 dark:border-sidebar-border relative aspect-video overflow-hidden rounded-xl border">
-                        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                    </div>
-                    <div className="border-sidebar-border/70 dark:border-sidebar-border relative aspect-video overflow-hidden rounded-xl border">
-                        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
+                    <div className="flex flex-wrap gap-2">
+                        <Button asChild variant="outline">
+                            <a href="/" target="_blank" rel="noopener">
+                                Visit Website <ExternalLink className="size-4" />
+                            </a>
+                        </Button>
+                        <Button asChild>
+                            <Link href={route('admin.posts.create')}>
+                                <FilePlus2 className="size-4" /> Write a post
+                            </Link>
+                        </Button>
                     </div>
                 </div>
-                <div className="border-sidebar-border/70 dark:border-sidebar-border relative min-h-[100vh] flex-1 rounded-xl border md:min-h-min">
-                    <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                </div>
+
+                <section aria-label="Your posts" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                    {LABELS.map(([status, label]) => (
+                        <Link
+                            key={status}
+                            href={route('admin.posts.index', { status })}
+                            className="bg-card hover:border-primary rounded-xl border p-4 shadow-xs"
+                        >
+                            <p className="text-muted-foreground text-xs">{isAdmin || status === 'pending_review' ? label : label}</p>
+                            <p className="mt-1 text-3xl font-semibold">{counts[status] ?? 0}</p>
+                        </Link>
+                    ))}
+                </section>
+
+                <Button asChild variant="ghost">
+                    <Link href={route('admin.posts.index')}>
+                        <Newspaper className="size-4" /> All posts
+                    </Link>
+                </Button>
             </div>
         </AppLayout>
     );

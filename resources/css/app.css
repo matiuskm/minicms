@@ -197,3 +197,475 @@
 .prose-editor p.is-editor-empty:first-child::before {
     color: var(--muted-foreground);
 }
+
+/* ------------------------------------------------------------------
+   Public site (F-09). Colours and fonts are CSS variables so the theme
+   settings in P-05 (palettes, fonts) only have to override these.
+   Defaults follow docs/design/reference-public.jpg.
+------------------------------------------------------------------- */
+.site {
+    --site-bg: #f1e5da;
+    --site-surface: #ffffff;
+    --site-text: #1d1b19;
+    --site-muted: #7a726b;
+    --site-primary: #8f3f1f;
+    --site-on-primary: #ffffff;
+    --site-soft: #f7ede5;
+    --site-card: #faf7f4;
+    --site-border: #ece4dc;
+    --site-link: #8f3f1f;
+    --site-font-body: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    --site-font-heading: var(--site-font-body);
+
+    min-height: 100vh;
+    padding: 1.5rem;
+    background: var(--site-bg);
+    color: var(--site-text);
+    font-family: var(--site-font-body);
+    -webkit-font-smoothing: antialiased;
+}
+.site a {
+    color: inherit;
+    text-decoration: none;
+}
+.site h1,
+.site h2,
+.site h3 {
+    font-family: var(--site-font-heading);
+    letter-spacing: -0.01em;
+}
+.site-shell {
+    max-width: 72rem;
+    margin: 0 auto;
+    padding: 2rem 3rem 2.5rem;
+    background: var(--site-surface);
+    border-radius: 2.5rem;
+}
+.site-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    padding-bottom: 2.5rem;
+}
+.site-logo {
+    font-size: 1.6rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+}
+.site-logo img {
+    max-height: 2.25rem;
+    width: auto;
+}
+.site-nav {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    font-size: 0.7rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+.site-nav a:hover {
+    color: var(--site-primary);
+}
+.site-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+}
+.site-cta {
+    background: var(--site-primary);
+    color: var(--site-on-primary) !important;
+    padding: 0.7rem 1.3rem;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    letter-spacing: 0.04em;
+}
+.site-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    gap: 2rem;
+}
+.site-feature {
+    position: relative;
+    display: block;
+    min-height: 20rem;
+    overflow: hidden;
+    border-radius: 1.5rem;
+    background: linear-gradient(135deg, var(--site-primary), #2b1409);
+    color: #fff !important;
+}
+.site-feature img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.site-feature::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgb(0 0 0 / 0.55), transparent 60%);
+}
+.site-feature-body {
+    position: absolute;
+    z-index: 1;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 1.5rem;
+}
+.site-feature h2 {
+    margin: 0.75rem 0 0.5rem;
+    font-size: 1.7rem;
+    line-height: 1.2;
+    font-weight: 500;
+}
+.site-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.7rem;
+    color: var(--site-muted);
+}
+.site-feature .site-meta {
+    color: rgb(255 255 255 / 0.85);
+}
+.site-meta i {
+    width: 3px;
+    height: 3px;
+    border-radius: 99px;
+    background: currentColor;
+    opacity: 0.6;
+}
+.site-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.3rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    background: var(--site-soft);
+    color: var(--site-text);
+}
+.site-pill::before {
+    content: '';
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 99px;
+    background: var(--site-primary);
+}
+.site-feature .site-pill {
+    background: rgb(255 255 255 / 0.92);
+}
+.site-section-title {
+    margin: 0 0 1rem;
+    font-size: 1.35rem;
+    font-weight: 700;
+}
+.site-latest ul {
+    display: grid;
+    gap: 1.1rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+.site-latest li a {
+    display: flex;
+    gap: 0.85rem;
+    align-items: center;
+}
+.site-thumb {
+    flex: none;
+    width: 3.6rem;
+    height: 3.6rem;
+    border-radius: 0.7rem;
+    object-fit: cover;
+    background: var(--site-soft);
+}
+.site-latest h3 {
+    margin: 0 0 0.3rem;
+    font-size: 0.82rem;
+    font-weight: 500;
+    line-height: 1.35;
+}
+.site-divider {
+    margin: 2.25rem 0;
+    border: 0;
+    border-top: 1px solid var(--site-border);
+}
+.site-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.25rem;
+}
+.site-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    padding: 0.4rem 0.4rem 1rem;
+    border-radius: 1.1rem;
+    background: var(--site-card);
+}
+.site-card-image {
+    aspect-ratio: 16 / 9;
+    width: 100%;
+    border-radius: 0.8rem;
+    object-fit: cover;
+    background: linear-gradient(135deg, var(--site-soft), var(--site-border));
+}
+.site-card > :not(.site-card-image) {
+    margin-inline: 0.6rem;
+}
+.site-card h3 {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 600;
+    line-height: 1.3;
+}
+.site-card p {
+    margin: 0;
+    font-size: 0.78rem;
+    line-height: 1.55;
+    color: var(--site-muted);
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.site-card a:hover h3 {
+    color: var(--site-primary);
+}
+.site-pager {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 1.5rem;
+}
+.site-pager ol {
+    display: flex;
+    gap: 0.4rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+.site-pager a,
+.site-pager span.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 99px;
+    font-size: 0.7rem;
+}
+.site-pager a[aria-current='page'] {
+    background: #1d1b19;
+    color: #fff;
+}
+.site-pager a:hover {
+    background: var(--site-soft);
+}
+.site-pager .arrow {
+    background: var(--site-soft);
+}
+.site-footer {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--site-border);
+    font-size: 0.75rem;
+    color: var(--site-muted);
+}
+.site-footer nav {
+    display: flex;
+    gap: 1.25rem;
+    flex-wrap: wrap;
+}
+.site-article {
+    max-width: 46rem;
+    margin: 0 auto;
+}
+.site-article h1 {
+    margin: 1rem 0 0.75rem;
+    font-size: 2.4rem;
+    line-height: 1.15;
+    font-weight: 700;
+}
+.site-article-image {
+    width: 100%;
+    margin: 1.75rem 0;
+    border-radius: 1.25rem;
+}
+.site-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 2rem;
+}
+.site-search {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+.site-search input {
+    flex: 1;
+    max-width: 22rem;
+    padding: 0.6rem 1rem;
+    border: 1px solid var(--site-border);
+    border-radius: 999px;
+    font-size: 0.85rem;
+    background: var(--site-card);
+}
+.site-search button {
+    padding: 0.6rem 1.2rem;
+    border-radius: 999px;
+    background: var(--site-primary);
+    color: var(--site-on-primary);
+    font-size: 0.8rem;
+}
+.site-empty {
+    padding: 3rem 0;
+    text-align: center;
+    color: var(--site-muted);
+}
+
+.site-prose {
+    font-size: 1.05rem;
+    line-height: 1.75;
+}
+.site-prose > * + * {
+    margin-top: 1.1rem;
+}
+.site-prose h2 {
+    margin-top: 2rem;
+    font-size: 1.6rem;
+    font-weight: 700;
+}
+.site-prose h3 {
+    margin-top: 1.6rem;
+    font-size: 1.3rem;
+    font-weight: 600;
+}
+.site-prose h4 {
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+.site-prose a {
+    color: var(--site-link);
+    text-decoration: underline;
+}
+.site-prose ul {
+    list-style: disc;
+    padding-left: 1.5rem;
+}
+.site-prose ol {
+    list-style: decimal;
+    padding-left: 1.5rem;
+}
+.site-prose blockquote {
+    padding-left: 1rem;
+    border-left: 3px solid var(--site-primary);
+    color: var(--site-muted);
+}
+.site-prose code {
+    padding: 0.1rem 0.35rem;
+    border-radius: 4px;
+    background: var(--site-soft);
+    font-size: 0.9em;
+}
+.site-prose pre {
+    padding: 1rem;
+    overflow-x: auto;
+    border-radius: 0.75rem;
+    background: #1d1b19;
+    color: #f5efe9;
+}
+.site-prose pre code {
+    padding: 0;
+    background: transparent;
+    color: inherit;
+}
+.site-prose img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 0.75rem;
+}
+.site-prose figure {
+    margin-inline: 0;
+}
+.site-prose figcaption {
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
+    text-align: center;
+    color: var(--site-muted);
+}
+.site-prose table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+}
+.site-prose th,
+.site-prose td {
+    padding: 0.5rem 0.7rem;
+    border: 1px solid var(--site-border);
+    text-align: left;
+    vertical-align: top;
+}
+.site-prose th {
+    background: var(--site-soft);
+}
+.site-prose hr {
+    border: 0;
+    border-top: 1px solid var(--site-border);
+}
+.site-prose .embed {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    border-radius: 0.75rem;
+}
+.site-prose .embed iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
+
+@media (max-width: 860px) {
+    .site {
+        padding: 0.75rem;
+    }
+    .site-shell {
+        padding: 1.25rem 1.25rem 1.75rem;
+        border-radius: 1.75rem;
+    }
+    .site-hero {
+        grid-template-columns: 1fr;
+    }
+    .site-grid {
+        grid-template-columns: 1fr;
+    }
+    .site-feature {
+        min-height: 16rem;
+    }
+    .site-feature h2 {
+        font-size: 1.3rem;
+    }
+    .site-article h1 {
+        font-size: 1.8rem;
+    }
+}
+@media (min-width: 861px) and (max-width: 1100px) {
+    .site-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}

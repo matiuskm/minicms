@@ -58,6 +58,17 @@ class HtmlSanitizer
         $this->purifier = new HTMLPurifier($c);
     }
 
+    /** Reading time in minutes at 200 words/min; CJK characters count as one word each (matches the editor). */
+    public static function readingMinutes(string $html): int
+    {
+        $text = html_entity_decode(strip_tags(str_replace('>', '> ', $html)));
+        $cjk = '[\x{3040}-\x{30ff}\x{3400}-\x{9fff}\x{f900}-\x{faff}\x{ac00}-\x{d7af}]';
+        $cjkCount = preg_match_all("/{$cjk}/u", $text);
+        $words = count(preg_split('/\s+/u', trim(preg_replace("/{$cjk}/u", ' ', $text)), -1, PREG_SPLIT_NO_EMPTY)) + $cjkCount;
+
+        return max(1, min(255, (int) ceil($words / 200)));
+    }
+
     /** True when sanitized HTML has no text and no media (an empty editor yields "<p></p>"). */
     public static function isBlank(string $html): bool
     {

@@ -2,7 +2,7 @@ import { NavMain } from '@/components/nav-main';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { File, FolderTree, Image, LayoutGrid, Newspaper, ScrollText, Settings, Tags, Users } from 'lucide-react';
+import { File, FolderTree, Image, LayoutGrid, ListTree, Newspaper, ScrollText, SlidersHorizontal, Tags, UserCog, Users } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
@@ -15,8 +15,10 @@ const adminNavItems: NavItem[] = [
     { title: 'Pages', url: '/admin/pages', icon: File },
     { title: 'Categories', url: '/admin/categories', icon: FolderTree },
     { title: 'Tags', url: '/admin/tags', icon: Tags },
+    { title: 'Menus', url: '/admin/menus', icon: ListTree },
     { title: 'Team', url: '/admin/users', icon: Users },
     { title: 'Audit log', url: '/admin/audit-logs', icon: ScrollText },
+    { title: 'Site settings', url: '/admin/settings', icon: SlidersHorizontal },
 ];
 
 export function AppSidebar() {
@@ -46,8 +48,8 @@ export function AppSidebar() {
                     <SidebarMenuItem>
                         <SidebarMenuButton asChild>
                             <Link href="/settings/profile" prefetch>
-                                <Settings />
-                                <span>Settings</span>
+                                <UserCog />
+                                <span>My account</span>
                             </Link>
                         </SidebarMenuButton>
                     </SidebarMenuItem>

@@ -20,6 +20,11 @@ class SecurityHeaders
             'Permissions-Policy' => 'camera=(), microphone=(), geolocation=()',
         ]);
 
+        // Back-office and account screens must never be indexed.
+        if ($request->is('admin', 'admin/*', 'settings', 'settings/*', 'dashboard', 'media', 'login', 'two-factor-challenge', 'forgot-password', 'reset-password/*', 'invite/*', 'content/*', 'tags/*', 'search')) {
+            $response->headers->set('X-Robots-Tag', 'noindex, nofollow');
+        }
+
         if ($request->isSecure()) {
             $response->headers->set('Strict-Transport-Security', 'max-age=15552000; includeSubDomains');
         }

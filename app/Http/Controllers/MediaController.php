@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\AuditLog;
 use App\Models\Media;
+use App\Models\Setting;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -41,7 +42,7 @@ class MediaController extends Controller
         return Inertia::render('media/index', [
             'items' => $items,
             'filters' => ['q' => $q, 'kind' => $kind],
-            'limits' => ['image_mb' => config('cms.uploads.image_max_kb') / 1024, 'pdf_mb' => config('cms.uploads.pdf_max_kb') / 1024],
+            'limits' => ['image_mb' => config('cms.uploads.image_max_kb') / 1024, 'pdf_mb' => (int) Setting::get('pdf_max_mb', 10)],
         ]);
     }
 
@@ -62,7 +63,7 @@ class MediaController extends Controller
             throw ValidationException::withMessages(['file' => 'Only JPG, PNG, GIF, WebP images and PDF files are allowed.']);
         }
 
-        $maxKb = $isPdf ? config('cms.uploads.pdf_max_kb') : config('cms.uploads.image_max_kb');
+        $maxKb = $isPdf ? (int) Setting::get('pdf_max_mb', 10) * 1024 : config('cms.uploads.image_max_kb');
         if ($file->getSize() > $maxKb * 1024) {
             throw ValidationException::withMessages(['file' => 'The file may not be larger than '.($maxKb / 1024).' MB.']);
         }

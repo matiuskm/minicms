@@ -2,7 +2,7 @@
 
 | Item | Detail |
 |---|---|
-| Version | 1.6 |
+| Version | 1.7 |
 | Date | 2026-10-24 |
 | Author | anakodok@gmail.com (generated with PRD Generator) |
 | Source | docs/SA-mini-cms-2026-10-24.md |
@@ -23,6 +23,8 @@
 - A-12 — Keputusan implementasi P-02 (v1.4): (1) Video disimpan sebagai `<div data-embed="youtube|vimeo" data-id="…">` dan baru diubah menjadi iframe ber-sandbox saat render publik (P-04); URL dari penulis tidak pernah masuk atribut `src`. (2) Sanitasi memakai `ezyang/htmlpurifier` langsung, dipasang sebagai cast `SanitizedHtml` pada kolom `body` (P-03) dan endpoint `POST /content/preview`. (3) `media.uuid` ditambahkan; PDF disimpan di disk privat dan disajikan lewat `GET /files/{uuid}` (attachment, `nosniff`, CSP sandbox), gambar di disk publik. (4) Yang butuh tabel `posts` dipindah ke P-03: FR-22 merge tag, FR-23 counter, penggantian category ke Uncategorized saat hapus (BR-18), cek "media sedang dipakai" (FR-27), sehingga TC-F04-02 dan TC-F04-05 dijalankan di P-03. (5) Pencarian di top bar admin tidak dibuat (di luar PRD).
 - A-13 — Keputusan implementasi P-03 (v1.5): (1) Save dan transisi status memakai satu request: field `action` (`save|submit|publish|schedule`) pada `POST/PUT /admin/posts`; reject, unpublish, archive, unarchive, trash, restore, purge adalah endpoint tersendiri. (2) Konflik versi: Save biasa menolak versi usang dengan error validasi `version` (422, karena respons 409 tidak dipahami navigasi Inertia); autosave (JSON) membalas 409. TC-F06-08 diuji dengan kedua jalur. (3) Autosave hanya untuk draft/rejected yang sudah punya id, tanpa membuat revision (revision dibuat saat Save). (4) Waktu disimpan UTC; admin mengisi dan melihat waktu di zona browser; situs publik menampilkan `Asia/Jakarta` (`config('cms.timezone')`, P-04). (5) Admin boleh publish langsung hanya draft/rejected miliknya sendiri; draft penulis lain harus lewat review. (6) Gambar di konten hanya boleh berasal dari `/storage/uploads/…` (selain itu dibuang sanitizer). (7) Slug halaman tidak boleh memakai alamat reservasi (`config('cms.reserved_slugs')`). (8) Penjadwalan butuh cron `schedule:run` tiap menit (README).
 - A-14 — Display name (v1.6): login memakai email; `users.display_name` (≤ 60, boleh kosong) adalah satu-satunya nama yang tampil ke publik (byline, RSS, JSON-LD, arsip penulis). Fallback ke `name`. Tidak boleh berisi `@` atau sama dengan email/bagian lokal email. Email dan nama asli tidak pernah dirender di halaman publik. Arsip penulis (F-09 FR-54) memakai slug yang bukan ID berurutan dan bukan username login; bentuk slug ditetapkan di P-04.
+- A-15 — Acuan desain situs publik (v1.7): `docs/design/reference-public.jpg`. Header: nama/logo, menu header (huruf kapital kecil), tautan Login (atau Dashboard bila sudah login), tombol CTA opsional (Settings). Beranda: satu post unggulan besar (post terbaru, gambar penuh + kategori + judul + tanggal & waktu baca), kolom "Latest post" (4 post berikutnya dengan thumbnail), pembatas, lalu grid kartu 3 kolom "More posts" dengan paginasi bernomor. Halaman 1 memakai 5 post pertama untuk blok atas; grid dan paginasi menghitung sisanya (`posts_per_page`, 5–50, default 6). Warna dan font situs publik adalah CSS variables `--site-*` (default = palet referensi: krem #F1E5DA, putih, karat #8F3F1F) sehingga F-08 (P-05) cukup menimpa variabel. Tidak diadopsi: panah carousel "Founders corner" (diganti paginasi). Seksi bernama per kategori tidak dibuat.
+- A-16 — Keputusan implementasi P-04: (1) Cache data publik per URL (TTL 10 menit) dengan "versi cache" global yang dinaikkan setiap konten/menu/setting/nama penulis berubah (tanpa cache tags, jalan di driver database). (2) Alamat: `/` beranda, `/blog`, `/blog/{slug}`, `/{slug}` halaman, `/category|tag|author/{slug}`, `/search`, `/sitemap.xml`, `/rss.xml`, `/robots.txt` (dinamis; file statis bawaan dihapus). (3) Slug lama (post/halaman/penulis) di-301 lewat tabel `redirects`. (4) `users.author_slug` dibuat dari display name. (5) `posts.reading_minutes` dihitung saat simpan (200 kata/menit, karakter CJK dihitung satu per satu). (6) Pencarian: fulltext BOOLEAN MODE dengan prefix + `LIKE` pada judul agar kueri pendek dan CJK tetap bekerja; dibatasi 60 permintaan/menit/IP dan `noindex`. (7) Mode maintenance: 503 + `Retry-After` untuk semua kecuali admin yang login; layar login tetap terbuka. (8) Pengaturan disimpan sebagai JSON mentah di tabel `settings`; sender email diterapkan ke konfigurasi mail saat boot. (9) Tautan "Visit Website" ada di top bar admin dan dashboard. (10) Halaman error 403/404/503 selalu generik; 500 generik saat APP_DEBUG mati. (11) JSON-LD Article dirender di Blade dengan `JSON_HEX_TAG` agar tidak bisa menutup tag script. (12) Header `X-Robots-Tag: noindex` untuk area admin dan layar akun.
 - A-06 — Posts yang di-trash memakai soft delete (`deleted_at`); purge hanya Admin.
 - A-07 — Konten publik di-cache per halaman (TTL 10 menit) dan di-invalidasi saat konten/tema berubah.
 
@@ -36,6 +38,7 @@
 - v1.4 2026-10-24 — keputusan implementasi P-02 (A-12), kolom `media.uuid`.
 - v1.5 2026-10-24 — keputusan implementasi P-03 (A-13).
 - v1.6 2026-10-24 — display name untuk nama publik (A-14).
+- v1.7 2026-10-24 — acuan desain situs publik (A-15) dan keputusan implementasi P-04 (A-16).
 
 ## 1. Executive Summary
 Mini CMS adalah CMS satu-situs berbahasa Indonesia untuk menerbitkan Posts dan Pages, dengan taksonomi Categories dan Tags. Dua role staf (Admin, Writer) bekerja lewat editor WYSIWYG yang menghasilkan HTML aman (allowlist, disanitasi di server). Publik (tanpa akun) membaca halaman yang di-render server-side dan SEO-friendly. Admin mengatur palet warna (preset dan custom) dan font secara global. Prioritas desain: ketahanan terhadap pembobolan dan deface (defense-in-depth, revision, audit log) serta database tanpa N+1 query.
@@ -191,6 +194,7 @@ CREATE TABLE users (
   id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(100) NOT NULL,
   display_name VARCHAR(60) NULL,
+  author_slug VARCHAR(80) NULL UNIQUE,
   email VARCHAR(190) NOT NULL UNIQUE,
   password VARCHAR(255) NULL,
   role ENUM('admin','writer') NOT NULL DEFAULT 'writer',
@@ -255,6 +259,7 @@ CREATE TABLE posts (
   title VARCHAR(200) NOT NULL, slug VARCHAR(220) NOT NULL UNIQUE,
   excerpt VARCHAR(500) NULL, body MEDIUMTEXT NOT NULL,
   meta_title VARCHAR(70) NULL, meta_description VARCHAR(160) NULL,
+  reading_minutes TINYINT UNSIGNED NOT NULL DEFAULT 1,
   status ENUM('draft','pending_review','rejected','scheduled','published','archived') NOT NULL DEFAULT 'draft',
   review_note VARCHAR(500) NULL,
   published_at TIMESTAMP NULL,

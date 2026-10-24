@@ -3,7 +3,9 @@
 namespace App\Models;
 
 use App\Casts\SanitizedHtml;
+use App\Models\Concerns\BustsPublicCache;
 use App\Models\Concerns\HasRevisions;
+use App\Support\HtmlSanitizer;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -14,7 +16,7 @@ use Illuminate\Validation\ValidationException;
 
 class Post extends Model
 {
-    use HasFactory, HasRevisions, SoftDeletes;
+    use BustsPublicCache, HasFactory, HasRevisions, SoftDeletes;
 
     public const STATUSES = ['draft', 'pending_review', 'rejected', 'scheduled', 'published', 'archived'];
 
@@ -65,6 +67,11 @@ class Post extends Model
     public function scopePublished(Builder $query): Builder
     {
         return $query->where('status', 'published')->where('published_at', '<=', now());
+    }
+
+    protected static function booted(): void
+    {
+        static::saving(fn (self $post) => $post->reading_minutes = HtmlSanitizer::readingMinutes((string) $post->body));
     }
 
     public function moveTo(string $status): void

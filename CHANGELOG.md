@@ -6,6 +6,20 @@ Definition of Done (PRD section 11) is met.
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-10-24 — P-04 Public site & settings
+### Added
+- Public site after `docs/design/reference-public.jpg`: home with featured post, "Latest post" list and card grid with numbered pagination; post, page, category, tag, author and blog archives; search; responsive layout.
+- Server-side rendering for crawlers, meta/Open Graph tags, canonical URLs, Article JSON-LD, sitemap.xml, rss.xml, robots.txt, 301 redirects for renamed slugs, page cache with automatic invalidation.
+- Generic 403/404/500/503 pages and maintenance mode.
+- Site settings (name, tagline, logo, favicon, language, posts per page, header button, PDF size limit, mail sender) and header/footer menu editor.
+- "Visit Website" link in the admin top bar and a real dashboard with role-scoped counts.
+- Optional demo content: `php artisan db:seed --class=DemoContentSeeder`.
+### Changed
+- Uploaded image URLs are relative (`/storage/...`) so the sanitizer accepts them in content.
+- Admin status messages (flash) are now shown.
+### Removed
+- Static `public/robots.txt` (served dynamically).
+
 ## [0.4.0] - 2026-10-24 — P-03 Posts & pages
 ### Added
 - Posts with the review workflow (draft → pending review → published/scheduled/rejected → archived, trash), role-scoped access, policy-enforced transitions and an audit trail.
@@ -53,7 +67,8 @@ _Shipped inside the initial commit together with 0.2.0; no separate tag._
 - Laravel 12 + React 19 + Inertia 2 (SSR) skeleton, MySQL, Pest 3, Vitest, CI with MySQL service and dependency audits.
 - `Model::preventLazyLoading()` outside production (N+1 guard).
 
-[Unreleased]: https://github.com/matiuskm/minicms/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/matiuskm/minicms/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/matiuskm/minicms/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/matiuskm/minicms/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/matiuskm/minicms/compare/v0.2.1...v0.3.0
 [0.2.1]: https://github.com/matiuskm/minicms/compare/v0.2.0...v0.2.1

@@ -28,7 +28,8 @@ class Media extends Model
      */
     public function isInUse(): bool
     {
-        return Post::withTrashed()->where('featured_media_id', $this->id)->exists()
+        return in_array($this->id, [Setting::get('logo_media_id'), Setting::get('favicon_media_id')], true)
+            || Post::withTrashed()->where('featured_media_id', $this->id)->exists()
             || Post::withTrashed()->where('body', 'like', "%{$this->uuid}%")->exists()
             || Page::withTrashed()->where('body', 'like', "%{$this->uuid}%")->exists();
     }

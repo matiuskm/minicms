@@ -26,6 +26,12 @@ Release steps: update `CHANGELOG.md` and `VERSION` → commit `chore(release): v
 `git tag -a vX.Y.Z -m "vX.Y.Z"` → `git push --follow-tags`.
 Branches: `main` is always releasable; each phase is developed on `phase/p-0x-name` and merged via PR.
 
+## Server-side rendering
+
+Public pages are rendered on the server for crawlers by a Node process: `php artisan inertia:start-ssr`
+(after `npm run build:ssr`). Without it the site still works (client-side rendering) but search engines see less.
+Production: keep it alive with supervisord or systemd. Optional sample content: `php artisan db:seed --class=DemoContentSeeder`.
+
 ## Scheduler
 
 Scheduled posts are published by `php artisan cms:publish-scheduled`, run every minute by Laravel's scheduler.
