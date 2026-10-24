@@ -7,7 +7,7 @@ Status legend: **PASS** = verified by an automated test or a recorded check in t
 | Criterion | Result | Evidence |
 |---|---|---|
 | All Must features pass their passing points | **PASS** | Phases P-01..P-06 closed with their PPs (see `docs/PROGRESS-mini-cms.md`); 350+ Pest tests, 42 Vitest tests |
-| Test coverage ≥ 70% for policy, sanitizer and status flow | **PASS** (CI-measured, see the `Coverage` step of the `tests` workflow) | The policy/sanitizer/state machine have dedicated suites (`PostWorkflowTest`, `HtmlSanitizerTest` with 40 payloads × 2 checks) |
+| Test coverage ≥ 70% for policy, sanitizer and status flow | **PASS** | Measured in CI (the `Coverage` step enforces a 70% minimum): **94.2% overall**; `PostPolicy` 90.0%, `HtmlSanitizer` 90.9%, `Tracker` 96.9%, `Backup` 87.7% |
 | No Critical/High bugs open | **PASS** | No open issues; `composer audit` and `npm audit --audit-level=high` are clean and run on every push |
 | NFR targets met | see below | |
 | Docs complete | **PASS** | `README.md`, `docs/DEPLOY.md`, `CHANGELOG.md`, `docs/SA-*`, `docs/PRD-*` |
