@@ -15,7 +15,8 @@ herd link mini-cms && herd secure mini-cms   # https://mini-cms.test
 npm run build
 ```
 
-Tests: `./vendor/bin/pest` and `npm test`. Admins must set up 2FA on first login.
+Tests: `./vendor/bin/pest` and `npm test`. Admins must set up 2FA on first login (local development can set
+`CMS_REQUIRE_ADMIN_2FA=false` in `.env`; the switch is ignored in production).
 
 ## Versioning
 

@@ -22,6 +22,7 @@
         <env name="APP_MAINTENANCE_DRIVER" value="file"/>
         <env name="BCRYPT_ROUNDS" value="4"/>
         <env name="HASH_DRIVER" value="bcrypt"/>
+        <env name="CMS_REQUIRE_ADMIN_2FA" value="true"/>
         <env name="SESSION_SECURE_COOKIE" value="false"/>
         <env name="CACHE_STORE" value="array"/>
         <env name="DB_CONNECTION" value="mysql"/>

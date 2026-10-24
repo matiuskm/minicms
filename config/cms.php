@@ -4,6 +4,10 @@ return [
     // BR-04: idle timeout in minutes per role.
     'idle_minutes' => ['admin' => 30, 'writer' => 120],
 
+    // BR-03: admins must use 2FA. Local development may turn the requirement off with
+    // CMS_REQUIRE_ADMIN_2FA=false; it is ignored (always on) in production.
+    'require_admin_2fa' => env('CMS_REQUIRE_ADMIN_2FA', true),
+
     // BR-02: failures allowed within the window before the account locks.
     'lock' => ['max_failures' => 5, 'window_seconds' => 600, 'minutes' => 15],
 

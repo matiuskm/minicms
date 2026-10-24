@@ -9,7 +9,7 @@ import { usePage } from '@inertiajs/react';
 import { ExternalLink } from 'lucide-react';
 
 export function AppSidebarHeader({ breadcrumbs = [] }: { breadcrumbs?: BreadcrumbItemType[] }) {
-    const { auth } = usePage<SharedData>().props;
+    const { auth, twoFactorBypassed } = usePage<SharedData>().props;
     const initials = useInitials();
 
     return (
@@ -19,6 +19,11 @@ export function AppSidebarHeader({ breadcrumbs = [] }: { breadcrumbs?: Breadcrum
                 <Breadcrumbs breadcrumbs={breadcrumbs} />
             </div>
             <div className="flex items-center gap-4">
+                {twoFactorBypassed && (
+                    <span role="status" className="rounded-md bg-amber-100 px-2 py-1 text-xs font-medium text-amber-900">
+                        2FA check off (local only)
+                    </span>
+                )}
                 {/* Opens the public site in a new tab so changes can be checked straight away (like WordPress). */}
                 <a
                     href="/"

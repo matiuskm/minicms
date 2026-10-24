@@ -84,3 +84,24 @@ test('BR-03 admins cannot disable 2FA but writers can', function () {
     $this->actingAs($writer)->delete('/settings/two-factor', ['current_password' => PW])->assertSessionHasNoErrors();
     expect($writer->fresh()->hasTwoFactor())->toBeFalse();
 });
+
+test('local-only bypass: with the switch off an admin without 2FA can work, and the UI says so', function () {
+    config(['cms.require_admin_2fa' => false]);
+    $admin = User::factory()->admin()->create();
+
+    $this->actingAs($admin)->get('/dashboard')->assertOk()->assertInertia(fn ($p) => $p->where('twoFactorBypassed', true));
+    $this->actingAs($admin)->get('/admin/users')->assertOk();
+});
+
+test('the bypass switch is ignored in production', function () {
+    config(['cms.require_admin_2fa' => false]);
+    app()->detectEnvironment(fn () => 'production');
+    $admin = User::factory()->admin()->create();
+
+    $this->actingAs($admin)->get('/dashboard')->assertRedirect('/settings/two-factor');
+    $this->actingAs($admin)->get('/settings/two-factor')->assertOk()->assertInertia(fn ($p) => $p->where('twoFactorBypassed', false));
+});
+
+test('by default the requirement is on and nothing is flagged as bypassed', function () {
+    $this->actingAs(User::factory()->create())->get('/dashboard')->assertInertia(fn ($p) => $p->where('twoFactorBypassed', false));
+});

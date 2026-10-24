@@ -11,6 +11,8 @@ Definition of Done (PRD section 11) is met.
 - Appearance screen: six built-in palettes (Light Classic, Dark, Ocean, Forest, Sunset, Monochrome), custom palettes (create, edit, duplicate, delete), one live palette at a time, live preview, WCAG AA contrast warnings.
 - Typography: heading and body font from an allowlist (system sans/serif/mono, Open Sans, Roboto, Lato, Merriweather, Source Serif; self-hosted), base text size S/M/L, reset to defaults.
 - `/theme.css`: the public theme as a versioned, cacheable stylesheet built only from validated values.
+### Added (dev)
+- `CMS_REQUIRE_ADMIN_2FA=false` skips the mandatory admin 2FA for local development only; it is ignored in production and the admin header shows a warning while it is off.
 ### Fixed
 - Public pages now link the theme after the app CSS with a selector that survives Vite re-inserting the app stylesheet.
 
