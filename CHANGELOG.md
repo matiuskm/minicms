@@ -6,6 +6,16 @@ Definition of Done (PRD section 11) is met.
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-10-24 — P-08 One-click updates
+### Added
+- Admin **Updates** screen: installed vs latest version, release notes, "Check for updates", an **Update** button with live progress, a sidebar badge, and one email per new version.
+- Safe update mechanism: the web app only requests an update; `scripts/apply-update.sh` (run by the deploy user) downloads the release, verifies its Ed25519 signature against the installed version's pinned key, backs up, runs migrations, switches releases atomically, health-checks and rolls back automatically on failure.
+- Signed release pipeline (`.github/workflows/release.yml`, `scripts/build-release.sh`): releases ship with `vendor/` and compiled assets, so servers need only PHP.
+- `scripts/test-updater.sh`: an end-to-end rehearsal (success, tampered archive, foreign key, downgrade, garbage request, failed health check).
+- Commands: `cms:check-updates`, `cms:version`, `cms:maintenance`, `cms:record-update`.
+### Docs
+- `docs/DEPLOY.md`: release-directory layout, cron, sudoers, migrator account and rollback procedure for one-click updates.
+
 ## [0.8.0] - 2026-10-24 — P-07 Visitor statistics
 ### Added
 - Cookie-less, first-party visit counting for public pages: no IP or user agent stored, unique visitors recognised only within a day, bots / link previews / staff / Do-Not-Track / prefetches ignored.
@@ -103,7 +113,8 @@ _Shipped inside the initial commit together with 0.2.0; no separate tag._
 - Laravel 12 + React 19 + Inertia 2 (SSR) skeleton, MySQL, Pest 3, Vitest, CI with MySQL service and dependency audits.
 - `Model::preventLazyLoading()` outside production (N+1 guard).
 
-[Unreleased]: https://github.com/matiuskm/minicms/compare/v0.8.0...HEAD
+[Unreleased]: https://github.com/matiuskm/minicms/compare/v0.9.0...HEAD
+[0.9.0]: https://github.com/matiuskm/minicms/compare/v0.8.0...v0.9.0
 [0.8.0]: https://github.com/matiuskm/minicms/compare/v0.7.0...v0.8.0
 [0.7.0]: https://github.com/matiuskm/minicms/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/matiuskm/minicms/compare/v0.5.0...v0.6.0

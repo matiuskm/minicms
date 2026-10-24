@@ -2,7 +2,7 @@
 
 | Item | Detail |
 |---|---|
-| Version | 1.10 |
+| Version | 1.11 |
 | Date | 2026-10-24 |
 | Author | anakodok@gmail.com (generated with PRD Generator) |
 | Source | docs/SA-mini-cms-2026-10-24.md |
@@ -28,6 +28,7 @@
 - A-17 — Keputusan implementasi P-05 (v1.8): (1) Tema publik disajikan sebagai stylesheet terpisah `/theme.css?v=<versi cache>` (cache 1 tahun, versi berganti saat palet/font/setting berubah) dan ditautkan setelah CSS aplikasi; selektornya `html .site` agar tetap menang walau Vite menyisipkan ulang CSS aplikasi di akhir `<head>` saat runtime. (2) Peta token → variabel: background→`--site-bg`, surface→`--site-surface`, text, muted, primary, accent→`--site-soft`, border, link; `--site-on-primary` dihitung (putih atau #111 mana yang kontrasnya lebih baik); `--site-card` diturunkan dari surface + accent via `color-mix`. (3) Warna divalidasi regex hex 6/8 digit di server dan stylesheet hanya menulis nilai yang lolos; font dan ukuran harus kunci allowlist. (4) Font self-hosted lewat paket `@fontsource/*` (latin 400 dan 700) sebagai entri Vite terpisah; halaman publik hanya memuat keluarga yang dipakai tema; font sistem tidak memuat berkas apa pun. (5) Peringatan kontras WCAG AA (4.5:1) dihitung di klien (teks/surface, teks/latar, muted/surface, link/surface, teks tombol/primary) dan bersifat saran: simpan tetap boleh. (6) Maksimum 20 palet custom; satu palet aktif dijamin oleh kolom `active_flag` generated + unique index. (7) Tema admin tidak berubah (tetap terang, A-10).
 - A-18 — Keputusan implementasi P-06 (v1.9): (1) CSP berbasis nonce per respons: `script-src 'self' 'nonce-…'`, tanpa `unsafe-inline`/`unsafe-eval` untuk skrip; `style-src 'self' 'nonce-…'` ditambah `style-src-attr 'unsafe-inline'` (atribut `style=""` dipakai pustaka UI); iframe hanya dari YouTube-nocookie dan Vimeo; `frame-ancestors 'none'`. Dinonaktifkan hanya bila server dev Vite berjalan (`public/hot`). Respons yang punya CSP sendiri (unduhan PDF `sandbox`) tidak ditimpa. CSS progress Inertia dimuat dari `app.css` (bukan `<style>` injeksi) agar CSP tetap ketat; nonce diteruskan ke pustaka lewat `<meta name="csp-nonce">`. Diverifikasi dengan Chrome sungguhan: 0 pelanggaran CSP di halaman publik dan admin (editor, dialog media). (2) Integritas: `cms:check-integrity` tiap 15 menit membandingkan `content_hash` konten published; email ke admin hanya saat himpunan ketidakcocokan berubah; admin dapat "confirm" (re-seal) atau memulihkan revision. (3) Lockdown: setting `lockdown` memblokir login non-admin dan memutus sesi mereka. (4) Notifikasi email: login dari browser baru (fingerprint hash User-Agent, login pertama tidak memicu), perubahan role, password, dan 2FA dimatikan; lockout sudah ada sejak P-01. (5) Backup: `cms:backup` harian 02:30 (dump `mysqldump` ter-gzip + arsip `uploads` dan `files`), retensi 14 set, disk dapat dialihkan ke off-site lewat `BACKUP_DISK`; `cms:restore --force`; gagal → email admin. (6) `cms:check-production` sebagai gerbang deploy; `docs/DEPLOY.md` berisi panduan VPS lengkap; `production-grants.sql` diperbarui (akun migrator vs app). (7) Pembatasan: admin dan editor 240 permintaan/menit/user, pencarian publik 30/menit/IP. (8) `cms:reset-2fa` untuk authenticator yang hilang.
 - A-19 — F-14 Visitor Statistics (v1.10): satu tabel log mentah `page_views` (bukan rollup) dengan retensi 90 hari; laporan di-cache 60 detik. Perkiraan: 100k tayangan/hari × 90 hari ≈ 9 juta baris (~1 GB). Pelacak menambah ±3 query setelah respons (rate-limit cache + insert); dengan driver cache `database` ini terasa di trafik tinggi, gunakan Redis bila perlu. Dihitung server-side lewat `defer()` sehingga tidak menunda halaman dan tidak butuh skrip klien (CSP tetap ketat). Navigasi Inertia (XHR) dihitung sebagai tayangan.
+- A-20 — F-15 (v1.11): dipilih rancangan "web hanya meminta, proses terpisah menerapkan" dibanding updater yang berjalan di proses web (gaya WordPress) karena yang terakhir mensyaratkan PHP-FPM bisa menulis seluruh kode. Tata letak server berubah menjadi `releases/ + current + shared/` (dijelaskan di `docs/DEPLOY.md`); instalasi tunggal (mis. Herd) tetap bisa melihat notifikasi tetapi tombol Update nonaktif kecuali `CMS_UPDATES=true`. Kunci penandatangan dibuat lokal; rahasia disimpan sebagai secret GitHub `RELEASE_SIGNING_KEY` dan cadangan di `~/.config/minicms/release-signing.key` pada mesin pengembang; kunci publik dipin di `release-public.key`.
 - A-06 — Posts yang di-trash memakai soft delete (`deleted_at`); purge hanya Admin.
 - A-07 — Konten publik di-cache per halaman (TTL 10 menit) dan di-invalidasi saat konten/tema berubah.
 
@@ -45,6 +46,7 @@
 - v1.8 2026-10-24 — keputusan implementasi P-05 (A-17).
 - v1.9 2026-10-24 — keputusan implementasi P-06 (A-18).
 - v1.10 2026-10-24 — F-14 Visitor Statistics (A-19), permintaan user.
+- v1.11 2026-10-24 — F-15 One-click Updates (A-20), permintaan user.
 
 ## 1. Executive Summary
 Mini CMS adalah CMS satu-situs berbahasa Indonesia untuk menerbitkan Posts dan Pages, dengan taksonomi Categories dan Tags. Dua role staf (Admin, Writer) bekerja lewat editor WYSIWYG yang menghasilkan HTML aman (allowlist, disanitasi di server). Publik (tanpa akun) membaca halaman yang di-render server-side dan SEO-friendly. Admin mengatur palet warna (preset dan custom) dan font secara global. Prioritas desain: ketahanan terhadap pembobolan dan deface (defense-in-depth, revision, audit log) serta database tanpa N+1 query.
@@ -174,6 +176,13 @@ flowchart LR
 - **API:** `GET /admin/analytics?range=7|30|90&page_key=…` (admin).
 - **Data:** tabel `page_views` (day, at, visitor BINARY(8), page_key, source, referrer_host, medium, campaign). Tidak ada IP/UA/cookie.
 - **Tes:** TC-F14-01 (hitung kunjungan), TC-F14-02 (klasifikasi sumber), TC-F14-03 (bot/staf/DNT/prefetch tidak dihitung), TC-F14-04 (laporan akurat); PP-F14-01 sumber terdeteksi benar; PP-F14-02 tidak ada IP/UA/cookie tersimpan; PP-F14-03 pelacak tidak pernah merusak halaman.
+
+### F-15 — One-click Updates (Should) — ditambahkan v1.11 atas permintaan user
+- **Source:** permintaan user ("kasih fitur update juga, kalau ada versi terbaru tinggal klik, mirip WordPress").
+- **Desain keamanan (keputusan utama):** aplikasi web **tidak pernah** diberi hak menulis kode sendiri (itu membatalkan NFR-03, anti-deface). Tombol hanya *meminta*; proses terpisah milik user `deploy` (`scripts/apply-update.sh`, cron tiap menit) yang menerapkan.
+- **FR:** FR-82 cek rilis terbaru (GitHub Releases) harian dan manual, di-cache, tidak pernah memanggil jaringan pada request biasa; FR-83 layar Updates: versi terpasang, versi baru + catatan rilis (teks polos), badge di sidebar, email ke admin sekali per versi; FR-84 tombol Update (admin, konfirmasi) menulis `request.json` berisi hanya nomor versi, tercatat di audit log; hanya versi yang tersedia, lebih baru, dan bertanda tangan yang boleh diminta; satu permintaan sekaligus; FR-85 progres langsung (menunggu → mengunduh → verifikasi tanda tangan → backup → database → pergantian → health check) lewat `status.json`; FR-86 pengaman penerap: versi harus lebih baru, arsip diverifikasi tanda tangan Ed25519 terhadap kunci publik versi **yang sedang terpasang**, backup wajib berhasil, mode maintenance selama pergantian, migrasi dengan akun migrator, health check, **rollback kode otomatis** bila gagal, rilis lama disimpan 3 buah; FR-87 pipeline rilis: tag `vX.Y.Z` → GitHub Actions membangun arsip (vendor + aset terkompilasi, server tidak butuh Composer/Node), menandatangani, dan menerbitkan rilis; FR-88 hasil update masuk audit log dan email admin.
+- **Tes:** TC-F15-01 (deteksi rilis), TC-F15-02 (email sekali per versi), TC-F15-03 (permintaan hanya menulis berkas, kode tak berubah), TC-F15-04 (tanda tangan: byte persis + kunci yang dipin), `scripts/test-updater.sh` (8 skenario end-to-end termasuk arsip dimodifikasi, kunci asing, downgrade, permintaan sampah, rollback health check). PP-F15-01 tidak ada jalur dari web ke penulisan kode; PP-F15-02 arsip tak sah ditolak dan situs tak berubah; PP-F15-03 update gagal berakhir di versi lama yang sehat.
+- **Batasan:** pembaruan skema harus kompatibel mundur dengan rilis sebelumnya (rollback mengembalikan kode, bukan database; titik pulih = backup langkah 4). Rotasi kunci penandatangan belum otomatis.
 
 ## 6. Recommended Additional Features
 Hanya yang dikonfirmasi lewat SA/Assumptions yang masuk Section 5 (revision, audit, redirect, media, SEO, menu/settings, backup, lockdown, autosave, fulltext). Sisanya:
@@ -528,6 +537,7 @@ Format: Given / When / Then. Tipe: P=Positive, N=Negative, E=Edge, S=Security, R
 | F-12 | M-12, FL-06, NFR-02..12 | FR-66..71 | TC-F12-01..05 | PP-F12-01..04 | P-06 (header dasar sejak P-01) |
 | F-13 | M-13, RPT-01..04 | FR-72..74 | TC-F13-01..03 | PP-F13-01..02 | P-06 |
 | F-14 | (permintaan user) | FR-75..81 | TC-F14-01..04 | PP-F14-01..03 | P-07 |
+| F-15 | (permintaan user) | FR-82..88 | TC-F15-01..04 + test-updater.sh | PP-F15-01..03 | P-08 |
 | NFR | NFR-01..17 | — | TC-NFR-01..02 | Release DoD | P-06 |
 
 Cakupan SA: semua modul M-01..M-13, role R-01..R-03, flow FL-01..FL-06 (FL-06 sebagai prosedur + F-12 alert), BR-01..31, ENT-01..13 (ENT-02 = enum, ENT-06 = `post_tag`), INT-01..04 (INT-04 = embed di F-03), RPT-01..04 (di F-13/F-11) tercakup.

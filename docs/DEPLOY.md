@@ -144,7 +144,76 @@ Visits are counted by the application itself (no cookies, no IPs stored). Behind
 `request()->ip()` is the visitor and not the proxy; otherwise everyone looks like one visitor. A busy site (tens of thousands of views a day)
 should use Redis as the cache driver, because counting does a few cache operations per visit.
 
-## 8. When something looks wrong
+## 8. One-click updates (optional, recommended)
+
+The admin shows **Updates** with a badge when a new release exists, release notes, and an **Update** button, like WordPress.
+Unlike WordPress, the website itself never gets permission to change its own code (that is what keeps §1 true).
+The button only *asks*; a small root-free process owned by the `deploy` user does the work.
+
+```
+Admin clicks Update ──► app writes shared/storage/app/updates/request.json (just a version number)
+cron (every minute, as deploy) ──► scripts/apply-update.sh
+    1. version must be newer than the installed one            (no downgrades, garbage is ignored)
+    2. downloads the release + signature from the project's release page
+    3. verifies the Ed25519 signature with release-public.key of the INSTALLED version   (tampered / foreign archives are rejected)
+    4. takes a backup (aborts if that fails), switches on maintenance mode
+    5. unpacks into releases/<version>, links the shared .env and storage, runs the migrations
+    6. switches `current` to the new release, rebuilds caches, reloads PHP-FPM and the SSR process
+    7. health check; if the new version does not answer the previous release is restored automatically
+    8. records the result in the audit log, emails the admins, keeps the last 3 releases
+```
+
+Releases are built by GitHub Actions (`.github/workflows/release.yml`) when a tag `vX.Y.Z` is pushed: the archive already contains
+`vendor/` and the compiled assets, so **the server needs only PHP — no Composer, no Node**. The archive is signed with a key kept
+as the repository secret `RELEASE_SIGNING_KEY`; only the public half is in the code. Cut a release from a green `main`:
+`git tag -a v1.2.3 -m v1.2.3 && git push origin v1.2.3` (the workflow refuses a tag that does not match `VERSION` or has no `CHANGELOG.md` section).
+
+### Server setup (once)
+
+Use a release-directory layout instead of a single checkout:
+
+```
+/var/www/cms/
+├── current   -> releases/1.0.0        # nginx root is /var/www/cms/current/public
+├── releases/1.0.0/ …
+└── shared/
+    ├── .env                           # mode 640, owner deploy, group www-data
+    ├── .env.migrator                  # DB_USERNAME=cms_migrator / DB_PASSWORD=…  (mode 600, deploy only)
+    └── storage/                       # owner www-data; storage/app/updates must be group-writable by deploy
+```
+
+```bash
+# first install: unpack the latest release archive into releases/<version>, then
+ln -s releases/<version> /var/www/cms/current
+ln -s /var/www/cms/shared/.env /var/www/cms/releases/<version>/.env
+rm -rf releases/<version>/storage && ln -s /var/www/cms/shared/storage releases/<version>/storage
+ln -s /var/www/cms/shared/storage/app/public releases/<version>/public/storage
+sudo mkdir -p /var/www/cms/shared/storage/app/updates
+sudo chown -R www-data:deploy /var/www/cms/shared/storage/app/updates && sudo chmod 2775 /var/www/cms/shared/storage/app/updates
+```
+
+Add to `.env`: `CMS_UPDATES=true` (and `CMS_UPDATE_REPO=owner/repo` if you forked). Allow `deploy` to reload services — nothing else:
+
+```
+# /etc/sudoers.d/cms-deploy
+deploy ALL=(root) NOPASSWD: /usr/bin/systemctl reload php8.4-fpm, /usr/bin/supervisorctl restart cms-ssr
+```
+
+Cron for the deploy user (this replaces running `schedule:run` as another user; both can coexist):
+
+```cron
+* * * * * APP_ROOT=/var/www/cms /var/www/cms/current/scripts/apply-update.sh >> /var/www/cms/shared/storage/logs/updater.log 2>&1
+```
+
+Migrations of a release must stay **backward compatible with the previous release** (add columns/tables, do not drop or rename in the same release):
+the automatic rollback restores the previous *code*, it does not undo database changes. Your restore point for a bad migration is the backup taken in step 4.
+
+Rehearse everything on a laptop without a server: `scripts/build-release.sh 0.9.0 /tmp/rel && scripts/test-updater.sh /tmp/rel/minicms-v0.9.0.tar.gz <signing-key-file>`
+(success, tampered archive, foreign key, downgrade, garbage request, failed health check with rollback).
+
+If `CMS_UPDATES` is off the screen still tells admins when a release exists and emails them once per version; they deploy it manually.
+
+## 9. When something looks wrong
 
 | Situation | What to do |
 |---|---|
@@ -152,9 +221,10 @@ should use Redis as the cache driver, because counting does a few cache operatio
 | Alert: "content changed outside the CMS" | Admin → **Security**; open the item and restore an earlier revision, or confirm the change |
 | Lost authenticator | `php artisan cms:reset-2fa user@example.com` on the server |
 | Site must go offline briefly | Admin → **Site settings → Maintenance mode** (admins can still work) |
-| Bad deploy | Restore the previous release directory, `php artisan optimize:clear`, restart PHP-FPM and the SSR process |
+| Bad deploy or update | Point `current` back at the previous directory under `releases/` (`ln -sfn releases/<old> current`), `php artisan optimize:clear`, reload PHP-FPM and the SSR process. If a migration was the problem, restore the pre-update backup |
+| Update stuck on "waiting" | The cron entry is not running as `deploy`, or `shared/storage/app/updates` is not writable by it. Check `shared/storage/logs/updater.log` |
 
-## 9. Routine
+## 10. Routine
 
 - Weekly: `composer audit` and `npm audit` (CI also runs them on every push).
 - After each release: `php artisan cms:check-production`, then confirm the Security page shows integrity OK and a recent backup.
