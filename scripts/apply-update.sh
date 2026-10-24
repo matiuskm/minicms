@@ -115,7 +115,7 @@ MAINT_WAS="$( cd "$CURRENT" && "$PHP" artisan cms:maintenance on 2>/dev/null | t
 
 # ---- 5. database ----------------------------------------------------------------------------------------------
 status running migrating "Updating the database"
-( cd "$REL" && "$PHP" artisan package:discover --ansi=false ) >"$WORK/discover.log" 2>&1 || fail migrating "package:discover failed. $(tail -n 2 "$WORK/discover.log" | tr '\n' ' ')"
+( cd "$REL" && "$PHP" artisan package:discover --no-ansi ) >"$WORK/discover.log" 2>&1 || fail migrating "package:discover failed. $(tail -n 2 "$WORK/discover.log" | tr '\n' ' ')"
 if [ "${CMS_UPDATE_SKIP_MIGRATE:-0}" != "1" ]; then
   (
     if [ -f "$SHARED/.env.migrator" ]; then set -a; . "$SHARED/.env.migrator"; set +a; fi   # DDL-capable account, deploy-only
