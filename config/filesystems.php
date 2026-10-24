@@ -37,10 +37,18 @@ return [
             'throw' => false,
         ],
 
+        // Backups: local by default; set BACKUP_DISK to an off-site disk in production.
+        'backups' => [
+            'driver' => 'local',
+            'root' => storage_path('app/backups'),
+            'throw' => true,
+        ],
+
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),
-            'url' => env('APP_URL').'/storage',
+            // Relative on purpose: same origin, and the sanitizer only accepts /storage/uploads/ image paths.
+            'url' => '/storage',
             'visibility' => 'public',
             'throw' => false,
         ],

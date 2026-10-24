@@ -5,8 +5,6 @@ use App\Models\User;
 use App\Notifications\AccountLockedNotification;
 use Illuminate\Support\Facades\Notification;
 
-const PW = 'correct-horse-battery';
-
 test('TC-F01-01 writer logs in with correct credentials', function () {
     $user = User::factory()->create();
 
@@ -84,7 +82,7 @@ test('a user disabled mid-session is kicked on the next request', function () {
 
 test('there is no public registration', function () {
     $this->get('/register')->assertNotFound();
-    $this->post('/register', [])->assertNotFound();
+    $this->post('/register', [])->assertStatus(405);
 });
 
 test('logout is audited', function () {

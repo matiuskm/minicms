@@ -4,11 +4,11 @@
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 
-@custom-variant dark (&:is(.dark *));
-
 @theme {
+    /* System stack: no external font requests (CSP, privacy). */
     --font-sans:
-        'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+        ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
+    --color-success: var(--success);
 
     --radius-lg: var(--radius);
     --radius-md: calc(var(--radius) - 2px);
@@ -76,75 +76,45 @@
     }
 }
 
+/* Light only: no dark mode by design. */
 :root {
-    --background: hsl(0, 0%, 100%);
-    --foreground: hsl(0, 0%, 3.9%);
-    --card: hsl(0, 0%, 100%);
-    --card-foreground: hsl(0, 0%, 3.9%);
-    --popover: hsl(0, 0%, 100%);
-    --popover-foreground: hsl(0, 0%, 3.9%);
-    --primary: hsl(0, 0%, 9%);
-    --primary-foreground: hsl(0, 0%, 98%);
-    --secondary: hsl(0, 0%, 96.1%);
-    --secondary-foreground: hsl(0, 0%, 9%);
-    --muted: hsl(0, 0%, 96.1%);
-    --muted-foreground: hsl(0, 0%, 45.1%);
-    --accent: hsl(0, 0%, 96.1%);
-    --accent-foreground: hsl(0, 0%, 9%);
+    color-scheme: light;
+
+    /* Admin UI tokens, from docs/design/reference-editor.jpg (PRD A-10). */
+    --background: #f4f7fc;
+    --foreground: #334155;
+    --card: #ffffff;
+    --card-foreground: #334155;
+    --popover: #ffffff;
+    --popover-foreground: #334155;
+    --primary: #3b82f6;
+    --primary-foreground: #ffffff;
+    --secondary: #eaf0fa;
+    --secondary-foreground: #334155;
+    --muted: #eef2f9;
+    --muted-foreground: #8a94a6;
+    --accent: #e8eef9;
+    --accent-foreground: #1e3a8a;
     --destructive: hsl(0, 84.2%, 60.2%);
     --destructive-foreground: hsl(0, 0%, 98%);
-    --border: hsl(0, 0%, 92.8%);
-    --input: hsl(0, 0%, 89.8%);
-    --ring: hsl(0, 0%, 3.9%);
+    --border: #e3e9f3;
+    --input: #dbe3f0;
+    --ring: #3b82f6;
     --chart-1: hsl(12, 76%, 61%);
     --chart-2: hsl(173, 58%, 39%);
     --chart-3: hsl(197, 37%, 24%);
     --chart-4: hsl(43, 74%, 66%);
     --chart-5: hsl(27, 87%, 67%);
-    --radius: 0.5rem;
-    --sidebar-background: hsl(0, 0%, 98%);
-    --sidebar-foreground: hsl(240, 5.3%, 30%);
-    --sidebar-primary: hsl(0, 0%, 10%);
-    --sidebar-primary-foreground: hsl(0, 0%, 98%);
-    --sidebar-accent: hsl(0, 0%, 94%);
-    --sidebar-accent-foreground: hsl(0, 0%, 30%);
-    --sidebar-border: hsl(0, 0%, 91%);
-    --sidebar-ring: hsl(217.2, 91.2%, 59.8%);
-}
-
-.dark {
-    --background: hsl(0, 0%, 3.9%);
-    --foreground: hsl(0, 0%, 98%);
-    --card: hsl(0, 0%, 3.9%);
-    --card-foreground: hsl(0, 0%, 98%);
-    --popover: hsl(0, 0%, 3.9%);
-    --popover-foreground: hsl(0, 0%, 98%);
-    --primary: hsl(0, 0%, 98%);
-    --primary-foreground: hsl(0, 0%, 9%);
-    --secondary: hsl(0, 0%, 14.9%);
-    --secondary-foreground: hsl(0, 0%, 98%);
-    --muted: hsl(0, 0%, 6.9%);
-    --muted-foreground: hsl(0, 0%, 63.9%);
-    --accent: hsl(0, 0%, 14.9%);
-    --accent-foreground: hsl(0, 0%, 98%);
-    --destructive: hsl(0, 84%, 60%);
-    --destructive-foreground: hsl(0, 0%, 98%);
-    --border: hsl(0, 0%, 14.9%);
-    --input: hsl(0, 0%, 14.9%);
-    --ring: hsl(0, 0%, 83.1%);
-    --chart-1: hsl(220, 70%, 50%);
-    --chart-2: hsl(160, 60%, 45%);
-    --chart-3: hsl(30, 80%, 55%);
-    --chart-4: hsl(280, 65%, 60%);
-    --chart-5: hsl(340, 75%, 55%);
-    --sidebar-background: hsl(0, 0%, 7%);
-    --sidebar-foreground: hsl(0, 0%, 80%);
-    --sidebar-primary: hsl(360, 100%, 100%);
-    --sidebar-primary-foreground: hsl(0, 0%, 100%);
-    --sidebar-accent: hsl(0, 0%, 15.9%);
-    --sidebar-accent-foreground: hsl(240, 4.8%, 95.9%);
-    --sidebar-border: hsl(0, 0%, 15.9%);
-    --sidebar-ring: hsl(217.2, 91.2%, 59.8%);
+    --radius: 0.625rem;
+    --success: #5cc98a;
+    --sidebar-background: #0b2a66;
+    --sidebar-foreground: #b9c6e0;
+    --sidebar-primary: #3b82f6;
+    --sidebar-primary-foreground: #ffffff;
+    --sidebar-accent: #123f8f;
+    --sidebar-accent-foreground: #ffffff;
+    --sidebar-border: rgba(255, 255, 255, 0.1);
+    --sidebar-ring: #3b82f6;
 }
 
 @layer base {
@@ -155,4 +125,587 @@
     body {
         @apply bg-background text-foreground;
     }
+}
+
+/* Rich text editor surface (F-03). Public-site typography is styled separately in P-04. */
+.prose-editor > * + * {
+    margin-top: 0.75rem;
+}
+.prose-editor h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+.prose-editor h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+.prose-editor h4 {
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+.prose-editor ul {
+    list-style: disc;
+    padding-left: 1.5rem;
+}
+.prose-editor ol {
+    list-style: decimal;
+    padding-left: 1.5rem;
+}
+.prose-editor blockquote {
+    border-left: 3px solid var(--primary);
+    padding-left: 1rem;
+    color: var(--muted-foreground);
+}
+.prose-editor code {
+    background: var(--muted);
+    border-radius: 4px;
+    padding: 0.1rem 0.3rem;
+    font-size: 0.9em;
+}
+.prose-editor pre {
+    background: #0b1b3f;
+    color: #e6edf9;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    overflow-x: auto;
+}
+.prose-editor pre code {
+    background: transparent;
+    padding: 0;
+}
+.prose-editor a {
+    color: var(--primary);
+    text-decoration: underline;
+}
+.prose-editor hr {
+    border-color: var(--border);
+}
+.prose-editor table {
+    border-collapse: collapse;
+    width: 100%;
+}
+.prose-editor th,
+.prose-editor td {
+    border: 1px solid var(--border);
+    padding: 0.4rem 0.6rem;
+    vertical-align: top;
+}
+.prose-editor th {
+    background: var(--muted);
+    text-align: left;
+}
+.prose-editor p.is-editor-empty:first-child::before {
+    color: var(--muted-foreground);
+}
+
+/* ------------------------------------------------------------------
+   Public site (F-09). Colours and fonts are CSS variables so the theme
+   settings in P-05 (palettes, fonts) only have to override these.
+   Defaults follow docs/design/reference-public.jpg.
+------------------------------------------------------------------- */
+.site {
+    --site-bg: #f1e5da;
+    --site-surface: #ffffff;
+    --site-text: #1d1b19;
+    --site-muted: #7a726b;
+    --site-primary: #8f3f1f;
+    --site-on-primary: #ffffff;
+    --site-soft: #f7ede5;
+    --site-card: color-mix(in srgb, var(--site-surface) 55%, var(--site-soft));
+    --site-border: #ece4dc;
+    --site-link: #8f3f1f;
+    --site-font-body: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    --site-font-heading: var(--site-font-body);
+
+    min-height: 100vh;
+    padding: 1.5rem;
+    background: var(--site-bg);
+    color: var(--site-text);
+    font-family: var(--site-font-body);
+    -webkit-font-smoothing: antialiased;
+}
+.site a {
+    color: inherit;
+    text-decoration: none;
+}
+.site h1,
+.site h2,
+.site h3 {
+    font-family: var(--site-font-heading);
+    letter-spacing: -0.01em;
+}
+.site-shell {
+    max-width: 72rem;
+    margin: 0 auto;
+    padding: 2rem 3rem 2.5rem;
+    background: var(--site-surface);
+    border-radius: 2.5rem;
+}
+.site-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    padding-bottom: 2.5rem;
+}
+.site-logo {
+    font-size: 1.6rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+}
+.site-logo img {
+    max-height: 2.25rem;
+    width: auto;
+}
+.site-nav {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    font-size: 0.7rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+.site-nav a:hover {
+    color: var(--site-primary);
+}
+.site-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+}
+.site-cta {
+    background: var(--site-primary);
+    color: var(--site-on-primary) !important;
+    padding: 0.7rem 1.3rem;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    letter-spacing: 0.04em;
+}
+.site-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    gap: 2rem;
+}
+.site-feature {
+    position: relative;
+    display: block;
+    min-height: 20rem;
+    overflow: hidden;
+    border-radius: 1.5rem;
+    background: linear-gradient(135deg, var(--site-primary), #2b1409);
+    color: #fff !important;
+}
+.site-feature img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.site-feature::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgb(20 10 5 / 0.3), transparent 55%);
+}
+/* Frosted panel behind the text (as in the reference): stays readable on light and busy photos. */
+.site-feature-body {
+    position: absolute;
+    z-index: 1;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 2.75rem 1.5rem 1.5rem;
+    text-shadow: 0 1px 2px rgb(0 0 0 / 0.35);
+}
+.site-feature-body::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(to top, rgb(25 12 6 / 0.66), rgb(25 12 6 / 0.4));
+    -webkit-backdrop-filter: blur(14px) saturate(1.15);
+    backdrop-filter: blur(14px) saturate(1.15);
+    -webkit-mask-image: linear-gradient(to top, #000 62%, transparent);
+    mask-image: linear-gradient(to top, #000 62%, transparent);
+}
+.site-feature h2 {
+    margin: 0.75rem 0 0.5rem;
+    font-size: 1.7rem;
+    line-height: 1.2;
+    font-weight: 500;
+}
+.site-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.7rem;
+    color: var(--site-muted);
+}
+.site-feature .site-meta {
+    color: rgb(255 255 255 / 0.85);
+}
+.site-meta i {
+    width: 3px;
+    height: 3px;
+    border-radius: 99px;
+    background: currentColor;
+    opacity: 0.6;
+}
+.site-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.3rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    background: var(--site-soft);
+    color: var(--site-text);
+}
+.site-pill::before {
+    content: '';
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 99px;
+    background: var(--site-primary);
+}
+.site-feature .site-pill {
+    background: rgb(255 255 255 / 0.92);
+    color: #1d1b19; /* always on a light chip, whatever the palette */
+}
+.site-section-title {
+    margin: 0 0 1rem;
+    font-size: 1.35rem;
+    font-weight: 700;
+}
+.site-latest ul {
+    display: grid;
+    gap: 1.1rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+.site-latest li a {
+    display: flex;
+    gap: 0.85rem;
+    align-items: center;
+}
+.site-thumb {
+    flex: none;
+    width: 3.6rem;
+    height: 3.6rem;
+    border-radius: 0.7rem;
+    object-fit: cover;
+    background: var(--site-soft);
+}
+.site-latest h3 {
+    margin: 0 0 0.3rem;
+    font-size: 0.82rem;
+    font-weight: 500;
+    line-height: 1.35;
+}
+.site-divider {
+    margin: 2.25rem 0;
+    border: 0;
+    border-top: 1px solid var(--site-border);
+}
+.site-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.25rem;
+}
+.site-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    padding: 0.4rem 0.4rem 1rem;
+    border-radius: 1.1rem;
+    background: var(--site-card);
+}
+.site-card-image {
+    aspect-ratio: 16 / 9;
+    width: 100%;
+    border-radius: 0.8rem;
+    object-fit: cover;
+    background: linear-gradient(135deg, var(--site-soft), var(--site-border));
+}
+.site-card > :not(.site-card-image) {
+    margin-inline: 0.6rem;
+}
+.site-card h3 {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 600;
+    line-height: 1.3;
+}
+.site-card p {
+    margin: 0;
+    font-size: 0.78rem;
+    line-height: 1.55;
+    color: var(--site-muted);
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.site-card a:hover h3 {
+    color: var(--site-primary);
+}
+.site-pager {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 1.5rem;
+}
+.site-pager ol {
+    display: flex;
+    gap: 0.4rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+.site-pager a,
+.site-pager span.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 99px;
+    font-size: 0.7rem;
+}
+.site-pager a[aria-current='page'] {
+    background: var(--site-text);
+    color: var(--site-surface);
+}
+.site-pager a:hover {
+    background: var(--site-soft);
+}
+.site-pager .arrow {
+    background: var(--site-soft);
+}
+.site-footer {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--site-border);
+    font-size: 0.75rem;
+    color: var(--site-muted);
+}
+.site-footer nav {
+    display: flex;
+    gap: 1.25rem;
+    flex-wrap: wrap;
+}
+.site-article {
+    max-width: 46rem;
+    margin: 0 auto;
+}
+.site-article h1 {
+    margin: 1rem 0 0.75rem;
+    font-size: 2.4rem;
+    line-height: 1.15;
+    font-weight: 700;
+}
+.site-article-image {
+    width: 100%;
+    margin: 1.75rem 0;
+    border-radius: 1.25rem;
+}
+.site-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 2rem;
+}
+.site-search {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+.site-search input {
+    flex: 1;
+    max-width: 22rem;
+    padding: 0.6rem 1rem;
+    border: 1px solid var(--site-border);
+    border-radius: 999px;
+    font-size: 0.85rem;
+    background: var(--site-card);
+}
+.site-search button {
+    padding: 0.6rem 1.2rem;
+    border-radius: 999px;
+    background: var(--site-primary);
+    color: var(--site-on-primary);
+    font-size: 0.8rem;
+}
+.site-empty {
+    padding: 3rem 0;
+    text-align: center;
+    color: var(--site-muted);
+}
+
+.site-prose {
+    font-size: 1.05rem;
+    line-height: 1.75;
+}
+.site-prose > * + * {
+    margin-top: 1.1rem;
+}
+.site-prose h2 {
+    margin-top: 2rem;
+    font-size: 1.6rem;
+    font-weight: 700;
+}
+.site-prose h3 {
+    margin-top: 1.6rem;
+    font-size: 1.3rem;
+    font-weight: 600;
+}
+.site-prose h4 {
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+.site-prose a {
+    color: var(--site-link);
+    text-decoration: underline;
+}
+.site-prose ul {
+    list-style: disc;
+    padding-left: 1.5rem;
+}
+.site-prose ol {
+    list-style: decimal;
+    padding-left: 1.5rem;
+}
+.site-prose blockquote {
+    padding-left: 1rem;
+    border-left: 3px solid var(--site-primary);
+    color: var(--site-muted);
+}
+.site-prose code {
+    padding: 0.1rem 0.35rem;
+    border-radius: 4px;
+    background: var(--site-soft);
+    font-size: 0.9em;
+}
+.site-prose pre {
+    padding: 1rem;
+    overflow-x: auto;
+    border-radius: 0.75rem;
+    background: var(--site-text);
+    color: var(--site-surface);
+}
+.site-prose pre code {
+    padding: 0;
+    background: transparent;
+    color: inherit;
+}
+.site-prose img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 0.75rem;
+}
+.site-prose figure {
+    margin-inline: 0;
+}
+.site-prose figcaption {
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
+    text-align: center;
+    color: var(--site-muted);
+}
+.site-prose table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+}
+.site-prose th,
+.site-prose td {
+    padding: 0.5rem 0.7rem;
+    border: 1px solid var(--site-border);
+    text-align: left;
+    vertical-align: top;
+}
+.site-prose th {
+    background: var(--site-soft);
+}
+.site-prose hr {
+    border: 0;
+    border-top: 1px solid var(--site-border);
+}
+.site-prose .embed {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    border-radius: 0.75rem;
+}
+.site-prose .embed iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
+
+@media (max-width: 860px) {
+    .site {
+        padding: 0.75rem;
+    }
+    .site-shell {
+        padding: 1.25rem 1.25rem 1.75rem;
+        border-radius: 1.75rem;
+    }
+    .site-hero {
+        grid-template-columns: 1fr;
+    }
+    .site-grid {
+        grid-template-columns: 1fr;
+    }
+    .site-feature {
+        min-height: 16rem;
+    }
+    .site-feature h2 {
+        font-size: 1.3rem;
+    }
+    .site-article h1 {
+        font-size: 1.8rem;
+    }
+}
+@media (min-width: 861px) and (max-width: 1100px) {
+    .site-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+/* Inertia page-visit progress bar (Inertia's built-in CSS is disabled so the CSP can stay strict). */
+#nprogress {
+    pointer-events: none;
+}
+#nprogress .bar {
+    position: fixed;
+    z-index: 1031;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: #3b82f6;
+}
+#nprogress .peg {
+    display: block;
+    position: absolute;
+    right: 0;
+    width: 100px;
+    height: 100%;
+    opacity: 1;
+    box-shadow:
+        0 0 10px #3b82f6,
+        0 0 5px #3b82f6;
+    transform: rotate(3deg) translate(0, -4px);
 }

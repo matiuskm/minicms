@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
 use App\Models\User;
 use App\Notifications\InviteNotification;
+use App\Notifications\SecurityNotice;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -69,6 +70,7 @@ class UserController extends Controller
             $this->guardNotSelf($request, $user, 'You cannot change your own role.');
             $this->guardLastAdmin($user, 'The last active admin cannot be demoted.');
             AuditLog::record('user.role_changed', $user, ['from' => $user->role, 'to' => $data['role']]);
+            $user->notify(new SecurityNotice('Your role was changed', ["An administrator changed your role from {$user->role} to {$data['role']}."]));
             $user->forceFill(['role' => $data['role']]);
         }
 

@@ -15,7 +15,8 @@ herd link mini-cms && herd secure mini-cms   # https://mini-cms.test
 npm run build
 ```
 
-Tests: `./vendor/bin/pest` and `npm test`. Admins must set up 2FA on first login.
+Tests: `./vendor/bin/pest` and `npm test`. Admins must set up 2FA on first login (local development can set
+`CMS_REQUIRE_ADMIN_2FA=false` in `.env`; the switch is ignored in production).
 
 ## Versioning
 
@@ -26,6 +27,33 @@ Release steps: update `CHANGELOG.md` and `VERSION` → commit `chore(release): v
 `git tag -a vX.Y.Z -m "vX.Y.Z"` → `git push --follow-tags`.
 Branches: `main` is always releasable; each phase is developed on `phase/p-0x-name` and merged via PR.
 
+## Server-side rendering
+
+Public pages are rendered on the server for crawlers by a Node process: `php artisan inertia:start-ssr`
+(after `npm run build:ssr`). Without it the site still works (client-side rendering) but search engines see less.
+Production: keep it alive with supervisord or systemd. Optional sample content: `php artisan db:seed --class=DemoContentSeeder`.
+
+## Scheduler
+
+Scheduled posts are published by `php artisan cms:publish-scheduled`, run every minute by Laravel's scheduler.
+Production needs one cron entry: `* * * * * cd /path/to/app && php artisan schedule:run >> /dev/null 2>&1`
+(Herd/local: run `php artisan schedule:work` while testing).
+
+## Uploads
+
+Images (JPG/PNG/GIF/WebP ≤ 5 MB) are re-encoded and stored on the public disk (`php artisan storage:link`);
+PDFs (≤ 10 MB) stay on the private disk and are served through `/files/{uuid}`.
+PHP's own limits must be at least as high: set `upload_max_filesize = 12M` and `post_max_size = 12M`
+(Herd: Settings → PHP → Limits; VPS: `php.ini`).
+
 ## Production
 
+Full VPS guide: [docs/DEPLOY.md](docs/DEPLOY.md). Gate a deploy with `php artisan cms:check-production`.
+
 See `database/hardening/production-grants.sql` for least-privilege DB accounts (audit log is append-only).
+
+Web server rules for uploads (NFR-03, manual check TC-F05-05): never execute PHP from the storage directory, e.g. in nginx
+
+```nginx
+location ^~ /storage/ { location ~ \.php$ { return 403; } add_header X-Content-Type-Options nosniff; }
+```

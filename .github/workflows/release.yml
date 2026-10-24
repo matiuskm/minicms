@@ -1,0 +1,57 @@
+name: release
+
+# Cut a release by pushing a tag from a commit that already passed CI:  git tag -a v1.2.3 -m "v1.2.3" && git push origin v1.2.3
+# The archive is signed with the key in the RELEASE_SIGNING_KEY secret; servers only install archives that verify
+# against the public key shipped in the installed version (release-public.key).
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.4
+          tools: composer:v2
+          extensions: sodium
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Tag must match the VERSION file
+        run: |
+          TAG="${GITHUB_REF_NAME#v}"
+          [ "$(tr -d '[:space:]' < VERSION)" = "$TAG" ] || { echo "VERSION ($(cat VERSION)) does not match tag $TAG"; exit 1; }
+          grep -q "^## \[$TAG\]" CHANGELOG.md || { echo "CHANGELOG.md has no section for $TAG"; exit 1; }
+
+      - name: Build the archive
+        run: scripts/build-release.sh "${GITHUB_REF_NAME#v}" dist
+
+      - name: Sign
+        env:
+          KEY: ${{ secrets.RELEASE_SIGNING_KEY }}
+        run: |
+          F="dist/minicms-${GITHUB_REF_NAME}.tar.gz"
+          php scripts/sign-release.php "$F" "$KEY" > "$F.sig"
+          php scripts/verify-release.php "$F" "$F.sig" release-public.key "$(cat "$F.sha256")"
+
+      - name: Release notes from the changelog
+        run: |
+          TAG="${GITHUB_REF_NAME#v}"
+          awk -v t="## [$TAG]" 'index($0,t)==1{f=1;next} /^## \[/{f=0} f' CHANGELOG.md > notes.md
+          [ -s notes.md ] || echo "Release $TAG" > notes.md
+
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" dist/* --title "$GITHUB_REF_NAME" --notes-file notes.md --verify-tag

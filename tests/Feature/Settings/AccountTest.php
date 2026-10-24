@@ -73,3 +73,32 @@ test('users can list and revoke their own sessions but not others', function () 
     $this->actingAs($user)->delete('/settings/sessions/mine');
     expect(DB::table('sessions')->where('id', 'mine')->exists())->toBeFalse();
 });
+
+test('display name is the public name and falls back to the real name', function () {
+    $user = User::factory()->create(['name' => 'Wendy Writer', 'email' => 'wendy.secret@example.com']);
+    expect($user->publicName())->toBe('Wendy Writer');
+
+    $this->actingAs($user)->patch('/settings/profile', ['name' => 'Wendy Writer', 'display_name' => 'The Midnight Pen', 'email' => $user->email])
+        ->assertSessionHasNoErrors();
+    expect($user->fresh()->publicName())->toBe('The Midnight Pen')->and($user->fresh()->name)->toBe('Wendy Writer');
+
+    $this->actingAs($user)->patch('/settings/profile', ['name' => 'Wendy Writer', 'display_name' => '', 'email' => $user->email]);
+    expect($user->fresh()->display_name)->toBeNull()->and($user->fresh()->publicName())->toBe('Wendy Writer');
+});
+
+test('display name cannot reveal the login email or its local part', function () {
+    $user = User::factory()->create(['email' => 'wendy.secret@example.com']);
+
+    foreach (['wendy.secret@example.com', 'wendy.secret', 'Wendy.Secret', 'anything@else.com'] as $bad) {
+        $this->actingAs($user)->patch('/settings/profile', ['name' => 'W', 'display_name' => $bad, 'email' => $user->email])
+            ->assertSessionHasErrors('display_name');
+    }
+    expect($user->fresh()->display_name)->toBeNull();
+});
+
+test('display name has a length limit', function () {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)->patch('/settings/profile', ['name' => 'W', 'display_name' => str_repeat('a', 61), 'email' => $user->email])
+        ->assertSessionHasErrors('display_name');
+});

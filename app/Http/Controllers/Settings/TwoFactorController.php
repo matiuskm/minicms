@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Settings;
 
 use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
+use App\Notifications\SecurityNotice;
 use BaconQrCode\Renderer\Image\SvgImageBackEnd;
 use BaconQrCode\Renderer\ImageRenderer;
 use BaconQrCode\Renderer\RendererStyle\RendererStyle;
@@ -88,6 +89,7 @@ class TwoFactorController extends Controller
             'two_factor_confirmed_at' => null,
         ])->save();
         AuditLog::record('2fa.disabled', $user);
+        $user->notify(new SecurityNotice('Two-factor authentication was turned off', ['Two-factor authentication is no longer required to sign in to your account.']));
 
         return back();
     }

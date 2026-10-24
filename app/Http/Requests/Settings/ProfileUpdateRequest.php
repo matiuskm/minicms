@@ -19,6 +19,15 @@ class ProfileUpdateRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255'],
 
+            // Shown publicly instead of the login email; must not reveal it.
+            'display_name' => ['nullable', 'string', 'max:60', 'not_regex:/@/', function (string $attribute, mixed $value, \Closure $fail) {
+                $email = strtolower((string) $this->input('email'));
+                $local = strstr($email, '@', true) ?: $email;
+                if (in_array(strtolower(trim((string) $value)), [$email, $local], true)) {
+                    $fail('The display name must not match your login email.');
+                }
+            }],
+
             'email' => [
                 'required',
                 'string',

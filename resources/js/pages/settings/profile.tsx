@@ -23,6 +23,7 @@ export default function Profile() {
 
     const { data, setData, patch, errors, processing, recentlySuccessful } = useForm({
         name: auth.user.name,
+        display_name: auth.user.display_name ?? '',
         email: auth.user.email,
     });
 
@@ -38,7 +39,7 @@ export default function Profile() {
 
             <SettingsLayout>
                 <div className="space-y-6">
-                    <HeadingSmall title="Profile information" description="Update your name and email address" />
+                    <HeadingSmall title="Profile information" description="Update your name, public display name and email address" />
 
                     <form onSubmit={submit} className="space-y-6">
                         <div className="grid gap-2">
@@ -55,6 +56,25 @@ export default function Profile() {
                             />
 
                             <InputError className="mt-2" message={errors.name} />
+                        </div>
+
+                        <div className="grid gap-2">
+                            <Label htmlFor="display_name">Display name</Label>
+
+                            <Input
+                                id="display_name"
+                                className="mt-1 block w-full"
+                                maxLength={60}
+                                value={data.display_name}
+                                onChange={(e) => setData('display_name', e.target.value)}
+                                autoComplete="nickname"
+                                placeholder={auth.user.name}
+                            />
+                            <p className="text-muted-foreground text-xs">
+                                This is the only name visitors see (post bylines). Your email is used to log in and is never shown publicly.
+                            </p>
+
+                            <InputError className="mt-2" message={errors.display_name} />
                         </div>
 
                         <div className="grid gap-2">

@@ -3,9 +3,12 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Middleware\EnforceSessionPolicy;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Models\AuditLog;
+use App\Models\KnownDevice;
 use App\Models\User;
+use App\Notifications\SecurityNotice;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -28,7 +31,8 @@ class AuthenticatedSessionController extends Controller
         $user = $request->authenticate();
 
         // Password is correct but 2FA is pending: don't log in yet.
-        if ($user->hasTwoFactor()) {
+        // The local-only bypass (CMS_REQUIRE_ADMIN_2FA=false) also skips the challenge; it never applies in production.
+        if ($user->hasTwoFactor() && EnforceSessionPolicy::twoFactorRequired()) {
             $request->session()->regenerate();
             $request->session()->put([
                 'login.id' => $user->id,
@@ -49,6 +53,15 @@ class AuthenticatedSessionController extends Controller
         $request->session()->forget(['login.id', 'login.remember', 'login.at']);
 
         $user->forceFill(['last_login_at' => now()])->save();
+
+        if (KnownDevice::seen($user, (string) $request->userAgent())) {
+            AuditLog::record('login.new_device', $user, [], $user->id);
+            $user->notify(new SecurityNotice('New sign-in to your account', [
+                'Your account was just signed in to from a browser we have not seen before.',
+                'When: '.now()->format('Y-m-d H:i').' UTC',
+                'From: '.$request->ip().' — '.mb_substr((string) $request->userAgent(), 0, 120),
+            ]));
+        }
         AuditLog::record('login.success', $user, [], $user->id);
 
         return redirect()->intended(route('dashboard', absolute: false));
