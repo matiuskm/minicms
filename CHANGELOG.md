@@ -6,6 +6,14 @@ Definition of Done (PRD section 11) is met.
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-10-24 — P-05 Appearance
+### Added
+- Appearance screen: six built-in palettes (Light Classic, Dark, Ocean, Forest, Sunset, Monochrome), custom palettes (create, edit, duplicate, delete), one live palette at a time, live preview, WCAG AA contrast warnings.
+- Typography: heading and body font from an allowlist (system sans/serif/mono, Open Sans, Roboto, Lato, Merriweather, Source Serif; self-hosted), base text size S/M/L, reset to defaults.
+- `/theme.css`: the public theme as a versioned, cacheable stylesheet built only from validated values.
+### Fixed
+- Public pages now link the theme after the app CSS with a selector that survives Vite re-inserting the app stylesheet.
+
 ## [0.5.0] - 2026-10-24 — P-04 Public site & settings
 ### Added
 - Public site after `docs/design/reference-public.jpg`: home with featured post, "Latest post" list and card grid with numbered pagination; post, page, category, tag, author and blog archives; search; responsive layout.
@@ -70,7 +78,8 @@ _Shipped inside the initial commit together with 0.2.0; no separate tag._
 - Laravel 12 + React 19 + Inertia 2 (SSR) skeleton, MySQL, Pest 3, Vitest, CI with MySQL service and dependency audits.
 - `Model::preventLazyLoading()` outside production (N+1 guard).
 
-[Unreleased]: https://github.com/matiuskm/minicms/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/matiuskm/minicms/compare/v0.6.0...HEAD
+[0.6.0]: https://github.com/matiuskm/minicms/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/matiuskm/minicms/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/matiuskm/minicms/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/matiuskm/minicms/compare/v0.2.1...v0.3.0

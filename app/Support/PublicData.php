@@ -37,6 +37,12 @@ class PublicData
         });
     }
 
+    /** @return array{v: int, fonts: list<string>} stylesheet cache-buster and the font entries the page must load */
+    public static function theme(): array
+    {
+        return PublicCache::remember('theme', fn () => ['v' => PublicCache::version(), 'fonts' => ThemeCss::fontEntries()]);
+    }
+
     public static function perPage(): int
     {
         return max(5, min(50, (int) Setting::get('posts_per_page', 6)));

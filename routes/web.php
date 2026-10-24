@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AppearanceController;
 use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\MenuController;
@@ -13,6 +14,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FeedController;
 use App\Http\Controllers\MediaController;
 use App\Http\Controllers\PublicController;
+use App\Http\Controllers\ThemeController;
 use Illuminate\Support\Facades\Route;
 
 // Public PDF downloads (attachment-only, sandboxed).
@@ -85,6 +87,15 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::put('tags/{tag}', [TagController::class, 'update'])->name('tags.update');
     Route::delete('tags/{tag}', [TagController::class, 'destroy'])->name('tags.destroy');
 
+    Route::get('appearance', [AppearanceController::class, 'index'])->name('appearance.index');
+    Route::post('appearance/palettes', [AppearanceController::class, 'store'])->name('appearance.palettes.store');
+    Route::put('appearance/palettes/{palette}', [AppearanceController::class, 'update'])->name('appearance.palettes.update');
+    Route::delete('appearance/palettes/{palette}', [AppearanceController::class, 'destroy'])->name('appearance.palettes.destroy');
+    Route::post('appearance/palettes/{palette}/activate', [AppearanceController::class, 'activate'])->name('appearance.palettes.activate');
+    Route::post('appearance/palettes/{palette}/duplicate', [AppearanceController::class, 'duplicate'])->name('appearance.palettes.duplicate');
+    Route::put('appearance/typography', [AppearanceController::class, 'typography'])->name('appearance.typography');
+    Route::post('appearance/reset', [AppearanceController::class, 'reset'])->name('appearance.reset');
+
     Route::get('settings', [SettingsController::class, 'edit'])->name('settings.edit');
     Route::put('settings', [SettingsController::class, 'update'])->name('settings.update');
     Route::get('menus', [MenuController::class, 'edit'])->name('menus.edit');
@@ -102,6 +113,7 @@ Route::middleware('throttle:60,1')->get('search', [PublicController::class, 'sea
 Route::get('sitemap.xml', [FeedController::class, 'sitemap'])->name('sitemap');
 Route::get('robots.txt', [FeedController::class, 'robots'])->name('robots');
 Route::get('rss.xml', [FeedController::class, 'rss'])->name('rss');
+Route::get('theme.css', ThemeController::class)->name('theme');
 Route::get('/', [PublicController::class, 'home'])->name('home');
 Route::get('blog', [PublicController::class, 'blog'])->name('blog');
 Route::get('blog/{slug}', [PublicController::class, 'post'])->name('post');

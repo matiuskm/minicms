@@ -230,6 +230,7 @@ class PublicController extends Controller
         return Inertia::render($component, [
             ...$props,
             'site' => $site,
+            'theme' => PublicData::theme(),
             'seo' => [
                 ...$seo,
                 'title' => $title ? "{$title} — {$site['name']}" : ($site['tagline'] ? "{$site['name']} — {$site['tagline']}" : $site['name']),

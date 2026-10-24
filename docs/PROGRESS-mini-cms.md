@@ -9,7 +9,7 @@ Project dir: repo root (this repo)
 | P-02 Taksonomi, media, editor | done (awaiting review) | PP-F03-01..03, PP-F04-01..02, PP-F05-01..02 PASS (F05-02 server config = MANUAL CHECK); TC-F04-02/05 deferred to P-03 | Pest 158 passed (1636 assertions); Vitest 18; tsc, eslint, prettier, pint clean; build + build:ssr OK; composer/npm audit 0 | PR phase/p-02-taxonomy-media-editor |
 | P-03 Konten | done (awaiting review) | PP-F06-01..03, PP-F07-01..02 PASS; deferred P-02 items closed (TC-F04-02/05, FR-22/23, FR-27, BR-18) | Pest 199 passed (1940 assertions); Vitest 24; tsc, eslint, prettier, pint clean; build + build:ssr OK; composer/npm audit 0 | PR phase/p-03-posts-pages |
 | P-04 Situs publik & pengaturan | done (awaiting review) | PP-F09-01..04, PP-F10-01 PASS (PP-F09-03 SSR: dicek manual lewat curl + screenshot) | Pest 233 passed (2597 assertions); Vitest 25; tsc, eslint, prettier, pint clean; build + build:ssr OK; Herd: semua rute publik 200, SSR menyajikan HTML penuh, screenshot desktop/mobile sesuai referensi | PR phase/p-04-public-site |
-| P-05 Tampilan | todo | | | |
+| P-05 Tampilan | done (awaiting review) | PP-F08-01..03 PASS | Pest 253 passed; Vitest 37; tsc, eslint, prettier, pint clean; build + build:ssr OK; Herd: tema Dark + Merriweather/Open Sans tampil benar di screenshot, font diserve dari /build/assets | PR phase/p-05-appearance |
 | P-06 Hardening & operasi | todo | | | |
 
 ## Log
@@ -30,3 +30,7 @@ Project dir: repo root (this repo)
   - Diverifikasi di browser headless (Chrome) untuk beranda desktop, halaman post, dan layout 500 px; panel admin belum dicek visual (butuh login + 2FA) → MANUAL CHECK: Settings, Menus, dropdown Save, tombol Visit Website.
   - Bug yang ditemukan dan diperbaiki sepanjang jalan: URL gambar absolut ditolak sanitizer (sekarang relatif), flash message admin tidak pernah tampil, `public/robots.txt` statis menimpa route.
   - Data demo (10 post, 1 halaman, menu) dimasukkan ke database dev lewat DemoContentSeeder.
+- 2026-10-24 P-05 DONE (branch `phase/p-05-appearance`, release 0.6.0, ditumpuk di P-04): palet preset + custom, font allowlist self-hosted, ukuran dasar, preview live, peringatan kontras, `/theme.css`. Keputusan di PRD A-17.
+  - Bug nyata yang baru terlihat lewat screenshot: Vite menyisipkan ulang `app.css` setelah `theme.css` saat runtime sehingga tema tertimpa; diperbaiki dengan selektor `html .site`.
+  - Dev DB sudah dikembalikan ke Light Classic + font sistem setelah pengujian.
+  - MANUAL CHECK: layar admin Appearance (picker warna, preview) belum dilihat di browser sungguhan (butuh login + 2FA); hanya teruji lewat test komponen.

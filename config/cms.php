@@ -24,4 +24,21 @@ return [
         'category', 'tag', 'author', 'search', 'sitemap', 'robots', 'rss', 'feed', 'storage', 'build', 'up',
         'forgot-password', 'reset-password', 'invite', 'two-factor-challenge', 'register', 'api', 'preview',
     ],
+
+    // F-08: the only fonts a theme can pick (BR-26). `entry` is a Vite CSS entry that self-hosts the family.
+    'fonts' => [
+        'system-sans' => ['label' => 'System Sans (default)', 'stack' => "ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif", 'entry' => null],
+        'system-serif' => ['label' => 'System Serif (Georgia)', 'stack' => "Georgia, 'Times New Roman', Times, serif", 'entry' => null],
+        'monospace' => ['label' => 'Monospace', 'stack' => "ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace", 'entry' => null],
+        'open-sans' => ['label' => 'Open Sans', 'stack' => "'Open Sans', ui-sans-serif, system-ui, sans-serif", 'entry' => 'resources/css/fonts/open-sans.css'],
+        'roboto' => ['label' => 'Roboto', 'stack' => 'Roboto, ui-sans-serif, system-ui, sans-serif', 'entry' => 'resources/css/fonts/roboto.css'],
+        'lato' => ['label' => 'Lato', 'stack' => 'Lato, ui-sans-serif, system-ui, sans-serif', 'entry' => 'resources/css/fonts/lato.css'],
+        'merriweather' => ['label' => 'Merriweather', 'stack' => 'Merriweather, Georgia, serif', 'entry' => 'resources/css/fonts/merriweather.css'],
+        'source-serif' => ['label' => 'Source Serif', 'stack' => "'Source Serif 4', Georgia, serif", 'entry' => 'resources/css/fonts/source-serif.css'],
+    ],
+
+    // Base text size choices as a percentage of the browser default.
+    'font_sizes' => ['s' => 93.75, 'm' => 100, 'l' => 112.5],
+
+    'max_custom_palettes' => 20,
 ];

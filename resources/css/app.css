@@ -211,7 +211,7 @@
     --site-primary: #8f3f1f;
     --site-on-primary: #ffffff;
     --site-soft: #f7ede5;
-    --site-card: #faf7f4;
+    --site-card: color-mix(in srgb, var(--site-surface) 55%, var(--site-soft));
     --site-border: #ece4dc;
     --site-link: #8f3f1f;
     --site-font-body: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
@@ -374,6 +374,7 @@
 }
 .site-feature .site-pill {
     background: rgb(255 255 255 / 0.92);
+    color: #1d1b19; /* always on a light chip, whatever the palette */
 }
 .site-section-title {
     margin: 0 0 1rem;
@@ -477,8 +478,8 @@
     font-size: 0.7rem;
 }
 .site-pager a[aria-current='page'] {
-    background: #1d1b19;
-    color: #fff;
+    background: var(--site-text);
+    color: var(--site-surface);
 }
 .site-pager a:hover {
     background: var(--site-soft);
@@ -598,8 +599,8 @@
     padding: 1rem;
     overflow-x: auto;
     border-radius: 0.75rem;
-    background: #1d1b19;
-    color: #f5efe9;
+    background: var(--site-text);
+    color: var(--site-surface);
 }
 .site-prose pre code {
     padding: 0;

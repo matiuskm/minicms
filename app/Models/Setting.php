@@ -43,6 +43,9 @@ class Setting extends Model
         'mail_from_name' => '',
         'mail_from_address' => '',
         'maintenance_mode' => false,
+        'font_heading' => 'system-sans',
+        'font_body' => 'system-sans',
+        'font_size' => 'm',
     ];
 
     /** @return array<string, mixed> every setting, defaults filled in; one query, cached until a setting changes. */

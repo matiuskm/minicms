@@ -17,7 +17,11 @@
 
         @routes
         @viteReactRefresh
-        @vite(['resources/js/app.tsx', "resources/js/pages/{$page['component']}.tsx"])
+        {{-- Public pages also load the self-hosted fonts of the active theme, then the theme stylesheet (it must come last). --}}
+        @vite(array_merge(['resources/js/app.tsx', "resources/js/pages/{$page['component']}.tsx"], $page['props']['theme']['fonts'] ?? []))
+        @if (! empty($page['props']['theme']))
+            <link rel="stylesheet" href="/theme.css?v={{ $page['props']['theme']['v'] }}">
+        @endif
         @inertiaHead
     </head>
     <body class="font-sans antialiased">

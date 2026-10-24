@@ -12,7 +12,7 @@ class PublicCache
 {
     public const TTL = 600; // seconds
 
-    private static function version(): int
+    public static function version(): int
     {
         return (int) Cache::rememberForever('public.version', fn () => 1);
     }

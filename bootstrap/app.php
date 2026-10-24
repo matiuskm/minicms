@@ -45,6 +45,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 'status' => $status,
                 'message' => $status === 503 && $e->getMessage() === 'maintenance' ? 'maintenance' : null,
                 'site' => rescue(fn () => PublicData::site(), null, false),
+                'theme' => rescue(fn () => PublicData::theme(), null, false),
             ])->toResponse($request)->setStatusCode($status)->withHeaders($status === 503 ? ['Retry-After' => 3600] : []);
         });
     })->create();
