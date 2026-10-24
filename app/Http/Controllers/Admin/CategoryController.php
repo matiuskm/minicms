@@ -5,9 +5,11 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
 use App\Models\Category;
+use App\Models\Post;
 use App\Support\Slugger;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
@@ -17,7 +19,9 @@ class CategoryController extends Controller
 {
     public function index(): Response
     {
+        // FR-23: published-post counter as a subquery, still one query for the whole list.
         $all = Category::query()->orderBy('name')
+            ->withCount(['posts as posts_count' => fn ($q) => $q->published()])
             ->get(['id', 'parent_id', 'name', 'slug', 'description', 'is_system']);
 
         // One query; the parent name is resolved in memory (no N+1).
@@ -25,7 +29,7 @@ class CategoryController extends Controller
 
         return Inertia::render('admin/categories/index', [
             'categories' => $all->map(fn (Category $c) => [
-                ...$c->only('id', 'parent_id', 'name', 'slug', 'description', 'is_system'),
+                ...$c->only('id', 'parent_id', 'name', 'slug', 'description', 'is_system', 'posts_count'),
                 'parent' => $c->parent_id ? $names[$c->parent_id] : null,
             ])->values(),
         ]);
@@ -63,9 +67,13 @@ class CategoryController extends Controller
             throw ValidationException::withMessages(['category' => 'Move or delete its sub-categories first.']);
         }
 
-        // ponytail: posts are re-assigned to "Uncategorized" here once Posts exist (P-03, BR-18).
-        AuditLog::record('category.deleted', $category, ['name' => $category->name]);
-        $category->delete();
+        DB::transaction(function () use ($category) {
+            // BR-18: posts (including trashed ones) fall back to "Uncategorized".
+            Post::withTrashed()->where('category_id', $category->id)
+                ->update(['category_id' => Category::where('is_system', true)->value('id')]);
+            AuditLog::record('category.deleted', $category, ['name' => $category->name]);
+            $category->delete();
+        });
 
         return back();
     }

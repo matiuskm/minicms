@@ -107,6 +107,14 @@ test('non-Latin and right-to-left content is preserved', function () {
     expect($out)->toContain('日本語のテキスト')->toContain('مرحبا بالعالم')->toContain('Привет, мир');
 });
 
+test('images may only reference our own uploads', function () {
+    expect(clean('<img src="/storage/uploads/2026/10/a.jpg" alt="a">'))->toContain('/storage/uploads/2026/10/a.jpg');
+
+    foreach (['x', '/etc/passwd', '/storage/other/a.jpg', '/storage/uploads/../../.env', '//evil.example/a.jpg', 'a.jpg'] as $src) {
+        expect(clean("<img src=\"{$src}\" alt=\"a\">"))->not->toContain('<img');
+    }
+});
+
 test('empty input stays empty', function () {
     expect(clean(''))->toBe('')->and(clean('   '))->toBe('');
 });

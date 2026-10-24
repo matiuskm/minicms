@@ -6,6 +6,17 @@ Definition of Done (PRD section 11) is met.
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-10-24 — P-03 Posts & pages
+### Added
+- Posts with the review workflow (draft → pending review → published/scheduled/rejected → archived, trash), role-scoped access, policy-enforced transitions and an audit trail.
+- Editor page after the design reference: tabs Content/Meta/SEO, side panel (author, date, category, tags, status), Save menu, preview, revisions, draft autosave, optimistic locking.
+- Pages (admin only): one-level hierarchy, menu order, reserved addresses, publish/unpublish, trash/restore/purge.
+- Revision history (latest 50) with restore, content integrity hash, 301 redirect records when a live slug changes.
+- Scheduler command `cms:publish-scheduled`.
+- Tag merge and published-post counters; deleting a category moves its posts to "Uncategorized"; media in use can no longer be deleted.
+### Changed
+- Sanitizer only accepts images from `/storage/uploads/`.
+
 ## [0.3.0] - 2026-10-24 — P-02 Taxonomy, media & editor
 ### Added
 - Admin shell restyled after `docs/design/reference-editor.jpg` (navy sidebar, light cards, system font stack, no external fonts).
@@ -40,7 +51,8 @@ _Shipped inside the initial commit together with 0.2.0; no separate tag._
 - Laravel 12 + React 19 + Inertia 2 (SSR) skeleton, MySQL, Pest 3, Vitest, CI with MySQL service and dependency audits.
 - `Model::preventLazyLoading()` outside production (N+1 guard).
 
-[Unreleased]: https://github.com/matiuskm/minicms/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/matiuskm/minicms/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/matiuskm/minicms/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/matiuskm/minicms/compare/v0.2.1...v0.3.0
 [0.2.1]: https://github.com/matiuskm/minicms/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/matiuskm/minicms/releases/tag/v0.2.0

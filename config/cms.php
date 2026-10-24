@@ -14,4 +14,14 @@ return [
         'image_mimes' => ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/gif' => 'gif', 'image/webp' => 'webp'],
         'variants' => ['thumb' => 150, 'medium' => 400, 'large' => 1200],
     ],
+
+    // Display timezone for the public site (storage stays UTC; admin shows browser time).
+    'timezone' => 'Asia/Jakarta',
+
+    // Page slugs share the root namespace with application routes (F-07).
+    'reserved_slugs' => [
+        'admin', 'login', 'logout', 'dashboard', 'settings', 'media', 'files', 'tags', 'content', 'blog',
+        'category', 'tag', 'author', 'search', 'sitemap', 'robots', 'rss', 'feed', 'storage', 'build', 'up',
+        'forgot-password', 'reset-password', 'invite', 'two-factor-challenge', 'register', 'api', 'preview',
+    ],
 ];

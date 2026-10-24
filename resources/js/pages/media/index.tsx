@@ -70,7 +70,7 @@ function Card({ item }: { item: Item }) {
 }
 
 export default function MediaIndex({ items, filters, limits }: Props) {
-    const { flash } = usePage<SharedData & { flash?: { status?: string } }>().props;
+    const { flash, errors } = usePage<SharedData & { flash?: { status?: string }; errors: Record<string, string> }>().props;
     const upload = useForm<{ file: File | null; alt_text: string }>({ file: null, alt_text: '' });
     const [q, setQ] = useState(filters.q);
 
@@ -88,6 +88,7 @@ export default function MediaIndex({ items, filters, limits }: Props) {
 
             <div className="space-y-6 p-4">
                 {flash?.status && <p className="text-sm text-green-600">{flash.status}</p>}
+                {errors?.media && <p className="text-sm text-red-600">{errors.media}</p>}
 
                 <form
                     onSubmit={submit}

@@ -58,6 +58,13 @@ class HtmlSanitizer
         $this->purifier = new HTMLPurifier($c);
     }
 
+    /** True when sanitized HTML has no text and no media (an empty editor yields "<p></p>"). */
+    public static function isBlank(string $html): bool
+    {
+        return trim(html_entity_decode(strip_tags($html))) === ''
+            && ! preg_match('/<(img|figure|hr|table)\b|data-embed=/i', $html);
+    }
+
     public function clean(?string $html): string
     {
         $html = trim((string) $html);
@@ -67,6 +74,11 @@ class HtmlSanitizer
         }
 
         $clean = $this->purifier->purify($html);
+
+        // Images may only point at our own uploads; anything else (relative guesses, other paths) is dropped.
+        $clean = preg_replace_callback('#<img\b[^>]*>#i', function (array $m) {
+            return preg_match('#\bsrc="/storage/uploads/(?!.*\.\.)[A-Za-z0-9/_.-]+"#', $m[0]) ? $m[0] : '';
+        }, $clean);
 
         // An embed without both attributes is meaningless; drop it.
         return preg_replace('#<div(?![^>]*data-embed=)[^>]*>\s*</div>#', '', $clean);

@@ -1,6 +1,8 @@
 <?php
 
 use App\Models\Media;
+use App\Models\Page;
+use App\Models\Post;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -178,4 +180,26 @@ test('media list does not query per row', function () {
     DB::enableQueryLog();
     $this->actingAs(adminUser())->get('/media')->assertOk();
     expect(count(DB::getQueryLog()))->toBeLessThanOrEqual(8);
+});
+
+test('FR-27 media used as a featured image or inside content cannot be deleted', function () {
+    $writer = User::factory()->create();
+    $this->actingAs($writer)->post('/media', ['file' => UploadedFile::fake()->image('a.jpg'), 'alt_text' => 'a']);
+    $m = Media::firstOrFail();
+
+    $post = Post::factory()->by($writer)->create(['featured_media_id' => $m->id]);
+    $this->actingAs($writer)->delete("/media/{$m->id}")->assertSessionHasErrors('media');
+    expect(Media::count())->toBe(1);
+
+    $post->update(['featured_media_id' => null]);
+    $post->update(['body' => '<figure><img src="/storage/'.$m->path.'" alt="a"></figure>']);
+    $this->actingAs($writer)->delete("/media/{$m->id}")->assertSessionHasErrors('media');
+
+    $post->forceDelete();
+    Page::factory()->create(['body' => '<p>see /files/'.$m->uuid.'</p>']);
+    $this->actingAs($writer)->delete("/media/{$m->id}")->assertSessionHasErrors('media');
+
+    Page::query()->forceDelete();
+    $this->actingAs($writer)->delete("/media/{$m->id}")->assertSessionHasNoErrors();
+    expect(Media::count())->toBe(0);
 });

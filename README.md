@@ -26,6 +26,12 @@ Release steps: update `CHANGELOG.md` and `VERSION` → commit `chore(release): v
 `git tag -a vX.Y.Z -m "vX.Y.Z"` → `git push --follow-tags`.
 Branches: `main` is always releasable; each phase is developed on `phase/p-0x-name` and merged via PR.
 
+## Scheduler
+
+Scheduled posts are published by `php artisan cms:publish-scheduled`, run every minute by Laravel's scheduler.
+Production needs one cron entry: `* * * * * cd /path/to/app && php artisan schedule:run >> /dev/null 2>&1`
+(Herd/local: run `php artisan schedule:work` while testing).
+
 ## Uploads
 
 Images (JPG/PNG/GIF/WebP ≤ 5 MB) are re-encoded and stored on the public disk (`php artisan storage:link`);

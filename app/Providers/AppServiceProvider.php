@@ -2,9 +2,12 @@
 
 namespace App\Providers;
 
+use App\Models\Page;
+use App\Models\Post;
 use App\Support\HtmlSanitizer;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
@@ -21,6 +24,9 @@ class AppServiceProvider extends ServiceProvider
     {
         // N+1 guard (NFR-04): lazy loading throws outside production.
         Model::preventLazyLoading(! $this->app->isProduction());
+
+        // revisions.revisionable_type stores these aliases, not class names.
+        Relation::enforceMorphMap(['post' => Post::class, 'page' => Page::class]);
 
         // BR-01: min 12 chars; breached-password check needs outbound HTTP, so prod only.
         Password::defaults(fn () => $this->app->isProduction()

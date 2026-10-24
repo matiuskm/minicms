@@ -2,6 +2,7 @@
 
 use App\Models\AuditLog;
 use App\Models\Category;
+use App\Models\Post;
 use App\Models\Tag;
 use App\Models\User;
 
@@ -102,4 +103,48 @@ test('admin can rename and delete tags and categories', function () {
     $this->actingAs($admin)->delete("/admin/tags/{$tag->id}");
     $this->actingAs($admin)->delete("/admin/categories/{$cat->id}");
     expect(Tag::count())->toBe(0)->and(Category::where('slug', 'temp')->exists())->toBeFalse();
+});
+
+test('TC-F04-02 deleting a category moves its posts (even trashed ones) to Uncategorized', function () {
+    $admin = adminUser();
+    $news = Category::create(['name' => 'News', 'slug' => 'news']);
+    $live = Post::factory()->create(['category_id' => $news->id]);
+    $trashed = Post::factory()->create(['category_id' => $news->id]);
+    $trashed->delete();
+
+    $this->actingAs($admin)->delete("/admin/categories/{$news->id}")->assertSessionHasNoErrors();
+
+    $fallback = Category::firstWhere('slug', 'uncategorized')->id;
+    expect(Category::find($news->id))->toBeNull();
+    expect($live->fresh()->category_id)->toBe($fallback)->and(Post::withTrashed()->find($trashed->id)->category_id)->toBe($fallback);
+});
+
+test('TC-F04-05 merging tags moves posts without duplicates and removes the source', function () {
+    $admin = adminUser();
+    $source = Tag::create(['name' => 'Laravl', 'slug' => 'laravl']);
+    $target = Tag::create(['name' => 'Laravel', 'slug' => 'laravel']);
+    $both = Post::factory()->create();
+    $only = Post::factory()->create();
+    $both->tags()->attach([$source->id, $target->id]);
+    $only->tags()->attach($source->id);
+
+    $this->actingAs($admin)->post('/admin/tags/merge', ['source_id' => $source->id, 'target_id' => $target->id])->assertSessionHasNoErrors();
+
+    expect(Tag::find($source->id))->toBeNull();
+    expect($target->posts()->pluck('posts.id')->all())->toEqualCanonicalizing([$both->id, $only->id]);
+    expect(DB::table('post_tag')->where('post_id', $both->id)->count())->toBe(1);
+    $this->actingAs($admin)->post('/admin/tags/merge', ['source_id' => $target->id, 'target_id' => $target->id])->assertSessionHasErrors('target_id');
+    $this->actingAs(User::factory()->create())->post('/admin/tags/merge', ['source_id' => 1, 'target_id' => 2])->assertForbidden();
+});
+
+test('FR-23 category and tag lists carry published-post counters without extra queries', function () {
+    $admin = adminUser();
+    $cat = Category::create(['name' => 'News', 'slug' => 'news']);
+    $tag = Tag::create(['name' => 'PHP', 'slug' => 'php']);
+    foreach (['published', 'published', 'draft'] as $status) {
+        Post::factory()->status($status)->create(['category_id' => $cat->id])->tags()->attach($tag->id);
+    }
+
+    $this->actingAs($admin)->get('/admin/categories')->assertInertia(fn ($p) => $p->where('categories', fn ($rows) => collect($rows)->firstWhere('slug', 'news')['posts_count'] === 2));
+    $this->actingAs($admin)->get('/admin/tags')->assertInertia(fn ($p) => $p->where('tags.data.0.posts_count', 2));
 });

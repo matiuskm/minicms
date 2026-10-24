@@ -19,6 +19,7 @@ interface Category {
     slug: string;
     description: string | null;
     is_system: boolean;
+    posts_count: number;
 }
 
 const selectClass = 'border-input h-9 rounded-md border bg-transparent px-2 text-sm';
@@ -44,7 +45,7 @@ function Row({ category, parents }: { category: Category; parents: Category[] })
     if (editing) {
         return (
             <tr className="border-t align-top">
-                <td className="p-3" colSpan={4}>
+                <td className="p-3" colSpan={5}>
                     <form onSubmit={save} className="grid gap-2 md:grid-cols-5">
                         <div>
                             <Input aria-label="Name" value={form.data.name} onChange={(e) => form.setData('name', e.target.value)} />
@@ -95,6 +96,7 @@ function Row({ category, parents }: { category: Category; parents: Category[] })
             </td>
             <td className="text-muted-foreground p-3">{category.slug}</td>
             <td className="text-muted-foreground p-3">{category.description}</td>
+            <td className="p-3">{category.posts_count}</td>
             <td className="space-x-2 p-3 text-right">
                 {!category.is_system && (
                     <>
@@ -173,6 +175,7 @@ export default function Categories({ categories }: { categories: Category[] }) {
                                 <th className="p-3">Name</th>
                                 <th className="p-3">Slug</th>
                                 <th className="p-3">Description</th>
+                                <th className="p-3">Posts</th>
                                 <th className="p-3" />
                             </tr>
                         </thead>

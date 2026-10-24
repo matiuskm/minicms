@@ -2,16 +2,17 @@ import { NavMain } from '@/components/nav-main';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { FolderTree, Image, LayoutGrid, ScrollText, Settings, Tags, Users } from 'lucide-react';
+import { File, FolderTree, Image, LayoutGrid, Newspaper, ScrollText, Settings, Tags, Users } from 'lucide-react';
 import AppLogo from './app-logo';
 
-// Items are added as their modules ship (Posts and Pages arrive in P-03).
 const mainNavItems: NavItem[] = [
     { title: 'Dashboard', url: '/dashboard', icon: LayoutGrid },
+    { title: 'Posts', url: '/admin/posts', icon: Newspaper },
     { title: 'Media', url: '/media', icon: Image },
 ];
 
 const adminNavItems: NavItem[] = [
+    { title: 'Pages', url: '/admin/pages', icon: File },
     { title: 'Categories', url: '/admin/categories', icon: FolderTree },
     { title: 'Tags', url: '/admin/tags', icon: Tags },
     { title: 'Team', url: '/admin/users', icon: Users },

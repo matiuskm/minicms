@@ -14,11 +14,13 @@ interface Tag {
     id: number;
     name: string;
     slug: string;
+    posts_count: number;
 }
 
-function Row({ tag }: { tag: Tag }) {
+function Row({ tag, others }: { tag: Tag; others: Tag[] }) {
     const [editing, setEditing] = useState(false);
     const form = useForm({ name: tag.name });
+    const [target, setTarget] = useState('');
 
     const save: FormEventHandler = (e) => {
         e.preventDefault();
@@ -44,7 +46,36 @@ function Row({ tag }: { tag: Tag }) {
                 )}
             </td>
             <td className="text-muted-foreground p-3">{tag.slug}</td>
+            <td className="p-3">{tag.posts_count}</td>
             <td className="space-x-2 p-3 text-right">
+                {!editing && others.length > 0 && (
+                    <>
+                        <select
+                            aria-label={`Merge ${tag.name} into`}
+                            className="border-input h-8 rounded-md border bg-transparent px-1 text-xs"
+                            value={target}
+                            onChange={(e) => setTarget(e.target.value)}
+                        >
+                            <option value="">Merge into…</option>
+                            {others.map((o) => (
+                                <option key={o.id} value={o.id}>
+                                    {o.name}
+                                </option>
+                            ))}
+                        </select>
+                        <Button
+                            size="sm"
+                            variant="outline"
+                            disabled={!target}
+                            onClick={() =>
+                                confirm(`Merge "${tag.name}" into the selected tag? "${tag.name}" will be deleted.`) &&
+                                router.post(route('admin.tags.merge'), { source_id: tag.id, target_id: Number(target) }, { preserveScroll: true })
+                            }
+                        >
+                            Merge
+                        </Button>
+                    </>
+                )}
                 {!editing && (
                     <Button size="sm" variant="outline" onClick={() => setEditing(true)}>
                         Rename
@@ -108,12 +139,13 @@ export default function Tags({ tags, filters }: { tags: Paginated<Tag>; filters:
                             <tr>
                                 <th className="p-3">Name</th>
                                 <th className="p-3">Slug</th>
+                                <th className="p-3">Posts</th>
                                 <th className="p-3" />
                             </tr>
                         </thead>
                         <tbody>
                             {tags.data.map((t) => (
-                                <Row key={`${t.id}-${t.name}`} tag={t} />
+                                <Row key={`${t.id}-${t.name}`} tag={t} others={tags.data.filter((o) => o.id !== t.id)} />
                             ))}
                         </tbody>
                     </table>

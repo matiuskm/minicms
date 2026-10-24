@@ -108,7 +108,10 @@ class MediaController extends Controller
     {
         $media = Media::query()->visibleTo($request->user())->findOrFail($id);
 
-        // ponytail: "in use" check (FR-27) lands with Posts/Pages in P-03, when references exist.
+        if ($media->isInUse()) {
+            throw ValidationException::withMessages(['media' => 'This file is used by a post or page. Remove it there first.']);
+        }
+
         $media->deleteFiles();
         $media->delete();
         AuditLog::record('media.deleted', $media, ['name' => $media->original_name]);

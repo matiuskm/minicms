@@ -22,6 +22,17 @@ class Media extends Model
         return $user->isAdmin() ? $query : $query->where('uploader_id', $user->id);
     }
 
+    /**
+     * Referenced as a featured image, or by uuid inside any post/page body (image paths and /files/{uuid} links
+     * both contain it). ponytail: LIKE scan is fine for the rare delete action; index references if it gets slow.
+     */
+    public function isInUse(): bool
+    {
+        return Post::withTrashed()->where('featured_media_id', $this->id)->exists()
+            || Post::withTrashed()->where('body', 'like', "%{$this->uuid}%")->exists()
+            || Page::withTrashed()->where('body', 'like', "%{$this->uuid}%")->exists();
+    }
+
     public function isImage(): bool
     {
         return str_starts_with($this->mime, 'image/');

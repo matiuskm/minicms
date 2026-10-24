@@ -9,6 +9,7 @@ use App\Support\Slugger;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -21,6 +22,7 @@ class TagController extends Controller
 
         return Inertia::render('admin/tags/index', [
             'tags' => Tag::query()
+                ->withCount(['posts as posts_count' => fn ($p) => $p->published()])
                 ->when($q !== '', fn ($query) => $query->where('name', 'like', "%{$q}%"))
                 ->orderBy('name')->paginate(30)->withQueryString(),
             'filters' => ['q' => $q],
@@ -49,12 +51,40 @@ class TagController extends Controller
         return back();
     }
 
+    /** Move every post from $source to $target, then delete $source (FR-22). */
+    public function merge(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'source_id' => ['required', 'integer', 'exists:tags,id'],
+            'target_id' => ['required', 'integer', 'exists:tags,id', 'different:source_id'],
+        ]);
+        $source = Tag::findOrFail($data['source_id']);
+        $target = Tag::findOrFail($data['target_id']);
+
+        DB::transaction(function () use ($source, $target) {
+            $target->posts()->syncWithoutDetaching($source->posts()->pluck('posts.id')); // no duplicate pivot rows
+            AuditLog::record('tag.merged', $target, ['merged' => $source->name]);
+            $source->delete();
+        });
+
+        return back();
+    }
+
     public function destroy(Tag $tag): RedirectResponse
     {
         AuditLog::record('tag.deleted', $tag, ['name' => $tag->name]);
         $tag->delete();
 
         return back();
+    }
+
+    /** Suggestions for the editor's tag input. */
+    public function search(Request $request): JsonResponse
+    {
+        $q = trim((string) $request->query('q', ''));
+
+        return response()->json(Tag::query()->when($q !== '', fn ($query) => $query->where('name', 'like', "{$q}%"))
+            ->orderBy('name')->limit(10)->get(['id', 'name']));
     }
 
     /** Writers (and admins) create tags from the editor; an existing name is returned, never duplicated. */
