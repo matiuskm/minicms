@@ -380,3 +380,10 @@ test('the production checklist passes for a correctly configured environment', f
     // The only checks left that depend on the machine are file permissions, which a dev checkout cannot satisfy.
     $this->artisan('cms:check-production')->expectsOutputToContain('PASS  APP_ENV is production')->expectsOutputToContain('PASS  Mail is not the log/array driver');
 });
+
+test('the production checklist flags a guard that uses the legacy token driver', function () {
+    $this->artisan('cms:check-production')->expectsOutputToContain('PASS  No guard uses the legacy token driver');
+
+    config(['auth.guards.api' => ['driver' => 'token', 'provider' => 'users']]);
+    $this->artisan('cms:check-production')->expectsOutputToContain('FAIL  No guard uses the legacy token driver');
+});

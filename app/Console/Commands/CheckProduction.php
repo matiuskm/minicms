@@ -22,6 +22,7 @@ class CheckProduction extends Command
             'Session cookie is Secure' => config('session.secure') === true,
             'Session payloads are encrypted' => config('session.encrypt') === true,
             'Passwords hashed with Argon2id' => config('hashing.driver') === 'argon2id',
+            'No guard uses the legacy token driver' => ! collect(config('auth.guards'))->contains(fn ($g) => ($g['driver'] ?? null) === 'token'),
             'Admin 2FA is required' => (bool) config('cms.require_admin_2fa'),
             'Database user is not root' => ! in_array($db['username'] ?? 'root', ['root', ''], true),
             'Mail is not the log/array driver' => ! in_array(config('mail.default'), ['log', 'array'], true),

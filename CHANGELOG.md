@@ -13,6 +13,7 @@ Definition of Done (PRD section 11) is met.
 - Statistics screen: views, unique visitors, daily chart, sources, most viewed, campaigns, referring websites, per-page source breakdown.
 - Tracked link builder for sharing on Instagram, WhatsApp, Facebook, X, Telegram, TikTok, LINE, email, etc.
 - Settings: switch counting off, retention 30–365 days; nightly pruning (`cms:prune-analytics`).
+- `cms:check-production` also fails if any auth guard uses the legacy `token` driver.
 
 ## [0.7.0] - 2026-10-24 — P-06 Hardening & operations
 ### Added
