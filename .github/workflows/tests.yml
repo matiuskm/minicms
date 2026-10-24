@@ -69,5 +69,9 @@ jobs:
       - name: Pest
         run: ./vendor/bin/pest
 
+      # Release criterion (PRD section 11): coverage of the critical logic. The overall figure is printed for the record.
+      - name: Coverage
+        run: XDEBUG_MODE=coverage ./vendor/bin/pest --coverage --min=70 --compact
+
       - name: Vitest
         run: npm test

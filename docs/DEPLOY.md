@@ -138,6 +138,14 @@ php artisan cms:check-integrity
 
 `--force` is required because the restore replaces every table in the configured database.
 
+### Audit log retention
+
+The site's database account can only add to `audit_logs`, so trimming it cannot be done by the web scheduler. Run it weekly from the deploy user's cron with the migrator credentials (entries older than 12 months are deleted):
+
+```cron
+30 3 * * 0 cd /var/www/cms/current && set -a && . /var/www/cms/shared/.env.migrator && set +a && php artisan cms:prune-audit >> /var/www/cms/shared/storage/logs/prune.log 2>&1
+```
+
 ### Visitor statistics
 
 Visits are counted by the application itself (no cookies, no IPs stored). Behind a proxy or CDN, configure trusted proxies so
