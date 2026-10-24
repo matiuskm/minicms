@@ -13,6 +13,8 @@ Definition of Done (PRD section 11) is met.
 - Media library: content-sniffed uploads, image re-encode + 3 variants, PDFs on a private disk served as sandboxed attachments, per-user scope, upload rate limits.
 - TipTap rich-text editor (headings, formatting, lists, quote, code, table, align, captioned images, PDF links, YouTube/Vimeo embeds, admin-only HTML source, word count).
 - Server-side allowlist HTML sanitizer (`HtmlSanitizer`, `SanitizedHtml` cast) and `POST /content/preview`.
+### Removed
+- Dark mode and the appearance settings page; the admin UI is light only.
 ### Changed
 - Docs: PRD v1.3 adopts the UI reference in `docs/design/` (navy sidebar, tabbed editor with side panel); adds per-post/page SEO fields to the plan.
 
