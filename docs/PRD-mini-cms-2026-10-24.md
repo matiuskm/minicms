@@ -2,7 +2,7 @@
 
 | Item | Detail |
 |---|---|
-| Version | 1.5 |
+| Version | 1.6 |
 | Date | 2026-10-24 |
 | Author | anakodok@gmail.com (generated with PRD Generator) |
 | Source | docs/SA-mini-cms-2026-10-24.md |
@@ -22,6 +22,7 @@
 - A-11 — Per-post/page SEO: kolom `meta_title` (≤ 70) dan `meta_description` (≤ 160) ditambahkan di `posts` dan `pages` (tab SEO). Tab Meta berisi slug, excerpt, featured image.
 - A-12 — Keputusan implementasi P-02 (v1.4): (1) Video disimpan sebagai `<div data-embed="youtube|vimeo" data-id="…">` dan baru diubah menjadi iframe ber-sandbox saat render publik (P-04); URL dari penulis tidak pernah masuk atribut `src`. (2) Sanitasi memakai `ezyang/htmlpurifier` langsung, dipasang sebagai cast `SanitizedHtml` pada kolom `body` (P-03) dan endpoint `POST /content/preview`. (3) `media.uuid` ditambahkan; PDF disimpan di disk privat dan disajikan lewat `GET /files/{uuid}` (attachment, `nosniff`, CSP sandbox), gambar di disk publik. (4) Yang butuh tabel `posts` dipindah ke P-03: FR-22 merge tag, FR-23 counter, penggantian category ke Uncategorized saat hapus (BR-18), cek "media sedang dipakai" (FR-27), sehingga TC-F04-02 dan TC-F04-05 dijalankan di P-03. (5) Pencarian di top bar admin tidak dibuat (di luar PRD).
 - A-13 — Keputusan implementasi P-03 (v1.5): (1) Save dan transisi status memakai satu request: field `action` (`save|submit|publish|schedule`) pada `POST/PUT /admin/posts`; reject, unpublish, archive, unarchive, trash, restore, purge adalah endpoint tersendiri. (2) Konflik versi: Save biasa menolak versi usang dengan error validasi `version` (422, karena respons 409 tidak dipahami navigasi Inertia); autosave (JSON) membalas 409. TC-F06-08 diuji dengan kedua jalur. (3) Autosave hanya untuk draft/rejected yang sudah punya id, tanpa membuat revision (revision dibuat saat Save). (4) Waktu disimpan UTC; admin mengisi dan melihat waktu di zona browser; situs publik menampilkan `Asia/Jakarta` (`config('cms.timezone')`, P-04). (5) Admin boleh publish langsung hanya draft/rejected miliknya sendiri; draft penulis lain harus lewat review. (6) Gambar di konten hanya boleh berasal dari `/storage/uploads/…` (selain itu dibuang sanitizer). (7) Slug halaman tidak boleh memakai alamat reservasi (`config('cms.reserved_slugs')`). (8) Penjadwalan butuh cron `schedule:run` tiap menit (README).
+- A-14 — Display name (v1.6): login memakai email; `users.display_name` (≤ 60, boleh kosong) adalah satu-satunya nama yang tampil ke publik (byline, RSS, JSON-LD, arsip penulis). Fallback ke `name`. Tidak boleh berisi `@` atau sama dengan email/bagian lokal email. Email dan nama asli tidak pernah dirender di halaman publik. Arsip penulis (F-09 FR-54) memakai slug yang bukan ID berurutan dan bukan username login; bentuk slug ditetapkan di P-04.
 - A-06 — Posts yang di-trash memakai soft delete (`deleted_at`); purge hanya Admin.
 - A-07 — Konten publik di-cache per halaman (TTL 10 menit) dan di-invalidasi saat konten/tema berubah.
 
@@ -34,6 +35,7 @@
 - v1.3 2026-10-24 — acuan desain UI (A-10), kolom meta_title/meta_description (A-11), layout editor dan navigasi admin mengikuti referensi.
 - v1.4 2026-10-24 — keputusan implementasi P-02 (A-12), kolom `media.uuid`.
 - v1.5 2026-10-24 — keputusan implementasi P-03 (A-13).
+- v1.6 2026-10-24 — display name untuk nama publik (A-14).
 
 ## 1. Executive Summary
 Mini CMS adalah CMS satu-situs berbahasa Indonesia untuk menerbitkan Posts dan Pages, dengan taksonomi Categories dan Tags. Dua role staf (Admin, Writer) bekerja lewat editor WYSIWYG yang menghasilkan HTML aman (allowlist, disanitasi di server). Publik (tanpa akun) membaca halaman yang di-render server-side dan SEO-friendly. Admin mengatur palet warna (preset dan custom) dan font secara global. Prioritas desain: ketahanan terhadap pembobolan dan deface (defense-in-depth, revision, audit log) serta database tanpa N+1 query.
@@ -188,6 +190,7 @@ erDiagram
 CREATE TABLE users (
   id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(100) NOT NULL,
+  display_name VARCHAR(60) NULL,
   email VARCHAR(190) NOT NULL UNIQUE,
   password VARCHAR(255) NULL,
   role ENUM('admin','writer') NOT NULL DEFAULT 'writer',

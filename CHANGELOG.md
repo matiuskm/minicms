@@ -14,6 +14,7 @@ Definition of Done (PRD section 11) is met.
 - Revision history (latest 50) with restore, content integrity hash, 301 redirect records when a live slug changes.
 - Scheduler command `cms:publish-scheduled`.
 - Tag merge and published-post counters; deleting a category moves its posts to "Uncategorized"; media in use can no longer be deleted.
+- Display name: a public byline separate from the login email and real name (never matches the email).
 ### Changed
 - Sanitizer only accepts images from `/storage/uploads/`.
 - CI runs on every pull request, including PRs stacked on phase branches.

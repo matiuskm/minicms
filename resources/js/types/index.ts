@@ -32,6 +32,7 @@ export interface User {
     id: number;
     name: string;
     email: string;
+    display_name: string | null;
     role: 'admin' | 'writer';
     avatar?: string;
     [key: string]: unknown; // This allows for additional properties...

@@ -14,7 +14,7 @@ class User extends Authenticatable
     use HasFactory, Notifiable;
 
     // role/status are never mass-assignable; set them explicitly.
-    protected $fillable = ['name', 'email', 'password'];
+    protected $fillable = ['name', 'display_name', 'email', 'password'];
 
     protected $hidden = [
         'password',
@@ -41,6 +41,12 @@ class User extends Authenticatable
         DB::table('sessions')->where('user_id', $this->id)
             ->when($except, fn ($q) => $q->where('id', '!=', $except))
             ->delete();
+    }
+
+    /** The only name visitors ever see (bylines, feeds, structured data). */
+    public function publicName(): string
+    {
+        return $this->display_name ?: $this->name;
     }
 
     public function isAdmin(): bool
