@@ -5,6 +5,14 @@ Each PRD phase ships as a minor release while below 1.0.0; `1.0.0` is cut when t
 Definition of Done (PRD section 11) is met.
 
 ## [Unreleased]
+
+## [0.3.0] - 2026-10-24 — P-02 Taxonomy, media & editor
+### Added
+- Admin shell restyled after `docs/design/reference-editor.jpg` (navy sidebar, light cards, system font stack, no external fonts).
+- Categories (one level, protected "Uncategorized") and Tags (case-insensitive unique, writers can create via find-or-create).
+- Media library: content-sniffed uploads, image re-encode + 3 variants, PDFs on a private disk served as sandboxed attachments, per-user scope, upload rate limits.
+- TipTap rich-text editor (headings, formatting, lists, quote, code, table, align, captioned images, PDF links, YouTube/Vimeo embeds, admin-only HTML source, word count).
+- Server-side allowlist HTML sanitizer (`HtmlSanitizer`, `SanitizedHtml` cast) and `POST /content/preview`.
 ### Changed
 - Docs: PRD v1.3 adopts the UI reference in `docs/design/` (navy sidebar, tabbed editor with side panel); adds per-post/page SEO fields to the plan.
 
@@ -30,6 +38,7 @@ _Shipped inside the initial commit together with 0.2.0; no separate tag._
 - Laravel 12 + React 19 + Inertia 2 (SSR) skeleton, MySQL, Pest 3, Vitest, CI with MySQL service and dependency audits.
 - `Model::preventLazyLoading()` outside production (N+1 guard).
 
-[Unreleased]: https://github.com/matiuskm/minicms/compare/v0.2.1...HEAD
+[Unreleased]: https://github.com/matiuskm/minicms/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/matiuskm/minicms/compare/v0.2.1...v0.3.0
 [0.2.1]: https://github.com/matiuskm/minicms/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/matiuskm/minicms/releases/tag/v0.2.0

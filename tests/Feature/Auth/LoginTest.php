@@ -5,8 +5,6 @@ use App\Models\User;
 use App\Notifications\AccountLockedNotification;
 use Illuminate\Support\Facades\Notification;
 
-const PW = 'correct-horse-battery';
-
 test('TC-F01-01 writer logs in with correct credentials', function () {
     $user = User::factory()->create();
 

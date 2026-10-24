@@ -1,21 +1,20 @@
 import { NavMain } from '@/components/nav-main';
-import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { LayoutGrid, ScrollText, Users } from 'lucide-react';
+import { FolderTree, Image, LayoutGrid, ScrollText, Settings, Tags, Users } from 'lucide-react';
 import AppLogo from './app-logo';
 
+// Items are added as their modules ship (Posts and Pages arrive in P-03).
 const mainNavItems: NavItem[] = [
-    {
-        title: 'Dashboard',
-        url: '/dashboard',
-        icon: LayoutGrid,
-    },
+    { title: 'Dashboard', url: '/dashboard', icon: LayoutGrid },
+    { title: 'Media', url: '/media', icon: Image },
 ];
 
 const adminNavItems: NavItem[] = [
-    { title: 'Users', url: '/admin/users', icon: Users },
+    { title: 'Categories', url: '/admin/categories', icon: FolderTree },
+    { title: 'Tags', url: '/admin/tags', icon: Tags },
+    { title: 'Team', url: '/admin/users', icon: Users },
     { title: 'Audit log', url: '/admin/audit-logs', icon: ScrollText },
 ];
 
@@ -24,11 +23,11 @@ export function AppSidebar() {
     const items = auth.user.role === 'admin' ? [...mainNavItems, ...adminNavItems] : mainNavItems;
 
     return (
-        <Sidebar collapsible="icon" variant="inset">
+        <Sidebar collapsible="icon" variant="sidebar">
             <SidebarHeader>
                 <SidebarMenu>
                     <SidebarMenuItem>
-                        <SidebarMenuButton size="lg" asChild>
+                        <SidebarMenuButton size="lg" asChild className="hover:bg-sidebar-accent">
                             <Link href="/dashboard" prefetch>
                                 <AppLogo />
                             </Link>
@@ -42,7 +41,16 @@ export function AppSidebar() {
             </SidebarContent>
 
             <SidebarFooter>
-                <NavUser />
+                <SidebarMenu>
+                    <SidebarMenuItem>
+                        <SidebarMenuButton asChild>
+                            <Link href="/settings/profile" prefetch>
+                                <Settings />
+                                <span>Settings</span>
+                            </Link>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                </SidebarMenu>
             </SidebarFooter>
         </Sidebar>
     );

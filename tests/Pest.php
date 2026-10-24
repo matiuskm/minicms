@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -47,4 +48,16 @@ expect()->extend('toBeOne', function () {
 function something()
 {
     // ..
+}
+
+/*
+| Shared helpers
+*/
+
+// Password used by UserFactory.
+const PW = 'correct-horse-battery';
+
+function adminUser(): User
+{
+    return User::factory()->admin()->withTwoFactor()->create();
 }

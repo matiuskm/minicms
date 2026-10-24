@@ -2,7 +2,7 @@
 
 | Item | Detail |
 |---|---|
-| Version | 1.3 |
+| Version | 1.4 |
 | Date | 2026-10-24 |
 | Author | anakodok@gmail.com (generated with PRD Generator) |
 | Source | docs/SA-mini-cms-2026-10-24.md |
@@ -20,6 +20,7 @@
 - A-09 — Editor = WYSIWYG klasik (TipTap), bukan block editor ala Gutenberg. Alasan: permukaan serangan lebih kecil, sesuai permintaan awal; upgrade ke node/block ringan mungkin di Phase 2.
 - A-10 — **Acuan desain UI admin:** `docs/design/reference-editor.jpg` (v1.3). Diadopsi: sidebar navy kiri (logo + Dashboard, Posts, Pages, Media, Team, Settings di bawah), top bar (search, avatar), area konten terang berlatar biru pucat, kartu putih rounded, aksen biru, chip untuk category/tag, toggle hijau, tab Content/Meta/SEO, panel samping kanan di editor (author, tanggal terbit, category, tag, status). Token (perkiraan visual, disetel saat implementasi): sidebar #0B2A66 / item aktif #123F8F, primary #3B82F6, latar #F4F7FC, kartu #FFFFFF, border #E3E9F3, teks #334155, muted #8A94A6, sukses #5CC98A, radius 8–12 px. Tema admin ini tetap (tidak ikut palet situs F-08). Tidak diadopsi: pemilih bahasa dan "Published in English" (A-08), notifikasi bell (tidak ada fitur notifikasi in-app), "Add block" (block editor ditunda Phase 2, A-09). Blok Text dan Image pada referensi dipenuhi satu editor TipTap: teks plus node gambar `<figure><img><figcaption>` (caption opsional).
 - A-11 — Per-post/page SEO: kolom `meta_title` (≤ 70) dan `meta_description` (≤ 160) ditambahkan di `posts` dan `pages` (tab SEO). Tab Meta berisi slug, excerpt, featured image.
+- A-12 — Keputusan implementasi P-02 (v1.4): (1) Video disimpan sebagai `<div data-embed="youtube|vimeo" data-id="…">` dan baru diubah menjadi iframe ber-sandbox saat render publik (P-04); URL dari penulis tidak pernah masuk atribut `src`. (2) Sanitasi memakai `ezyang/htmlpurifier` langsung, dipasang sebagai cast `SanitizedHtml` pada kolom `body` (P-03) dan endpoint `POST /content/preview`. (3) `media.uuid` ditambahkan; PDF disimpan di disk privat dan disajikan lewat `GET /files/{uuid}` (attachment, `nosniff`, CSP sandbox), gambar di disk publik. (4) Yang butuh tabel `posts` dipindah ke P-03: FR-22 merge tag, FR-23 counter, penggantian category ke Uncategorized saat hapus (BR-18), cek "media sedang dipakai" (FR-27), sehingga TC-F04-02 dan TC-F04-05 dijalankan di P-03. (5) Pencarian di top bar admin tidak dibuat (di luar PRD).
 - A-06 — Posts yang di-trash memakai soft delete (`deleted_at`); purge hanya Admin.
 - A-07 — Konten publik di-cache per halaman (TTL 10 menit) dan di-invalidasi saat konten/tema berubah.
 
@@ -30,6 +31,7 @@
 - v1.1 2026-10-24 — upload PDF diizinkan (F-05), UI Inggris/konten bebas bahasa (A-08), keputusan editor WYSIWYG (A-09), Q-01..Q-05 ditutup.
 - v1.2 2026-10-24 — keputusan user: block Gallery & Slider (custom TipTap node, simpan ID media, render server-side) ditunda ke **Phase 2**, bukan bagian P-00..P-06. Eksekusi dimulai.
 - v1.3 2026-10-24 — acuan desain UI (A-10), kolom meta_title/meta_description (A-11), layout editor dan navigasi admin mengikuti referensi.
+- v1.4 2026-10-24 — keputusan implementasi P-02 (A-12), kolom `media.uuid`.
 
 ## 1. Executive Summary
 Mini CMS adalah CMS satu-situs berbahasa Indonesia untuk menerbitkan Posts dan Pages, dengan taksonomi Categories dan Tags. Dua role staf (Admin, Writer) bekerja lewat editor WYSIWYG yang menghasilkan HTML aman (allowlist, disanitasi di server). Publik (tanpa akun) membaca halaman yang di-render server-side dan SEO-friendly. Admin mengatur palet warna (preset dan custom) dan font secara global. Prioritas desain: ketahanan terhadap pembobolan dan deface (defense-in-depth, revision, audit log) serta database tanpa N+1 query.
@@ -229,6 +231,7 @@ CREATE TABLE tags (
 
 CREATE TABLE media (
   id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  uuid CHAR(36) NOT NULL UNIQUE,
   uploader_id BIGINT UNSIGNED NOT NULL,
   path VARCHAR(255) NOT NULL UNIQUE, original_name VARCHAR(255) NOT NULL,
   mime VARCHAR(50) NOT NULL, size INT UNSIGNED NOT NULL,

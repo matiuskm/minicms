@@ -26,6 +26,19 @@ Release steps: update `CHANGELOG.md` and `VERSION` → commit `chore(release): v
 `git tag -a vX.Y.Z -m "vX.Y.Z"` → `git push --follow-tags`.
 Branches: `main` is always releasable; each phase is developed on `phase/p-0x-name` and merged via PR.
 
+## Uploads
+
+Images (JPG/PNG/GIF/WebP ≤ 5 MB) are re-encoded and stored on the public disk (`php artisan storage:link`);
+PDFs (≤ 10 MB) stay on the private disk and are served through `/files/{uuid}`.
+PHP's own limits must be at least as high: set `upload_max_filesize = 12M` and `post_max_size = 12M`
+(Herd: Settings → PHP → Limits; VPS: `php.ini`).
+
 ## Production
 
 See `database/hardening/production-grants.sql` for least-privilege DB accounts (audit log is append-only).
+
+Web server rules for uploads (NFR-03, manual check TC-F05-05): never execute PHP from the storage directory, e.g. in nginx
+
+```nginx
+location ^~ /storage/ { location ~ \.php$ { return 403; } add_header X-Content-Type-Options nosniff; }
+```
