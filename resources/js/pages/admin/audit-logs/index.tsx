@@ -37,7 +37,12 @@ export default function AuditLogs({ logs, filters }: Props) {
 
             <div className="space-y-6 p-4">
                 <form onSubmit={submit} className="flex flex-wrap items-end gap-2">
-                    <Input placeholder="Action (e.g. login)" value={f.action} onChange={(e) => setF({ ...f, action: e.target.value })} className="max-w-48" />
+                    <Input
+                        placeholder="Action (e.g. login)"
+                        value={f.action}
+                        onChange={(e) => setF({ ...f, action: e.target.value })}
+                        className="max-w-48"
+                    />
                     <Input type="date" aria-label="From" value={f.from} onChange={(e) => setF({ ...f, from: e.target.value })} className="max-w-40" />
                     <Input type="date" aria-label="To" value={f.to} onChange={(e) => setF({ ...f, to: e.target.value })} className="max-w-40" />
                     <Button>Filter</Button>
@@ -73,7 +78,13 @@ export default function AuditLogs({ logs, filters }: Props) {
 
                 <nav className="flex flex-wrap gap-1">
                     {logs.links.map((l, i) => (
-                        <Button key={i} size="sm" variant={l.active ? 'default' : 'outline'} disabled={!l.url} onClick={() => l.url && router.get(l.url, {}, { preserveState: true })}>
+                        <Button
+                            key={i}
+                            size="sm"
+                            variant={l.active ? 'default' : 'outline'}
+                            disabled={!l.url}
+                            onClick={() => l.url && router.get(l.url, {}, { preserveState: true })}
+                        >
                             {l.label.replace('&laquo;', '«').replace('&raquo;', '»')}
                         </Button>
                     ))}

@@ -150,7 +150,9 @@ export default function Users({ users, filters }: Props) {
                                                     <Button
                                                         size="sm"
                                                         variant="destructive"
-                                                        onClick={() => act('admin.users.disable', u, `Disable ${u.name}? Their sessions end immediately.`)}
+                                                        onClick={() =>
+                                                            act('admin.users.disable', u, `Disable ${u.name}? Their sessions end immediately.`)
+                                                        }
                                                     >
                                                         Disable
                                                     </Button>

@@ -49,7 +49,7 @@ test('audit log entries are not queried per row (no N+1)', function () {
         AuditLog::record('login.success', null, [], $admin->id);
     }
 
-    \DB::enableQueryLog();
+    DB::enableQueryLog();
     $this->actingAs($admin)->get('/admin/audit-logs')->assertOk();
-    expect(count(\DB::getQueryLog()))->toBeLessThanOrEqual(8);
+    expect(count(DB::getQueryLog()))->toBeLessThanOrEqual(8);
 });

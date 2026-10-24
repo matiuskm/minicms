@@ -36,7 +36,11 @@ export default function Sessions({ sessions }: { sessions: Session[] }) {
                                     </p>
                                 </div>
                                 {!s.current && (
-                                    <Button size="sm" variant="outline" onClick={() => router.delete(route('sessions.destroy', s.id), { preserveScroll: true })}>
+                                    <Button
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={() => router.delete(route('sessions.destroy', s.id), { preserveScroll: true })}
+                                    >
                                         Revoke
                                     </Button>
                                 )}

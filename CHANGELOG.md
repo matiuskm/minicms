@@ -6,6 +6,10 @@ Definition of Done (PRD section 11) is met.
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-10-24
+### Fixed
+- CI lint job: ignore generated `resources/js/ziggy.js` in ESLint/Prettier.
+
 ## [0.2.0] - 2026-10-24 — P-01 Identity & audit trail
 ### Added
 - Login with generic errors, account lock (5 failures / 10 min → 15 min lock + email), per-IP rate limit.
@@ -19,10 +23,11 @@ Definition of Done (PRD section 11) is met.
 - Starter-kit public registration, email verification, password confirmation and self-service account deletion.
 
 ## [0.1.0] - 2026-10-24 — P-00 Project setup
+_Shipped inside the initial commit together with 0.2.0; no separate tag._
 ### Added
 - Laravel 12 + React 19 + Inertia 2 (SSR) skeleton, MySQL, Pest 3, Vitest, CI with MySQL service and dependency audits.
 - `Model::preventLazyLoading()` outside production (N+1 guard).
 
-[Unreleased]: https://github.com/matiuskm/minicms/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/matiuskm/minicms/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/matiuskm/minicms/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/matiuskm/minicms/releases/tag/v0.2.0
-[0.1.0]: https://github.com/matiuskm/minicms/releases/tag/v0.1.0
