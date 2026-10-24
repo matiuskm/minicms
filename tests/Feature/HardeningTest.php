@@ -387,3 +387,15 @@ test('the production checklist flags a guard that uses the legacy token driver',
     config(['auth.guards.api' => ['driver' => 'token', 'provider' => 'users']]);
     $this->artisan('cms:check-production')->expectsOutputToContain('FAIL  No guard uses the legacy token driver');
 });
+
+test('NFR-13 audit entries older than the retention period are pruned, newer ones kept', function () {
+    foreach ([['old', now()->subMonths(13)], ['edge-old', now()->subMonths(12)->subDay()], ['recent', now()->subMonths(11)], ['today', now()]] as [$action, $at]) {
+        DB::table('audit_logs')->insert(['action' => "test.{$action}", 'created_at' => $at]);
+    }
+
+    $this->artisan('cms:prune-audit')->assertSuccessful()->expectsOutputToContain('Deleted 2 audit entries');
+
+    expect(DB::table('audit_logs')->pluck('action')->sort()->values()->all())->toBe(['test.recent', 'test.today']);
+    $this->artisan('cms:prune-audit', ['--months' => 1])->assertSuccessful();
+    expect(DB::table('audit_logs')->pluck('action')->all())->toBe(['test.today']);
+});

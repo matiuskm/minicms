@@ -46,6 +46,9 @@ return [
 
     'max_custom_palettes' => 20,
 
+    // NFR-13: audit entries older than this are removed by `cms:prune-audit` (needs a DB account with DELETE on audit_logs).
+    'audit_retention_months' => 12,
+
     // F-13: scheduled backups. Point BACKUP_DISK at an off-site disk (e.g. s3) in production.
     'backup' => [
         'disk' => env('BACKUP_DISK', 'backups'),

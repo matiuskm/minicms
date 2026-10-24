@@ -6,6 +6,14 @@ Definition of Done (PRD section 11) is met.
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-10-25 — First stable release
+Everything from 0.2.0 to 0.9.0 (identity and audit trail, taxonomy and media, editor, posts and pages with review workflow,
+public site with SEO, appearance, hardening and backups, visitor statistics, signed one-click updates), plus:
+### Added
+- `cms:prune-audit`: removes audit entries older than 12 months (run with the migrator credentials, see `docs/DEPLOY.md`).
+- `docs/RELEASE-CHECKLIST-1.0.md`: the definition of done checked against the PRD, with what remains to confirm on a real server.
+- Code coverage is measured in CI.
+
 ## [0.9.0] - 2026-10-24 — P-08 One-click updates
 ### Added
 - Admin **Updates** screen: installed vs latest version, release notes, "Check for updates", an **Update** button with live progress, a sidebar badge, and one email per new version.
@@ -113,7 +121,8 @@ _Shipped inside the initial commit together with 0.2.0; no separate tag._
 - Laravel 12 + React 19 + Inertia 2 (SSR) skeleton, MySQL, Pest 3, Vitest, CI with MySQL service and dependency audits.
 - `Model::preventLazyLoading()` outside production (N+1 guard).
 
-[Unreleased]: https://github.com/matiuskm/minicms/compare/v0.9.0...HEAD
+[Unreleased]: https://github.com/matiuskm/minicms/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/matiuskm/minicms/compare/v0.9.0...v1.0.0
 [0.9.0]: https://github.com/matiuskm/minicms/compare/v0.8.0...v0.9.0
 [0.8.0]: https://github.com/matiuskm/minicms/compare/v0.7.0...v0.8.0
 [0.7.0]: https://github.com/matiuskm/minicms/compare/v0.6.0...v0.7.0

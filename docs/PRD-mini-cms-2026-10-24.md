@@ -2,11 +2,11 @@
 
 | Item | Detail |
 |---|---|
-| Version | 1.11 |
+| Version | 1.12 |
 | Date | 2026-10-24 |
 | Author | anakodok@gmail.com (generated with PRD Generator) |
 | Source | docs/SA-mini-cms-2026-10-24.md |
-| Status | Draft |
+| Status | Final (1.0.0) |
 
 ## 0. Assumptions, Open Questions & Changelog
 **Assumptions** (semua SA-A-xx diwarisi; tambahan PRD di bawah)
@@ -47,6 +47,7 @@
 - v1.9 2026-10-24 — keputusan implementasi P-06 (A-18).
 - v1.10 2026-10-24 — F-14 Visitor Statistics (A-19), permintaan user.
 - v1.11 2026-10-24 — F-15 One-click Updates (A-20), permintaan user.
+- v1.12 2026-10-25 — rilis 1.0.0: audit retention (`cms:prune-audit`), checklist DoD (`docs/RELEASE-CHECKLIST-1.0.md`).
 
 ## 1. Executive Summary
 Mini CMS adalah CMS satu-situs berbahasa Indonesia untuk menerbitkan Posts dan Pages, dengan taksonomi Categories dan Tags. Dua role staf (Admin, Writer) bekerja lewat editor WYSIWYG yang menghasilkan HTML aman (allowlist, disanitasi di server). Publik (tanpa akun) membaca halaman yang di-render server-side dan SEO-friendly. Admin mengatur palet warna (preset dan custom) dan font secara global. Prioritas desain: ketahanan terhadap pembobolan dan deface (defense-in-depth, revision, audit log) serta database tanpa N+1 query.
