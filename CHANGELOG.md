@@ -6,6 +6,10 @@ Definition of Done (PRD section 11) is met.
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-10-25 — Text + image section
+### Added
+- Home page section **Text + image**: heading and rich text beside a portrait image (left or right), optional button; stacks on phones.
+
 ## [1.1.0] - 2026-10-25 — Home page builder
 ### Added
 - Admin **Home page** screen: build the home page from ordered sections (Featured post, Hero image, Hero slider, Text, Post grid, Call to action, Blog), show/hide, reorder, add and remove them.

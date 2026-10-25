@@ -21,6 +21,7 @@ interface Banner {
 export type Section =
     | { id: string; type: 'featured'; featured: Card | null; latest: Card[] }
     | ({ id: string; type: 'image' } & Banner)
+    | { id: string; type: 'split'; title: string; html: string; image: Banner['image']; side: 'left' | 'right'; button: Button | null }
     | { id: string; type: 'slider'; autoplay: boolean; slides: Banner[] }
     | { id: string; type: 'rich_text'; title: string; html: string }
     | { id: string; type: 'post_grid'; title: string; posts: Card[] }
@@ -177,6 +178,16 @@ export function HomeSections({ sections, pager }: { sections: Section[]; pager: 
                 <div key={s.id} className={i > 0 ? 'site-block' : undefined}>
                     {s.type === 'featured' && <Featured featured={s.featured} latest={s.latest} />}
                     {s.type === 'image' && <BannerSlide b={s} eager heading="h2" />}
+                    {s.type === 'split' && (
+                        <section className={`site-split site-split-${s.side}`}>
+                            <div className="site-split-text">
+                                {s.title && <h2>{s.title}</h2>}
+                                {s.html && <div className="site-prose" dangerouslySetInnerHTML={{ __html: s.html }} />}
+                                {s.button && <LinkButton button={s.button} />}
+                            </div>
+                            {s.image && <img src={s.image.large} alt={s.image.alt ?? ''} loading="lazy" decoding="async" />}
+                        </section>
+                    )}
                     {s.type === 'slider' && <Slider slides={s.slides} autoplay={s.autoplay} />}
                     {s.type === 'rich_text' && (
                         <section className="site-text-block">

@@ -27,7 +27,7 @@ class HomePageController extends Controller
 
         return Inertia::render('admin/home-page', [
             'sections' => collect($sections)->map(fn ($s) => match ($s['type']) {
-                'image' => $withThumb($s),
+                'image', 'split' => $withThumb($s),
                 'slider' => [...$s, 'slides' => array_map($withThumb, $s['slides'])],
                 default => $s,
             })->all(),

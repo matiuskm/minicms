@@ -14,7 +14,7 @@ import { type BreadcrumbItem } from '@/types';
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Home page', href: '/admin/home-page' }];
 
-type Type = 'featured' | 'image' | 'slider' | 'rich_text' | 'post_grid' | 'cta' | 'blog';
+type Type = 'featured' | 'image' | 'split' | 'slider' | 'rich_text' | 'post_grid' | 'cta' | 'blog';
 
 interface Slide {
     media_id: number;
@@ -34,6 +34,7 @@ interface Section {
     title?: string;
     text?: string;
     align?: 'left' | 'center' | 'right';
+    image_side?: 'left' | 'right';
     button_label?: string;
     button_url?: string;
     autoplay?: boolean;
@@ -55,13 +56,14 @@ interface Props {
 const LABELS: Record<Type, string> = {
     featured: 'Featured post',
     image: 'Hero image',
+    split: 'Text + image',
     slider: 'Hero slider',
     rich_text: 'Text',
     post_grid: 'Post grid',
     cta: 'Call to action',
     blog: 'Blog (post list)',
 };
-const ADDABLE: Type[] = ['featured', 'image', 'slider', 'rich_text', 'post_grid', 'cta'];
+const ADDABLE: Type[] = ['featured', 'image', 'split', 'slider', 'rich_text', 'post_grid', 'cta'];
 const MAX = 12;
 const selectClass = 'border-input bg-card h-9 w-full rounded-md border px-2 text-sm';
 const id = () => Math.random().toString(36).slice(2, 10);
@@ -73,6 +75,8 @@ const blank = (type: Type): Section => {
             return { ...base, post_id: null };
         case 'image':
             return { ...base, title: '', text: '', align: 'left', button_label: '', button_url: '' };
+        case 'split':
+            return { ...base, title: '', body: '', image_side: 'right', button_label: '', button_url: '' };
         case 'slider':
             return { ...base, autoplay: true, slides: [] };
         case 'rich_text':
@@ -187,6 +191,30 @@ export default function HomePage({ sections: initial, posts, categories, tags }:
                                 <option value="right">Right</option>
                             </select>
                         </Field>
+                        {button(p, s, (c) => patch(i, c))}
+                    </div>
+                );
+            case 'split':
+                return (
+                    <div className="grid gap-3">
+                        <Field label="Image" error={err(`${p}.media_id`)}>
+                            <Image thumb={s.thumb} onChoose={() => choose((m) => patch(i, { media_id: m.id, thumb: m.thumb_url }))} />
+                        </Field>
+                        <Field label="Image position">
+                            <select
+                                className={selectClass}
+                                value={s.image_side}
+                                onChange={(e) => patch(i, { image_side: e.target.value as Section['image_side'] })}
+                            >
+                                <option value="right">Right of the text</option>
+                                <option value="left">Left of the text</option>
+                            </select>
+                        </Field>
+                        <Field label="Heading" error={err(`${p}.title`)}>
+                            <Input maxLength={160} value={s.title ?? ''} onChange={(e) => patch(i, { title: e.target.value })} />
+                        </Field>
+                        <RichEditor value={s.body ?? ''} onChange={(html) => patch(i, { body: html })} />
+                        <InputError message={err(`${p}.body`)} />
                         {button(p, s, (c) => patch(i, c))}
                     </div>
                 );
