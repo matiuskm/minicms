@@ -37,6 +37,7 @@ class Setting extends Model
         'favicon_media_id' => null,
         'content_language' => 'en',
         'posts_per_page' => 6,
+        'home_sections' => null, // null = the shipped layout, see HomePage::default()
         'cta_label' => '',
         'cta_url' => '',
         'pdf_max_mb' => 10,

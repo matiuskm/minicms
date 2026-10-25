@@ -6,6 +6,15 @@ Definition of Done (PRD section 11) is met.
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-10-25 — Home page builder
+### Added
+- Admin **Home page** screen: build the home page from ordered sections (Featured post, Hero image, Hero slider, Text, Post grid, Call to action, Blog), show/hide, reorder, add and remove them.
+- Accessible, dependency-free slider (keyboard, pause on hover/focus, honours reduced motion).
+- Images used on the home page are protected from deletion in Media.
+### Changed
+- The public home page props are now `sections` + `pager`; the default layout (featured block + blog list) looks as before.
+- Admin form errors that belong to no visible field are summarised at the top of the Home page screen.
+
 ## [1.0.0] - 2026-10-25 — First stable release
 Everything from 0.2.0 to 0.9.0 (identity and audit trail, taxonomy and media, editor, posts and pages with review workflow,
 public site with SEO, appearance, hardening and backups, visitor statistics, signed one-click updates), plus:
