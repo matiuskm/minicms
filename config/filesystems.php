@@ -42,6 +42,9 @@ return [
             'driver' => 'local',
             'root' => storage_path('app/backups'),
             'throw' => true,
+            'visibility' => 'private',
+            // The site (www-data) and the updater (deploy) both write backups; they share a group, nobody else gets in.
+            'permissions' => ['file' => ['public' => 0660, 'private' => 0660], 'dir' => ['public' => 0770, 'private' => 0770]],
         ],
 
         'public' => [

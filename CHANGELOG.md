@@ -6,6 +6,10 @@ Definition of Done (PRD section 11) is met.
 
 ## [Unreleased]
 
+## [1.3.5] - 2026-10-25 — Updates can take their backup
+### Fixed
+- The update failed with "The backup failed" on installer-made servers: the backup folder was created by the site (`www-data`) with mode 0700, so the updater (`deploy`) could not write into it. The backup disk now creates group-writable folders and files (0770/0660).
+
 ## [1.3.4] - 2026-10-25 — Site name everywhere
 ### Fixed
 - Changing "Site name" in Site settings only changed the public header. The admin sidebar still showed `APP_NAME` (the domain on installer-made servers) and the browser tab suffix was baked into the build (`Mini CMS`). Both now follow the setting, with `APP_NAME` as the fallback.

@@ -248,7 +248,7 @@ install_app() {
 
   # Shared data lives outside the release so updates never touch it.
   cp -R "$REL/storage" "$SHARED/storage"
-  mkdir -p "$SHARED/storage/app/public" "$SHARED/storage/app/updates" "$SHARED/storage/logs" "$SHARED/storage/framework/"{cache,sessions,views}
+  mkdir -p "$SHARED/storage/app/public" "$SHARED/storage/app/updates" "$SHARED/storage/app/backups" "$SHARED/storage/logs" "$SHARED/storage/framework/"{cache,sessions,views}
   rm -rf "$REL/storage"; ln -sfn "$SHARED/storage" "$REL/storage"
   ln -sfn "$SHARED/storage/app/public" "$REL/public/storage"
   ln -sfn "$SHARED/.env" "$REL/.env"
