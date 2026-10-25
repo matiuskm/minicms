@@ -9,15 +9,17 @@ declare global {
     const route: typeof routeFn;
 }
 
-const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
-
 // Styles injected at runtime by UI libraries (dialog scroll-lock, editor) must carry the page's CSP nonce.
 const nonce = document.querySelector<HTMLMetaElement>('meta[name="csp-nonce"]')?.content;
 if (nonce) (window as unknown as { __webpack_nonce__?: string }).__webpack_nonce__ = nonce;
 
 createInertiaApp({
     // Public pages already carry the site name in their SEO title.
-    title: (title) => (title.includes(appName) ? title : `${title} - ${appName}`),
+    // The name comes from Site settings (sent by the server), not from the build, so renaming the site needs no rebuild.
+    title: (title) => {
+        const appName = document.querySelector<HTMLMetaElement>('meta[name="app-name"]')?.content || 'Laravel';
+        return title.includes(appName) ? title : `${title} - ${appName}`;
+    },
     resolve: (name) => resolvePageComponent(`./pages/${name}.tsx`, import.meta.glob(['./pages/**/*.tsx', '!./pages/**/*.test.tsx'])),
     setup({ el, App, props }) {
         const root = createRoot(el);

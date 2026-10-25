@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Setting;
 use App\Support\Updates\Updater;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
@@ -38,7 +39,8 @@ class HandleInertiaRequests extends Middleware
     {
         return array_merge(parent::share($request), [
             ...parent::share($request),
-            'name' => config('app.name'),
+            // The site name from Site settings (APP_NAME is only the fallback); admin sidebar and page titles use it too.
+            'name' => Setting::get('site_name') ?: config('app.name'),
             // One-shot message set by controllers via ->with('status', ...).
             'flash' => fn () => ['status' => $request->session()->get('status')],
             // Shown as a warning in the admin header while the local-only 2FA bypass is on.

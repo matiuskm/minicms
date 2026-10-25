@@ -6,6 +6,10 @@ Definition of Done (PRD section 11) is met.
 
 ## [Unreleased]
 
+## [1.3.4] - 2026-10-25 — Site name everywhere
+### Fixed
+- Changing "Site name" in Site settings only changed the public header. The admin sidebar still showed `APP_NAME` (the domain on installer-made servers) and the browser tab suffix was baked into the build (`Mini CMS`). Both now follow the setting, with `APP_NAME` as the fallback.
+
 ## [1.3.3] - 2026-10-25 — Installer fix
 ### Fixed
 - `install.sh` stopped with MySQL error 1819 on servers that enforce `validate_password`: the generated database passwords were hex only. They now always contain upper case, lower case, a digit and a symbol (also valid under the STRONG policy).
