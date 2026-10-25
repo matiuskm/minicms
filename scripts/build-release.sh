@@ -34,6 +34,10 @@ cat > manifest.json <<JSON
 JSON
 
 ARCHIVE="$OUT/minicms-v$VERSION.tar.gz"
+# mktemp -d is 0700 and the archive's "./" entry carries that mode: unpacking as the deploy user would make the new
+# release folder unreadable for the web server. Everything else in the archive is already 0755/0644.
+chmod 755 "$WORK"
 tar -czf "$ARCHIVE" -C "$WORK" .
+tar -tvzf "$ARCHIVE" | sed -n 1p | grep -q '^drwxr-xr-x' || { echo "the archive's root folder is not 0755" >&2; exit 1; }
 php -r 'echo hash_file("sha256", $argv[1]), PHP_EOL;' "$ARCHIVE" > "$ARCHIVE.sha256"
 echo "built $ARCHIVE ($(du -h "$ARCHIVE" | cut -f1))"
