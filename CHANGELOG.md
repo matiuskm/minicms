@@ -6,6 +6,10 @@ Definition of Done (PRD section 11) is met.
 
 ## [Unreleased]
 
+## [1.3.1] - 2026-10-25 — Installer fix
+### Fixed
+- `install.sh` did not delete itself after a successful install when started with a relative path (it changes directory first); it now remembers its absolute path.
+
 ## [1.3.0] - 2026-10-25 — Server installer
 ### Added
 - `install.sh` (attached to every release): one command on a fresh Ubuntu 22.04/24.04 server checks requirements, installs PHP 8.4, Nginx, MySQL 8, Node 22, Supervisor and Certbot, installs the latest *signature-verified* release in the `releases/current/shared` layout with the least-privilege database accounts, obtains HTTPS, starts SSR and cron, creates the first admin and deletes itself.

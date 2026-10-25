@@ -20,6 +20,10 @@
 # or mirror cannot install code. Database passwords are generated here, written only to the .env files, and never printed.
 set -Eeuo pipefail
 
+# Absolute path of this file, taken before the script changes directory (it deletes itself at the end).
+SELF=""
+[ -f "${BASH_SOURCE[0]:-}" ] && SELF="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/$(basename "${BASH_SOURCE[0]}")"
+
 REPO="matiuskm/minicms"
 PUBLIC_KEY="XkoubcJh9BNht2SlnxbsF5dPJUcM9CLH0Epm6GyVY50="
 APP_ROOT="${INSTALL_APP_ROOT:-/var/www/cms}"
@@ -463,8 +467,8 @@ main() {
     echo "=================================================================="
   } >&3
 
-  if [ "$KEEP" != 1 ] && [ -f "${BASH_SOURCE[0]}" ]; then
-    rm -f -- "${BASH_SOURCE[0]}" && say "This installer file has been deleted." >&3
+  if [ "$KEEP" != 1 ] && [ -n "$SELF" ] && [ -f "$SELF" ]; then
+    rm -f -- "$SELF" && say "This installer file has been deleted." >&3
   fi
 }
 
