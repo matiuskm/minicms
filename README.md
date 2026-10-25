@@ -61,3 +61,7 @@ Web server rules for uploads (NFR-03, manual check TC-F05-05): never execute PHP
 ```nginx
 location ^~ /storage/ { location ~ \.php$ { return 403; } add_header X-Content-Type-Options nosniff; }
 ```
+
+## Install on a server
+
+On a fresh Ubuntu 22.04/24.04 VPS: `curl -fsSLO https://github.com/matiuskm/minicms/releases/latest/download/install.sh && sudo bash install.sh --domain example.com --email you@example.com`. See `docs/DEPLOY.md`.

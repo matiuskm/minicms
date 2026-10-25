@@ -1,10 +1,8 @@
+import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
-import { readdirSync } from 'node:fs';
 import laravel from 'laravel-vite-plugin';
-import {
-    defineConfig
-} from 'vite';
-import tailwindcss from "@tailwindcss/vite";
+import { readdirSync } from 'node:fs';
+import { defineConfig } from 'vite';
 
 export default defineConfig({
     plugins: [
@@ -25,5 +23,9 @@ export default defineConfig({
     ],
     esbuild: {
         jsx: 'automatic',
+    },
+    // The release archive has no node_modules, so the server-side bundle must carry its own dependencies.
+    ssr: {
+        noExternal: true,
     },
 });

@@ -2,11 +2,11 @@
 
 | Item | Detail |
 |---|---|
-| Version | 1.14 |
+| Version | 1.15 |
 | Date | 2026-10-24 |
 | Author | anakodok@gmail.com (generated with PRD Generator) |
 | Source | docs/SA-mini-cms-2026-10-24.md |
-| Status | Final (1.2.0) |
+| Status | Final (1.3.0) |
 
 ## 0. Assumptions, Open Questions & Changelog
 **Assumptions** (semua SA-A-xx diwarisi; tambahan PRD di bawah)
@@ -29,6 +29,7 @@
 - A-18 — Keputusan implementasi P-06 (v1.9): (1) CSP berbasis nonce per respons: `script-src 'self' 'nonce-…'`, tanpa `unsafe-inline`/`unsafe-eval` untuk skrip; `style-src 'self' 'nonce-…'` ditambah `style-src-attr 'unsafe-inline'` (atribut `style=""` dipakai pustaka UI); iframe hanya dari YouTube-nocookie dan Vimeo; `frame-ancestors 'none'`. Dinonaktifkan hanya bila server dev Vite berjalan (`public/hot`). Respons yang punya CSP sendiri (unduhan PDF `sandbox`) tidak ditimpa. CSS progress Inertia dimuat dari `app.css` (bukan `<style>` injeksi) agar CSP tetap ketat; nonce diteruskan ke pustaka lewat `<meta name="csp-nonce">`. Diverifikasi dengan Chrome sungguhan: 0 pelanggaran CSP di halaman publik dan admin (editor, dialog media). (2) Integritas: `cms:check-integrity` tiap 15 menit membandingkan `content_hash` konten published; email ke admin hanya saat himpunan ketidakcocokan berubah; admin dapat "confirm" (re-seal) atau memulihkan revision. (3) Lockdown: setting `lockdown` memblokir login non-admin dan memutus sesi mereka. (4) Notifikasi email: login dari browser baru (fingerprint hash User-Agent, login pertama tidak memicu), perubahan role, password, dan 2FA dimatikan; lockout sudah ada sejak P-01. (5) Backup: `cms:backup` harian 02:30 (dump `mysqldump` ter-gzip + arsip `uploads` dan `files`), retensi 14 set, disk dapat dialihkan ke off-site lewat `BACKUP_DISK`; `cms:restore --force`; gagal → email admin. (6) `cms:check-production` sebagai gerbang deploy; `docs/DEPLOY.md` berisi panduan VPS lengkap; `production-grants.sql` diperbarui (akun migrator vs app). (7) Pembatasan: admin dan editor 240 permintaan/menit/user, pencarian publik 30/menit/IP. (8) `cms:reset-2fa` untuk authenticator yang hilang.
 - A-19 — F-14 Visitor Statistics (v1.10): satu tabel log mentah `page_views` (bukan rollup) dengan retensi 90 hari; laporan di-cache 60 detik. Perkiraan: 100k tayangan/hari × 90 hari ≈ 9 juta baris (~1 GB). Pelacak menambah ±3 query setelah respons (rate-limit cache + insert); dengan driver cache `database` ini terasa di trafik tinggi, gunakan Redis bila perlu. Dihitung server-side lewat `defer()` sehingga tidak menunda halaman dan tidak butuh skrip klien (CSP tetap ketat). Navigasi Inertia (XHR) dihitung sebagai tayangan.
 - A-21 — F-16 (v1.13): halaman utama berupa daftar section bertipe tertutup; page builder berkolom bebas dan section Custom HTML ditolak karena memperbesar permukaan serangan dan biaya pengujian. Dapat ditambah nanti bila ada kebutuhan nyata.
+- A-22 — F-17 (v1.15): installer berupa skrip SSH sekali jalan, bukan installer web; hanya Ubuntu 22.04/24.04.
 - A-20 — F-15 (v1.11): dipilih rancangan "web hanya meminta, proses terpisah menerapkan" dibanding updater yang berjalan di proses web (gaya WordPress) karena yang terakhir mensyaratkan PHP-FPM bisa menulis seluruh kode. Tata letak server berubah menjadi `releases/ + current + shared/` (dijelaskan di `docs/DEPLOY.md`); instalasi tunggal (mis. Herd) tetap bisa melihat notifikasi tetapi tombol Update nonaktif kecuali `CMS_UPDATES=true`. Kunci penandatangan dibuat lokal; rahasia disimpan sebagai secret GitHub `RELEASE_SIGNING_KEY` dan cadangan di `~/.config/minicms/release-signing.key` pada mesin pengembang; kunci publik dipin di `release-public.key`.
 - A-06 — Posts yang di-trash memakai soft delete (`deleted_at`); purge hanya Admin.
 - A-07 — Konten publik di-cache per halaman (TTL 10 menit) dan di-invalidasi saat konten/tema berubah.
@@ -49,6 +50,7 @@
 - v1.10 2026-10-24 — F-14 Visitor Statistics (A-19), permintaan user.
 - v1.11 2026-10-24 — F-15 One-click Updates (A-20), permintaan user.
 - v1.13 2026-10-25 — F-16 Home page builder (A-21), permintaan user setelah rilis 1.0.0.
+- v1.15 2026-10-25 — F-17 Server installer (A-22), permintaan user.
 - v1.14 2026-10-25 — F-16: tipe section Text + image (FR-90, TC-F16-17..18), permintaan user (tata letak dua kolom teks + foto).
 - v1.12 2026-10-25 — rilis 1.0.0: audit retention (`cms:prune-audit`), checklist DoD (`docs/RELEASE-CHECKLIST-1.0.md`).
 
@@ -194,6 +196,13 @@ flowchart LR
 - **FR:** FR-89 admin (hanya admin) menyusun, menyalakan/mematikan, menambah, menghapus, dan mengurutkan section lewat Appearance-adjacent menu **Home page** (maks 12); FR-90 tipe: Featured post (otomatis atau post tertentu), Hero image, Text + image (judul dan teks kaya di samping gambar potret, kiri/kanan, tombol opsional), Hero slider (2-8 slide, autoplay opsional), Text (TipTap, disanitasi), Post grid (terbaru/kategori/tag, 3-12), Call to action, Blog; FR-91 tepat satu section Blog (membawa daftar post dan pager; boleh dipindah atau disembunyikan, tidak dihapus); post di blok featured tidak diulang di daftar blog; halaman 2+ hanya menampilkan Blog; FR-92 validasi ketat per tipe, tautan hanya `http(s)://` atau `/path`, gambar harus berasal dari Media bertipe image, kunci tak dikenal dibuang, teks kaya lewat HTMLPurifier; FR-93 gambar yang dipakai tidak bisa dihapus dari Media; FR-94 perubahan masuk audit log, cache publik dibersihkan; jumlah query tetap konstan terhadap jumlah post; FR-95 slider aksesibel (carousel berlabel, tombol keyboard, berhenti saat hover/fokus dan `prefers-reduced-motion`), tanpa library dan tanpa mengubah CSP.
 - **Tes:** TC-F16-01..16 (`tests/Feature/HomePageTest.php`) + Vitest `home-sections.test.tsx`. PP-F16-01 hanya admin yang dapat mengubah; PP-F16-02 tidak ada tautan `javascript:`/`data:`/`//host` yang dapat tersimpan; PP-F16-03 HTML berbahaya di Text tidak sampai ke pengunjung; PP-F16-04 query halaman utama konstan.
 - **Batasan:** layout kolom bebas dan section Custom HTML sengaja tidak ada; gallery di dalam editor (Phase 2) dapat memakai ulang komponen slider.
+
+### F-17 — Server installer (Should) — ditambahkan v1.15 atas permintaan user
+- **Source:** permintaan user ("satu skrip instalasi; cek semua requirement; dihapus setelah selesai").
+- **Keputusan (A-22):** skrip bash sekali jalan (`install.sh`, dilampirkan di tiap rilis) yang dijalankan root lewat SSH, bukan installer web (installer web yang terbuka ke internet adalah vektor pengambilalihan situs oleh siapa pun yang mengakses lebih dulu). Hanya Ubuntu 22.04/24.04 (MySQL 8 dan PHP 8.4 tersedia konsisten); Debian/MariaDB ditolak dengan pesan jelas.
+- **FR:** FR-96 pemeriksaan awal (root, OS, memori, disk, port 80/443, akses GitHub, DNS, akses root MySQL, domain/email valid) dengan laporan lengkap dan `--dry-run`; FR-97 memasang yang kurang (PHP 8.4 + ekstensi, Nginx, MySQL 8, Node 22 untuk SSR, Supervisor, Certbot) dan menyatakan repositori pihak ketiga yang ditambahkan; FR-98 arsip rilis hanya dibuka bila tanda tangan Ed25519 cocok dengan kunci publik yang tertanam; FR-99 tata letak `releases/current/shared`, pemisahan `deploy`/`www-data`, akun DB migrator + app (audit_logs append-only), `.env` mode 640, sudoers terbatas, cron scheduler/updater/retensi, PHP-FPM dan Nginx sesuai DEPLOY.md; FR-100 HTTPS via Certbot (gagal tidak fatal, pesan perbaikan), admin pertama dengan sandi acak sekali tampil (tidak masuk log), `cms:check-production` dijalankan sebagai user web; FR-101 gagal di tengah jalan aman diulang (penanda kemajuan, hanya membersihkan miliknya sendiri), menolak server yang sudah berisi instalasi atau database bernama sama; FR-102 menghapus dirinya setelah berhasil (`--keep` untuk menahan).
+- **Tes:** verifikasi nyata pada Ubuntu 24.04 bersih (container dengan systemd): instalasi penuh, layanan aktif, `www-data` tidak bisa menulis kode tetapi bisa menulis storage, `deploy` bisa menulis folder update, sudoers hanya reload; tahap aplikasi diuji terhadap rilis nyata: tanda tangan salah ditolak tanpa perubahan, `audit_logs` tak bisa diubah/dihapus oleh akun aplikasi, pembersihan sisa instalasi gagal. Belum diuji: Ubuntu 22.04, sertifikat Let's Encrypt sungguhan, VPS sungguhan.
+- **Temuan saat pengujian:** SSR tidak pernah bisa berjalan dari arsip rilis (bundel mengimpor `react` dari `node_modules`) — diperbaiki dengan bundel mandiri (1.3.0).
 
 ## 6. Recommended Additional Features
 Hanya yang dikonfirmasi lewat SA/Assumptions yang masuk Section 5 (revision, audit, redirect, media, SEO, menu/settings, backup, lockdown, autosave, fulltext). Sisanya:
