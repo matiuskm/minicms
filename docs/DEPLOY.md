@@ -98,6 +98,9 @@ server {
     root /var/www/cms/public;
     index index.php;
     client_max_body_size 12m;                  # >= upload limits; PHP: upload_max_filesize = post_max_size = 12M
+    server_tokens off;
+    client_header_timeout 10s; client_body_timeout 15s; send_timeout 15s;   # slowloris
+    if ($host != $server_name) { return 444; }                              # nothing is served by IP or foreign Host
 
     # TLS: certificates from Let's Encrypt (certbot). HSTS and the CSP are sent by the application.
 
@@ -114,6 +117,8 @@ server {
     location / { try_files $uri $uri/ /index.php?$query_string; }
 
     location ~ \.php$ {
+        limit_req zone=cms_all burst=100 nodelay;     # zones: see below
+        limit_req zone=cms_auth burst=10 nodelay;
         fastcgi_pass unix:/run/php/php8.4-fpm.sock;
         fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
         include fastcgi_params;
@@ -122,6 +127,20 @@ server {
 }
 server { listen 80; server_name your-domain.example; return 301 https://$host$request_uri; }
 ```
+
+The `limit_req` zones live in the `http` context (the installer writes them to `/etc/nginx/conf.d/cms-limits.conf`):
+
+```nginx
+map $request_uri $cms_auth_key {
+    default "";   # an empty key is not limited
+    ~^/(login|two-factor-challenge|forgot-password|reset-password|invite)(\?|/|$) $binary_remote_addr;
+}
+limit_req_zone $binary_remote_addr zone=cms_all:10m rate=20r/s;
+limit_req_zone $cms_auth_key zone=cms_auth:10m rate=30r/m;
+limit_req_status 429;
+```
+
+Behind a CDN or load balancer every visitor shares one address: restore the real client address (`set_real_ip_from` + `real_ip_header`) first, or raise the rates.
 
 PHP-FPM: `expose_php = Off`, `display_errors = Off`, `session.cookie_httponly = 1`, `opcache.validate_timestamps = 0` (restart after deploys).
 
