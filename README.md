@@ -2,7 +2,7 @@
 
 A secure, single-site CMS: posts, pages, categories and tags with a visual editor and a review workflow; a public site with SEO and
 server-side rendering; global colour palettes and fonts; visitor statistics without cookies; content-integrity alerts, lockdown, backups;
-and signed one-click updates. Admin and Writer roles, mandatory 2FA for admins.
+a home page builder, and signed one-click updates. Admin and Writer roles, mandatory 2FA for admins.
 
 Single-site CMS: Laravel 12, React 19, Inertia 2 (SSR), MySQL. Specs live in [`docs/`](docs/)
 (`SA-*` analysis, `PRD-*` requirements, `PROGRESS-*` phase tracker).

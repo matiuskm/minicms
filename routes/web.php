@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\AnalyticsController;
 use App\Http\Controllers\Admin\AppearanceController;
 use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\HomePageController;
 use App\Http\Controllers\Admin\MenuController;
 use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\PostController;
@@ -115,6 +116,9 @@ Route::middleware(['auth', 'role:admin', 'throttle:admin'])->prefix('admin')->na
     Route::get('settings', [SettingsController::class, 'edit'])->name('settings.edit');
     Route::put('settings', [SettingsController::class, 'update'])->name('settings.update');
     Route::get('menus', [MenuController::class, 'edit'])->name('menus.edit');
+    Route::get('home-page', [HomePageController::class, 'edit'])->name('home-page.edit');
+    Route::put('home-page', [HomePageController::class, 'update'])->name('home-page.update');
+    Route::post('home-page/reset', [HomePageController::class, 'reset'])->name('home-page.reset');
     Route::put('menus/{location}', [MenuController::class, 'update'])->name('menus.update');
 
     Route::get('audit-logs', [AuditLogController::class, 'index'])->name('audit-logs.index');

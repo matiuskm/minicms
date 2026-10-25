@@ -9,6 +9,7 @@ use App\Models\Redirect;
 use App\Models\Tag;
 use App\Models\User;
 use App\Support\ContentRenderer;
+use App\Support\HomePage;
 use App\Support\PublicCache;
 use App\Support\PublicData;
 use Illuminate\Http\RedirectResponse;
@@ -23,35 +24,11 @@ use Inertia\Response;
  */
 class PublicController extends Controller
 {
-    /** Posts shown in the home hero block: one feature plus the "Latest post" list. */
-    private const HERO_POSTS = 5;
-
     public function home(Request $request): Response
     {
         $page = $this->pageNumber($request);
 
-        $data = PublicCache::remember("home.{$page}", function () use ($page) {
-            $per = PublicData::perPage();
-            $total = Post::published()->count();
-            $gridTotal = max(0, $total - self::HERO_POSTS);
-            $last = max(1, (int) ceil($gridTotal / $per));
-
-            if ($page > $last) {
-                return null;
-            }
-
-            // One query for the slice, hero and grid together.
-            $skip = $page === 1 ? 0 : self::HERO_POSTS + ($page - 1) * $per;
-            $take = $page === 1 ? self::HERO_POSTS + $per : $per;
-            $posts = $this->published()->skip($skip)->take($take)->get()->map(fn (Post $p) => PublicData::card($p));
-
-            return [
-                'featured' => $page === 1 ? $posts->first() : null,
-                'latest' => $page === 1 ? $posts->slice(1, self::HERO_POSTS - 1)->values() : [],
-                'posts' => $page === 1 ? $posts->slice(self::HERO_POSTS)->values() : $posts,
-                'pager' => PublicData::pager([$page, $last], '/'),
-            ];
-        });
+        $data = PublicCache::remember("home.{$page}", fn () => HomePage::build($page, fn () => $this->published()));
 
         abort_if($data === null, 404);
         $request->attributes->set('analytics.key', 'home');

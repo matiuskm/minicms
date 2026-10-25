@@ -36,7 +36,7 @@ test('TC-F09-01 home, post, page and archives render published content', functio
     $post->tags()->attach($tag->id);
     Page::factory()->create(['title' => 'About', 'slug' => 'about', 'status' => 'published', 'body' => '<p>About us</p>']);
 
-    $this->get('/')->assertOk()->assertInertia(fn ($p) => $p->component('public/home')->where('featured.title', 'Hello World')->where('featured.author.name', 'Midnight Pen'));
+    $this->get('/')->assertOk()->assertInertia(fn ($p) => $p->component('public/home')->where('sections.0.featured.title', 'Hello World')->where('sections.0.featured.author.name', 'Midnight Pen'));
     $this->get('/blog/hello-world')->assertOk()->assertInertia(fn ($p) => $p->component('public/post')->where('post.title', 'Hello World')->where('post.body', '<p>Body text</p>')->where('post.tags.0.name', 'PHP'));
     $this->get('/about')->assertOk()->assertInertia(fn ($p) => $p->component('public/page')->where('page.title', 'About'));
     $this->get('/category/news')->assertOk()->assertInertia(fn ($p) => $p->component('public/archive')->has('posts', 1));
@@ -63,7 +63,7 @@ test('TC-F09-02 unpublished, scheduled, future, archived and trashed content is 
         $this->get("/blog/{$slug}")->assertNotFound();
     }
     $this->get('/draft-page')->assertNotFound();
-    $this->get('/')->assertInertia(fn ($p) => $p->where('featured.url', '/blog/visible')->has('latest', 0)->has('posts', 0));
+    $this->get('/')->assertInertia(fn ($p) => $p->where('sections.0.featured.url', '/blog/visible')->has('sections.0.latest', 0)->has('sections.1.posts', 0));
     $this->get('/sitemap.xml')->assertOk()->assertSee('/blog/visible', false)->assertDontSee('a-draft')->assertDontSee('a-future')->assertDontSee('an-archived')->assertDontSee('a-trashed');
     $this->get('/search?q=visible')->assertOk();
 });
@@ -76,7 +76,8 @@ test('TC-F09-03 public pages use a constant number of queries however many posts
     $large = [queries('/'), queries('/blog'), queries('/category/uncategorized')];
 
     expect($large)->toBe($small);
-    expect(max($large))->toBeLessThanOrEqual(8);
+    // The home page loads its feature block and its blog list separately, each with its relations.
+    expect(max($large))->toBeLessThanOrEqual(10);
 
     $post = Post::published()->first();
     expect(queries("/blog/{$post->slug}"))->toBeLessThanOrEqual(8);
@@ -88,9 +89,9 @@ test('the home hero takes five posts and the grid paginates the rest', function 
         live(['title' => "Post {$i}", 'published_at' => now()->subMinutes(100 - $i)]);
     }
 
-    $this->get('/')->assertInertia(fn ($p) => $p->where('featured.title', 'Post 17')->has('latest', 4)->has('posts', 5)->where('pager.last', 3)->where('pager.next', '/?page=2'));
-    $this->get('/?page=2')->assertInertia(fn ($p) => $p->where('featured', null)->has('latest', 0)->has('posts', 5)->where('posts.0.title', 'Post 7'));
-    $this->get('/?page=3')->assertInertia(fn ($p) => $p->has('posts', 2));
+    $this->get('/')->assertInertia(fn ($p) => $p->where('sections.0.featured.title', 'Post 17')->has('sections.0.latest', 4)->has('sections.1.posts', 5)->where('pager.last', 3)->where('pager.next', '/?page=2'));
+    $this->get('/?page=2')->assertInertia(fn ($p) => $p->has('sections', 1)->where('sections.0.type', 'blog')->has('sections.0.posts', 5)->where('sections.0.posts.0.title', 'Post 7'));
+    $this->get('/?page=3')->assertInertia(fn ($p) => $p->has('sections.0.posts', 2));
     $this->get('/?page=4')->assertNotFound();
 });
 
@@ -137,14 +138,14 @@ test('disabled authors have no public archive', function () {
 test('content changes show up immediately because the cache is invalidated', function () {
     $post = live(['title' => 'First', 'slug' => 'cached'])->first();
     $this->get('/blog/cached')->assertInertia(fn ($p) => $p->where('post.title', 'First'));
-    $this->get('/')->assertInertia(fn ($p) => $p->where('featured.title', 'First'));
+    $this->get('/')->assertInertia(fn ($p) => $p->where('sections.0.featured.title', 'First'));
 
     $post->update(['title' => 'Second']);
     $this->get('/blog/cached')->assertInertia(fn ($p) => $p->where('post.title', 'Second'));
-    $this->get('/')->assertInertia(fn ($p) => $p->where('featured.title', 'Second'));
+    $this->get('/')->assertInertia(fn ($p) => $p->where('sections.0.featured.title', 'Second'));
 
     live(['title' => 'Newest', 'published_at' => now()]);
-    $this->get('/')->assertInertia(fn ($p) => $p->where('featured.title', 'Newest'));
+    $this->get('/')->assertInertia(fn ($p) => $p->where('sections.0.featured.title', 'Newest'));
 
     Setting::put(['tagline' => 'A fresh tagline']);
     $this->get('/')->assertInertia(fn ($p) => $p->where('site.tagline', 'A fresh tagline'));

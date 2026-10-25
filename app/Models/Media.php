@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\HomePage;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -28,7 +29,7 @@ class Media extends Model
      */
     public function isInUse(): bool
     {
-        return in_array($this->id, [Setting::get('logo_media_id'), Setting::get('favicon_media_id')], true)
+        return in_array($this->id, [Setting::get('logo_media_id'), Setting::get('favicon_media_id'), ...HomePage::mediaIds(HomePage::layout())], true)
             || Post::withTrashed()->where('featured_media_id', $this->id)->exists()
             || Post::withTrashed()->where('body', 'like', "%{$this->uuid}%")->exists()
             || Page::withTrashed()->where('body', 'like', "%{$this->uuid}%")->exists();
