@@ -6,6 +6,10 @@ Definition of Done (PRD section 11) is met.
 
 ## [Unreleased]
 
+## [1.3.6] - 2026-10-26 — Less in the public page source
+### Security
+- Public pages embed their props in the HTML. For a signed-in person they included the account's name, e-mail address and role, the "update available" version and the 2FA-bypass flag. They now only say that someone is signed in (for the "Dashboard" link). Admin screens are unchanged.
+
 ## [1.3.5] - 2026-10-25 — Updates can take their backup
 ### Fixed
 - The update failed with "The backup failed" on installer-made servers: the backup folder was created by the site (`www-data`) with mode 0700, so the updater (`deploy`) could not write into it. The backup disk now creates group-writable folders and files (0770/0660).
