@@ -5,7 +5,8 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title inertia>{{ config('app.name', 'Laravel') }}</title>
+        <title inertia>{{ $page['props']['name'] ?? config('app.name', 'Laravel') }}</title>
+        <meta name="app-name" content="{{ $page['props']['name'] ?? config('app.name', 'Laravel') }}">
 
         @if (! empty($page['props']['site']['favicon']))
             <link rel="icon" href="{{ $page['props']['site']['favicon'] }}">
