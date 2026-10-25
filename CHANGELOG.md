@@ -6,6 +6,11 @@ Definition of Done (PRD section 11) is met.
 
 ## [Unreleased]
 
+## [1.3.3] - 2026-10-25 — Installer fix
+### Fixed
+- `install.sh` stopped with MySQL error 1819 on servers that enforce `validate_password`: the generated database passwords were hex only. They now always contain upper case, lower case, a digit and a symbol (also valid under the STRONG policy).
+- The installer log is appended to instead of being emptied on each run, so a re-run no longer wipes the log of the failed attempt.
+
 ## [1.3.2] - 2026-10-25 — Installer: stricter Nginx
 ### Added
 - `install.sh` now writes a hardened Nginx setup: `server_tokens off`; slow-client timeouts; requests whose Host is not the configured domain (IP address, other names) are dropped (`444`); per-address request limit for the site (20 r/s, burst 100) and a tighter one for sign-in routes (30 r/min, burst 10, answered with `429`).
