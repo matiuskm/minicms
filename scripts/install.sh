@@ -69,7 +69,7 @@ done
 
 have() { command -v "$1" >/dev/null 2>&1; }
 ver_ge() { [ "$(printf '%s\n%s\n' "$2" "$1" | sort -V | head -n1)" = "$2" ]; }   # ver_ge 22.1 22 -> true
-rand() { openssl rand -hex 24; }
+rand() { printf '%sAa1_' "$(openssl rand -hex 24)"; }   # the fixed tail satisfies MySQL's validate_password (upper, lower, digit, symbol) when a server enforces it
 
 prompt() { # var "question" [default]
   local var="$1" q="$2" def="${3:-}" ans=""
@@ -460,7 +460,7 @@ main() {
 
   cd /
   if [ "$TEST" != 1 ]; then
-    ( umask 077; : > "$LOG" )
+    ( umask 077; printf '\n=== %s ===\n' "$(date -u +%FT%TZ)" >> "$LOG" )   # append: a re-run must not wipe the log of the failed attempt
     exec > >(tee -a "$LOG") 2>&1
     install_system
     PHP=/usr/bin/php8.4
