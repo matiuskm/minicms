@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Http\Controllers\PublicController;
 use App\Models\Setting;
 use App\Support\Updates\Updater;
 use Illuminate\Http\Request;
@@ -37,19 +38,24 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
-        return array_merge(parent::share($request), [
+        $user = $request->user();
+        // Public pages put their props into the HTML source: they only learn *whether* someone is signed in (for the
+        // "Dashboard" link), never who, and nothing about updates or the 2FA bypass.
+        $public = $request->route()?->getControllerClass() === PublicController::class;
+
+        return [
             ...parent::share($request),
             // The site name from Site settings (APP_NAME is only the fallback); admin sidebar and page titles use it too.
             'name' => Setting::get('site_name') ?: config('app.name'),
             // One-shot message set by controllers via ->with('status', ...).
             'flash' => fn () => ['status' => $request->session()->get('status')],
-            // Shown as a warning in the admin header while the local-only 2FA bypass is on.
-            'twoFactorBypassed' => ! EnforceSessionPolicy::twoFactorRequired(),
-            // Admins see a hint when a newer release is already known (cache only, never a network call here).
-            'updateAvailable' => fn () => $request->user()?->isAdmin() ? (Updater::cachedAvailable()['version'] ?? null) : null,
-            'auth' => [
-                'user' => $request->user()?->only('id', 'name', 'display_name', 'email', 'role'),
-            ],
-        ]);
+            'auth' => ['user' => $public ? ($user ? ['id' => $user->id] : null) : $user?->only('id', 'name', 'display_name', 'email', 'role')],
+            ...($public ? [] : [
+                // Shown as a warning in the admin header while the local-only 2FA bypass is on.
+                'twoFactorBypassed' => ! EnforceSessionPolicy::twoFactorRequired(),
+                // Admins see a hint when a newer release is already known (cache only, never a network call here).
+                'updateAvailable' => fn () => $user?->isAdmin() ? (Updater::cachedAvailable()['version'] ?? null) : null,
+            ]),
+        ];
     }
 }

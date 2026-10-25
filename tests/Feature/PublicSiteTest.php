@@ -257,7 +257,7 @@ test('the admin area and account screens are marked noindex', function () {
 test('the public header knows about the signed-in user and the footer menus come from settings', function () {
     live();
     $this->get('/')->assertInertia(fn ($p) => $p->where('auth.user', null));
-    $this->actingAs(User::factory()->create())->get('/')->assertInertia(fn ($p) => $p->where('auth.user.role', 'writer'));
+    $this->actingAs($u = User::factory()->create())->get('/')->assertInertia(fn ($p) => $p->where('auth.user', ['id' => $u->id])); // only that someone is signed in, never who
 });
 
 test('a reserved path is never treated as a page and unknown pages 404', function () {
