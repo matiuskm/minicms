@@ -331,6 +331,17 @@ INI
   printf '[Service]\nUMask=0002\n' > /etc/systemd/system/php8.4-fpm.service.d/cms-umask.conf   # files the site writes stay group-writable for the updater
   systemctl daemon-reload
 
+  # http-level: per-address request limits. The map leaves the key empty (= no limit) for everything but the sign-in routes.
+  cat > /etc/nginx/conf.d/cms-limits.conf <<'NGINX'
+map $request_uri $cms_auth_key {
+    default "";
+    ~^/(login|two-factor-challenge|forgot-password|reset-password|invite)(\?|/|$) $binary_remote_addr;
+}
+limit_req_zone $binary_remote_addr zone=cms_all:10m rate=20r/s;
+limit_req_zone $cms_auth_key zone=cms_auth:10m rate=30r/m;
+limit_req_status 429;
+NGINX
+
   cat > /etc/nginx/sites-available/cms <<NGINX
 server {
     listen 80;
@@ -338,6 +349,15 @@ server {
     root $APP_ROOT/current/public;
     index index.php;
     client_max_body_size 12m;
+    server_tokens off;
+
+    # Slow-client (slowloris) limits.
+    client_header_timeout 10s;
+    client_body_timeout 15s;
+    send_timeout 15s;
+
+    # Only the configured domain is served: requests by IP address or any other Host get no answer.
+    if (\$host != \$server_name) { return 444; }
 
     location ~ /\.(?!well-known) { deny all; }
 
@@ -352,6 +372,8 @@ server {
     location / { try_files \$uri \$uri/ /index.php?\$query_string; }
 
     location ~ \.php\$ {
+        limit_req zone=cms_all burst=100 nodelay;
+        limit_req zone=cms_auth burst=10 nodelay;
         fastcgi_pass unix:/run/php/php8.4-fpm.sock;
         fastcgi_param SCRIPT_FILENAME \$realpath_root\$fastcgi_script_name;
         include fastcgi_params;
