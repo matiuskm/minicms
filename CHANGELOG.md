@@ -6,6 +6,10 @@ Definition of Done (PRD section 11) is met.
 
 ## [Unreleased]
 
+## [1.3.7] - 2026-10-26 — Updates can switch releases
+### Fixed
+- One-click updates on installer-made servers ended with "The new version did not respond": the release archive's root folder was packed with mode 0700 (a temporary folder), so the unpacked release could not be entered by the web server. The archive now has 0755, the build refuses an archive that does not, and the updater sets the folder's mode after unpacking.
+
 ## [1.3.6] - 2026-10-26 — Less in the public page source
 ### Security
 - Public pages embed their props in the HTML. For a signed-in person they included the account's name, e-mail address and role, the "update available" version and the 2FA-bypass flag. They now only say that someone is signed in (for the "Dashboard" link). Admin screens are unchanged.

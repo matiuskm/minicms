@@ -94,6 +94,7 @@ REASON="$("$PHP" "$CURRENT/scripts/verify-release.php" "$WORK/release.tar.gz" "$
 REL="$APP_ROOT/releases/$VERSION"
 rm -rf "$REL"; mkdir -p "$REL"
 tar -xzf "$WORK/release.tar.gz" -C "$REL" || fail verifying "The archive could not be unpacked."
+chmod u=rwx,g=rx,o= "$REL"   # whatever the archive says about its root folder, the web server's group must be able to enter
 [ "$(tr -d '[:space:]' < "$REL/VERSION" 2>/dev/null)" = "$VERSION" ] && [ -f "$REL/artisan" ] || fail verifying "The archive does not contain version $VERSION."
 MIN_PHP="$("$PHP" -r '$m = json_decode(@file_get_contents($argv[1]), true); echo $m["min_php"] ?? "";' "$REL/manifest.json")"
 if [ -n "$MIN_PHP" ]; then
