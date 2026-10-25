@@ -2,11 +2,11 @@
 
 | Item | Detail |
 |---|---|
-| Version | 1.13 |
+| Version | 1.14 |
 | Date | 2026-10-24 |
 | Author | anakodok@gmail.com (generated with PRD Generator) |
 | Source | docs/SA-mini-cms-2026-10-24.md |
-| Status | Final (1.1.0) |
+| Status | Final (1.2.0) |
 
 ## 0. Assumptions, Open Questions & Changelog
 **Assumptions** (semua SA-A-xx diwarisi; tambahan PRD di bawah)
@@ -49,6 +49,7 @@
 - v1.10 2026-10-24 — F-14 Visitor Statistics (A-19), permintaan user.
 - v1.11 2026-10-24 — F-15 One-click Updates (A-20), permintaan user.
 - v1.13 2026-10-25 — F-16 Home page builder (A-21), permintaan user setelah rilis 1.0.0.
+- v1.14 2026-10-25 — F-16: tipe section Text + image (FR-90, TC-F16-17..18), permintaan user (tata letak dua kolom teks + foto).
 - v1.12 2026-10-25 — rilis 1.0.0: audit retention (`cms:prune-audit`), checklist DoD (`docs/RELEASE-CHECKLIST-1.0.md`).
 
 ## 1. Executive Summary
@@ -190,7 +191,7 @@ flowchart LR
 ### F-16 — Home page builder (Should) — ditambahkan v1.13 atas permintaan user
 - **Source:** permintaan user ("kalau user mau ganti hero jadi image/slider, bukan featured post, atau menambah section baru antara hero dan blog").
 - **Keputusan (A-21):** daftar section berurutan dengan tipe tertutup, bukan page builder berkolom bebas dan bukan custom HTML (permukaan deface lebih besar). Disimpan sebagai JSON di setting `home_sections`; `null` = tata letak bawaan (featured + blog), jadi instalasi lama tidak berubah.
-- **FR:** FR-89 admin (hanya admin) menyusun, menyalakan/mematikan, menambah, menghapus, dan mengurutkan section lewat Appearance-adjacent menu **Home page** (maks 12); FR-90 tipe: Featured post (otomatis atau post tertentu), Hero image, Hero slider (2-8 slide, autoplay opsional), Text (TipTap, disanitasi), Post grid (terbaru/kategori/tag, 3-12), Call to action, Blog; FR-91 tepat satu section Blog (membawa daftar post dan pager; boleh dipindah atau disembunyikan, tidak dihapus); post di blok featured tidak diulang di daftar blog; halaman 2+ hanya menampilkan Blog; FR-92 validasi ketat per tipe, tautan hanya `http(s)://` atau `/path`, gambar harus berasal dari Media bertipe image, kunci tak dikenal dibuang, teks kaya lewat HTMLPurifier; FR-93 gambar yang dipakai tidak bisa dihapus dari Media; FR-94 perubahan masuk audit log, cache publik dibersihkan; jumlah query tetap konstan terhadap jumlah post; FR-95 slider aksesibel (carousel berlabel, tombol keyboard, berhenti saat hover/fokus dan `prefers-reduced-motion`), tanpa library dan tanpa mengubah CSP.
+- **FR:** FR-89 admin (hanya admin) menyusun, menyalakan/mematikan, menambah, menghapus, dan mengurutkan section lewat Appearance-adjacent menu **Home page** (maks 12); FR-90 tipe: Featured post (otomatis atau post tertentu), Hero image, Text + image (judul dan teks kaya di samping gambar potret, kiri/kanan, tombol opsional), Hero slider (2-8 slide, autoplay opsional), Text (TipTap, disanitasi), Post grid (terbaru/kategori/tag, 3-12), Call to action, Blog; FR-91 tepat satu section Blog (membawa daftar post dan pager; boleh dipindah atau disembunyikan, tidak dihapus); post di blok featured tidak diulang di daftar blog; halaman 2+ hanya menampilkan Blog; FR-92 validasi ketat per tipe, tautan hanya `http(s)://` atau `/path`, gambar harus berasal dari Media bertipe image, kunci tak dikenal dibuang, teks kaya lewat HTMLPurifier; FR-93 gambar yang dipakai tidak bisa dihapus dari Media; FR-94 perubahan masuk audit log, cache publik dibersihkan; jumlah query tetap konstan terhadap jumlah post; FR-95 slider aksesibel (carousel berlabel, tombol keyboard, berhenti saat hover/fokus dan `prefers-reduced-motion`), tanpa library dan tanpa mengubah CSP.
 - **Tes:** TC-F16-01..16 (`tests/Feature/HomePageTest.php`) + Vitest `home-sections.test.tsx`. PP-F16-01 hanya admin yang dapat mengubah; PP-F16-02 tidak ada tautan `javascript:`/`data:`/`//host` yang dapat tersimpan; PP-F16-03 HTML berbahaya di Text tidak sampai ke pengunjung; PP-F16-04 query halaman utama konstan.
 - **Batasan:** layout kolom bebas dan section Custom HTML sengaja tidak ada; gallery di dalam editor (Phase 2) dapat memakai ulang komponen slider.
 

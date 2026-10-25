@@ -835,6 +835,45 @@
     }
 }
 
+/* Text + image (F-16): two columns, portrait image, stacked on phones. */
+.site-split {
+    display: grid;
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+    gap: 2.5rem;
+    align-items: center;
+}
+.site-split-left {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
+}
+.site-split-left img {
+    order: -1;
+}
+.site-split img {
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    object-fit: cover;
+    border-radius: 0.9rem;
+}
+.site-split-text h2 {
+    margin: 0 0 1.25rem;
+    font-size: 2.1rem;
+    line-height: 1.2;
+    font-weight: 500;
+}
+.site-split-text .site-button {
+    margin-top: 1.5rem;
+}
+@media (max-width: 860px) {
+    .site-split,
+    .site-split-left {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    .site-split-text h2 {
+        font-size: 1.6rem;
+    }
+}
+
 /* Inertia page-visit progress bar (Inertia's built-in CSS is disabled so the CSP can stay strict). */
 #nprogress {
     pointer-events: none;

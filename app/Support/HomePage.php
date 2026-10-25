@@ -15,7 +15,7 @@ use Illuminate\Validation\Rule;
  */
 class HomePage
 {
-    public const TYPES = ['featured', 'image', 'slider', 'rich_text', 'post_grid', 'cta', 'blog'];
+    public const TYPES = ['featured', 'image', 'split', 'slider', 'rich_text', 'post_grid', 'cta', 'blog'];
 
     public const MAX_SECTIONS = 12;
 
@@ -73,6 +73,13 @@ class HomePage
                     "{$p}.align" => ['required', Rule::in(['left', 'center', 'right'])],
                     ...$button($p, false),
                 ],
+                'split' => [
+                    "{$p}.media_id" => $image(),
+                    "{$p}.title" => ['nullable', 'string', 'max:160'],
+                    "{$p}.body" => ['nullable', 'string', 'max:10000'],
+                    "{$p}.image_side" => ['required', Rule::in(['left', 'right'])],
+                    ...$button($p, false),
+                ],
                 'slider' => [
                     "{$p}.autoplay" => ['required', 'boolean'],
                     "{$p}.slides" => ['required', 'array', 'min:2', 'max:8'],
@@ -121,6 +128,7 @@ class HomePage
             return $base + match ($s['type']) {
                 'featured' => ['post_id' => $s['post_id'] ?? null],
                 'image' => ['media_id' => (int) $s['media_id'], 'title' => $text($s, 'title'), 'text' => $text($s, 'text'), 'align' => $s['align'], ...$button($s)],
+                'split' => ['media_id' => (int) $s['media_id'], 'title' => $text($s, 'title'), 'body' => (new HtmlSanitizer)->clean((string) ($s['body'] ?? '')), 'image_side' => $s['image_side'], ...$button($s)],
                 'slider' => [
                     'autoplay' => (bool) $s['autoplay'],
                     'slides' => collect($s['slides'])->map(fn (array $x) => ['media_id' => (int) $x['media_id'], 'title' => $text($x, 'title'), 'text' => $text($x, 'text'), ...$button($x)])->values()->all(),
@@ -146,6 +154,9 @@ class HomePage
             $errors['sections'] = 'Section ids must be unique.';
         }
         foreach ($sections as $i => $s) {
+            if ($s['type'] === 'split' && $s['title'] === '' && HtmlSanitizer::isBlank($s['body'])) {
+                $errors["sections.{$i}.title"] = 'Add a heading or some text next to the image.';
+            }
             if ($s['type'] === 'rich_text' && HtmlSanitizer::isBlank($s['body'])) {
                 $errors["sections.{$i}.body"] = 'The text is empty.';
             }
@@ -184,6 +195,7 @@ class HomePage
         $sections = $layout->filter(fn ($s) => $page === 1 || $s['type'] === 'blog')->map(fn (array $s) => ['id' => $s['id'], 'type' => $s['type']] + match ($s['type']) {
             'featured' => ['featured' => $hero->first(), 'latest' => $hero->slice(1)->values()],
             'image' => self::image($s, $media),
+            'split' => ['title' => $s['title'], 'html' => ContentRenderer::render($s['body']), 'image' => self::image($s, $media)['image'], 'side' => $s['image_side'], 'button' => self::button($s)],
             'slider' => ['autoplay' => $s['autoplay'], 'slides' => collect($s['slides'])->map(fn ($x) => self::image($x, $media))->all()],
             'rich_text' => ['title' => $s['title'], 'html' => ContentRenderer::render($s['body'])],
             'post_grid' => ['title' => $s['title'], 'posts' => self::grid($s, $published)],
@@ -207,7 +219,7 @@ class HomePage
     public static function mediaIds(array $sections): array
     {
         return collect($sections)->flatMap(fn ($s) => match ($s['type']) {
-            'image' => [$s['media_id']],
+            'image', 'split' => [$s['media_id']],
             'slider' => array_column($s['slides'], 'media_id'),
             default => [],
         })->unique()->values()->all();
@@ -228,7 +240,7 @@ class HomePage
 
         return [
             'image' => $m ? ['large' => $m->url('large'), 'medium' => $m->url('medium'), 'alt' => $m->alt_text] : null,
-            'title' => $s['title'], 'text' => $s['text'], 'button' => self::button($s), 'align' => $s['align'] ?? 'left',
+            'title' => $s['title'] ?? '', 'text' => $s['text'] ?? '', 'button' => self::button($s), 'align' => $s['align'] ?? 'left',
         ];
     }
 

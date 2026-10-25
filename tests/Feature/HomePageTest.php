@@ -207,3 +207,27 @@ test('TC-F16-16 home page queries stay constant as sections and posts grow', fun
     homeLive([], 40);
     expect(homeQueries('/'))->toBe($small);
 });
+
+test('TC-F16-17 a text + image section renders heading, sanitised text and the image on the chosen side', function () {
+    $m = img();
+    $this->actingAs(adminUser())->put('/admin/home-page', layoutWith(
+        sec('split', ['media_id' => $m->id, 'image_side' => 'left', 'title' => 'Hi, I am Alva', 'body' => '<p onclick="x()">I build <b>things</b></p><script>alert(1)</script>', 'button_label' => 'About', 'button_url' => '/about']),
+    ))->assertSessionHasNoErrors();
+
+    $stored = collect(Setting::get('home_sections'))->firstWhere('type', 'split');
+    expect($stored['body'])->toContain('things')->not->toContain('script')->not->toContain('onclick');
+
+    $this->get('/')->assertInertia(fn ($p) => $p->where('sections.0.type', 'split')->where('sections.0.side', 'left')->where('sections.0.title', 'Hi, I am Alva')
+        ->where('sections.0.image.large', $m->url('large'))->where('sections.0.button.url', '/about'));
+    expect($m->isInUse())->toBeTrue();
+});
+
+test('TC-F16-18 a text + image section needs an image, a side, a safe link and some text', function () {
+    $m = img();
+    $admin = adminUser();
+    $this->actingAs($admin)->put('/admin/home-page', layoutWith(sec('split', ['image_side' => 'right', 'title' => 'T'])))->assertSessionHasErrors('sections.0.media_id');
+    $this->put('/admin/home-page', layoutWith(sec('split', ['media_id' => $m->id, 'image_side' => 'top', 'title' => 'T'])))->assertSessionHasErrors('sections.0.image_side');
+    $this->put('/admin/home-page', layoutWith(sec('split', ['media_id' => $m->id, 'image_side' => 'right', 'title' => 'T', 'button_label' => 'B', 'button_url' => 'javascript:alert(1)'])))->assertSessionHasErrors('sections.0.button_url');
+    $this->put('/admin/home-page', layoutWith(sec('split', ['media_id' => $m->id, 'image_side' => 'right', 'title' => '', 'body' => '<p></p>'])))->assertSessionHasErrors('sections.0.title');
+    expect(Setting::get('home_sections'))->toBeNull();
+});

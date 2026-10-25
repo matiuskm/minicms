@@ -47,6 +47,17 @@ describe('HomeSections', () => {
         expect(Element.prototype.scrollTo).toHaveBeenCalled();
     });
 
+    it('renders text + image with the image on the chosen side', () => {
+        const sections: Section[] = [
+            { id: 'x1', type: 'split', title: 'Hi, I am Alva', html: '<p>I build things</p>', image: img, side: 'left', button: null },
+        ];
+        const { container } = render(<HomeSections sections={sections} pager={pager} />);
+
+        expect(screen.getByRole('heading', { name: 'Hi, I am Alva' })).toBeInTheDocument();
+        expect(screen.getByAltText('A view')).toBeInTheDocument();
+        expect(container.querySelector('.site-split-left')).not.toBeNull();
+    });
+
     it('shows the empty message only when there is nothing to show', () => {
         render(
             <HomeSections
