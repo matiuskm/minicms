@@ -6,6 +6,13 @@ Definition of Done (PRD section 11) is met.
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-10-25 — Server installer
+### Added
+- `install.sh` (attached to every release): one command on a fresh Ubuntu 22.04/24.04 server checks requirements, installs PHP 8.4, Nginx, MySQL 8, Node 22, Supervisor and Certbot, installs the latest *signature-verified* release in the `releases/current/shared` layout with the least-privilege database accounts, obtains HTTPS, starts SSR and cron, creates the first admin and deletes itself.
+### Fixed
+- Server-side rendering could never start from a release archive: the SSR bundle imported `react` from `node_modules`, which the archive does not contain. The bundle is now self-contained.
+- Test files were bundled into the browser build (an unused 470 kB chunk) and would have been pulled into the SSR bundle.
+
 ## [1.2.0] - 2026-10-25 — Text + image section
 ### Added
 - Home page section **Text + image**: heading and rich text beside a portrait image (left or right), optional button; stacks on phones.

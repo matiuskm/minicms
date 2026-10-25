@@ -18,7 +18,7 @@ if (nonce) (window as unknown as { __webpack_nonce__?: string }).__webpack_nonce
 createInertiaApp({
     // Public pages already carry the site name in their SEO title.
     title: (title) => (title.includes(appName) ? title : `${title} - ${appName}`),
-    resolve: (name) => resolvePageComponent(`./pages/${name}.tsx`, import.meta.glob('./pages/**/*.tsx')),
+    resolve: (name) => resolvePageComponent(`./pages/${name}.tsx`, import.meta.glob(['./pages/**/*.tsx', '!./pages/**/*.test.tsx'])),
     setup({ el, App, props }) {
         const root = createRoot(el);
 

@@ -1,5 +1,26 @@
 # Deploying to a VPS
 
+## Quick start: one command
+
+On a fresh **Ubuntu 22.04 or 24.04** server (root access, DNS for your domain already pointing at it):
+
+```bash
+curl -fsSLO https://github.com/matiuskm/minicms/releases/latest/download/install.sh
+sudo bash install.sh --domain example.com --email you@example.com
+```
+
+`install.sh` checks the server first (OS, memory, disk, ports 80/443, GitHub access, DNS, MySQL access) and prints what it will add.
+Add `--dry-run` to see only that report. It then installs what is missing (PHP 8.4, Nginx, MySQL 8, Node 22 for server-side rendering,
+Supervisor, Certbot), installs the latest release **only if its Ed25519 signature verifies**, creates the locked-down layout and the
+two database accounts described below, obtains the HTTPS certificate, starts the background processes, creates the first admin
+(a one-time password is printed at the end and stored nowhere), and finally **deletes itself**. The log is `/var/log/cms-install.log`
+(root only, contains no passwords). If it stops half-way, run it again: it removes its own leftovers first.
+Options: `--name`, `--version`, `--no-tls` (TLS ends at a proxy/CDN), `--yes` (no confirmation), `--keep` (keep the file).
+
+What it cannot do for you: real SMTP settings, an off-site `BACKUP_DISK`, and the firewall; the closing summary lists them.
+Everything the script does is the manual procedure below, so read on if you prefer to do it by hand or need a different OS.
+
+
 One Linux VPS: Nginx + PHP-FPM 8.4, MySQL 8, Node 22+ (only for server-side rendering), Supervisor, cron.
 Everything below is the minimum that the PRD's security requirements (NFR-03, NFR-05, NFR-09) assume.
 

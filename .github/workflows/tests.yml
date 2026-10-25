@@ -66,6 +66,9 @@ jobs:
       - name: Dependency audit (NFR-10)
         run: composer audit && npm audit --audit-level=high
 
+      - name: Shell scripts parse
+        run: bash -n scripts/install.sh && bash -n scripts/apply-update.sh && bash -n scripts/build-release.sh
+
       - name: Pest
         run: ./vendor/bin/pest
 

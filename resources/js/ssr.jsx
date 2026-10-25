@@ -10,7 +10,7 @@ createServer((page) =>
         page,
         render: ReactDOMServer.renderToString,
         resolve: (name) => {
-            const pages = import.meta.glob('./pages/**/*.tsx', {
+            const pages = import.meta.glob(['./pages/**/*.tsx', '!./pages/**/*.test.tsx'], {
                 eager: true,
             });
             return pages[`./pages/${name}.tsx`];
