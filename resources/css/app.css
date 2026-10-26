@@ -552,6 +552,7 @@
 }
 .site-article-image {
     width: 100%;
+    height: auto; /* with the width/height attributes this reserves the space before the image loads (no layout shift) */
     margin: 1.75rem 0;
     border-radius: 1.25rem;
 }
@@ -960,4 +961,35 @@
         0 0 10px #3b82f6,
         0 0 5px #3b82f6;
     transform: rotate(3deg) translate(0, -4px);
+}
+
+/* Motion. Subtle, only for pointers that can hover, and off entirely for people who ask for reduced motion. */
+@media (prefers-reduced-motion: no-preference) {
+    .site-card {
+        transition:
+            transform 0.25s ease,
+            box-shadow 0.25s ease;
+    }
+    .site-card h3,
+    .site-pill,
+    .site-card-tags a,
+    .site-share a,
+    .site-share button {
+        transition:
+            color 0.2s ease,
+            background-color 0.2s ease;
+    }
+    .site-feature img {
+        transition: transform 0.6s ease;
+    }
+}
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    .site-card:hover,
+    .site-card:focus-within {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 24px -16px rgb(0 0 0 / 0.3);
+    }
+    .site-feature:hover img {
+        transform: scale(1.03);
+    }
 }

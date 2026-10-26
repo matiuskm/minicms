@@ -11,7 +11,7 @@ export interface Card {
     reading_minutes: number;
     category: { name: string; url: string };
     author: { name: string; url: string };
-    image: { large: string; medium: string; thumb: string; alt: string | null } | null;
+    image: { large: string; medium: string; thumb: string; alt: string | null; width?: number | null; height?: number | null } | null;
     tags?: { name: string; url: string }[];
 }
 
@@ -27,10 +27,10 @@ export function Meta({ post }: { post: Pick<Card, 'date' | 'reading_minutes'> })
 
 const MAX_TAGS = 3;
 
-/** `list` is the one-card-per-row layout: the full date and the technology tags show, with the overflow as "+N". */
-export function PostCard({ post, list = false }: { post: Card; list?: boolean }) {
+/** `eager` is for cards above the fold (they are often the LCP, so they must not be lazy-loaded). `list` is the one-card-per-row layout: the full date and the technology tags show, with the overflow as "+N". */
+export function PostCard({ post, list = false, eager = false }: { post: Card; list?: boolean; eager?: boolean }) {
     const image = post.image ? (
-        <img className="site-card-image" src={post.image.medium} alt={post.image.alt ?? ''} loading="lazy" />
+        <img className="site-card-image" src={post.image.medium} alt={post.image.alt ?? ''} loading={eager ? 'eager' : 'lazy'} decoding="async" />
     ) : (
         <div className="site-card-image" aria-hidden />
     );
