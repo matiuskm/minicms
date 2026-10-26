@@ -335,3 +335,12 @@ test('a url prefix cannot shadow an existing route, page or other prefix', funct
     $this->actingAs($admin)->post('/admin/categories', ['name' => 'Works', 'url_prefix' => 'works'])->assertSessionHasNoErrors();
     expect(Category::where('url_prefix', 'works')->exists())->toBeTrue();
 });
+
+test('cards on a list-layout category page carry their tags, other pages do not load them', function () {
+    $work = Category::create(['name' => 'Works', 'slug' => 'works', 'list_layout' => true]);
+    $post = live(['category_id' => $work->id])->first();
+    $post->tags()->attach(Tag::create(['name' => 'Laravel', 'slug' => 'laravel'])->id);
+
+    $this->get('/category/works')->assertOk()->assertInertia(fn ($p) => $p->where('posts.0.tags.0.name', 'Laravel'));
+    $this->get('/blog')->assertOk()->assertInertia(fn ($p) => $p->where('posts.0.tags', []));
+});

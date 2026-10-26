@@ -181,7 +181,7 @@ class PublicController extends Controller
         $request->attributes->set('analytics.key', str_replace('.', ':', $cacheKey));
 
         $data = PublicCache::remember("archive.{$cacheKey}.{$page}", function () use ($scope, $path, $page, $heading, $intro, $list) {
-            $posts = $scope($this->published())->paginate(PublicData::perPage(), ['*'], 'page', $page);
+            $posts = $scope($this->published())->when($list, fn ($q) => $q->with('tags:id,name,slug'))->paginate(PublicData::perPage(), ['*'], 'page', $page);
 
             return $posts->isEmpty() && $page > 1 ? null : [
                 'heading' => $heading,

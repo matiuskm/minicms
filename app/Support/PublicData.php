@@ -65,6 +65,7 @@ class PublicData
             'reading_minutes' => $post->reading_minutes,
             'category' => ['name' => $post->category->name, 'url' => $post->category->path()],
             'author' => ['name' => $post->author->publicName(), 'url' => "/author/{$post->author->author_slug}"],
+            'tags' => $post->relationLoaded('tags') ? $post->tags->map(fn ($t) => ['name' => $t->name, 'url' => "/tag/{$t->slug}"])->values()->all() : [],
             'image' => $media ? ['large' => $media->url('large'), 'medium' => $media->url('medium'), 'thumb' => $media->url('thumb'), 'alt' => $media->alt_text] : null,
         ];
     }

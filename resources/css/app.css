@@ -421,21 +421,37 @@
 .site-grid-list {
     grid-template-columns: 1fr;
 }
+.site-card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+}
+.site-card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    font-size: 0.7rem;
+    color: var(--site-muted);
+}
+.site-card-tags a,
+.site-card-tags span {
+    padding: 0.15rem 0.55rem;
+    border-radius: 999px;
+    background: var(--site-soft);
+}
 @media (min-width: 861px) {
     .site-grid-list .site-card {
         display: grid;
         grid-template-columns: 15rem minmax(0, 1fr);
         column-gap: 1.25rem;
-        align-content: start;
-        align-items: start;
     }
     .site-grid-list .site-card-image {
-        grid-row: 1 / span 4;
         height: 100%;
+        min-height: 9rem;
     }
-    .site-grid-list .site-card > :not(.site-card-image) {
-        grid-column: 2;
+    .site-grid-list .site-card > .site-card-body {
         margin-inline: 0 0.6rem;
+        padding-block: 0.4rem;
     }
 }
 .site-card {
