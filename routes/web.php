@@ -143,4 +143,5 @@ Route::middleware(TrackVisit::class)->group(function () {
     Route::get('tag/{slug}', [PublicController::class, 'tag'])->name('tag');
     Route::get('author/{slug}', [PublicController::class, 'author'])->name('author');
     Route::get('{slug}', [PublicController::class, 'page'])->where('slug', '[a-z0-9]+(?:-[a-z0-9]+)*')->name('page');
+    Route::get('{prefix}/{slug}', [PublicController::class, 'prefixedPost'])->where(['prefix' => '[a-z0-9]+(?:-[a-z0-9]+)*', 'slug' => '[a-z0-9]+(?:-[a-z0-9]+)*'])->name('post.prefixed');
 });

@@ -22,11 +22,11 @@ class FeedController extends Controller
             foreach (Page::published()->get(['slug', 'updated_at']) as $p) {
                 $urls[] = ['loc' => url("/{$p->slug}"), 'lastmod' => $p->updated_at];
             }
-            foreach (Post::published()->orderByDesc('published_at')->get(['slug', 'updated_at']) as $p) {
-                $urls[] = ['loc' => url("/blog/{$p->slug}"), 'lastmod' => $p->updated_at];
+            foreach (Post::published()->with('category:id,url_prefix')->orderByDesc('published_at')->get(['slug', 'category_id', 'updated_at']) as $p) {
+                $urls[] = ['loc' => url($p->path()), 'lastmod' => $p->updated_at];
             }
-            foreach (Category::whereHas('posts', fn ($q) => $q->published())->get(['slug']) as $c) {
-                $urls[] = ['loc' => url("/category/{$c->slug}")];
+            foreach (Category::whereHas('posts', fn ($q) => $q->published())->get(['slug', 'url_prefix']) as $c) {
+                $urls[] = ['loc' => url($c->path())];
             }
             foreach (Tag::whereHas('posts', fn ($q) => $q->published())->get(['slug']) as $t) {
                 $urls[] = ['loc' => url("/tag/{$t->slug}")];
@@ -56,10 +56,10 @@ class FeedController extends Controller
         $xml = PublicCache::remember('rss', function () {
             $site = PublicData::site();
             $posts = Post::published()->inBlog()->select(['id', 'author_id', 'category_id', 'title', 'slug', 'excerpt', 'published_at'])
-                ->with(['category:id,name', 'author:id,name,display_name'])->orderByDesc('published_at')->limit(20)->get();
+                ->with(['category:id,name,url_prefix', 'author:id,name,display_name'])->orderByDesc('published_at')->limit(20)->get();
 
-            $items = $posts->map(fn (Post $p) => '<item><title>'.e($p->title).'</title><link>'.e(url("/blog/{$p->slug}")).'</link>'
-                .'<guid isPermaLink="true">'.e(url("/blog/{$p->slug}")).'</guid><pubDate>'.$p->published_at->toRfc2822String().'</pubDate>'
+            $items = $posts->map(fn (Post $p) => '<item><title>'.e($p->title).'</title><link>'.e(url($p->path())).'</link>'
+                .'<guid isPermaLink="true">'.e(url($p->path())).'</guid><pubDate>'.$p->published_at->toRfc2822String().'</pubDate>'
                 .'<dc:creator>'.e($p->author->publicName()).'</dc:creator><category>'.e($p->category->name).'</category>'
                 .'<description>'.e((string) $p->excerpt).'</description></item>')->implode('');
 

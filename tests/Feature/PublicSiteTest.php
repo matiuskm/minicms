@@ -303,3 +303,35 @@ test('a category with list layout tells its page to render one card per row', fu
     $this->get('/category/work')->assertOk()->assertInertia(fn ($p) => $p->where('list', true));
     $this->get('/blog')->assertOk()->assertInertia(fn ($p) => $p->where('list', false));
 });
+
+test('a category with a url prefix serves its posts and its page under that prefix, and forwards the old addresses', function () {
+    $works = Category::create(['name' => 'Works', 'slug' => 'works', 'url_prefix' => 'works']);
+    live(['title' => 'Nota Kue', 'slug' => 'nota-kue', 'category_id' => $works->id]);
+    live(['title' => 'Regular essay', 'slug' => 'essay']);
+
+    $this->get('/works/nota-kue')->assertOk()->assertInertia(fn ($p) => $p->component('public/post')->where('post.url', '/works/nota-kue')->where('post.category.url', '/works'));
+    $this->get('/works')->assertOk()->assertInertia(fn ($p) => $p->component('public/archive')->has('posts', 1));
+    $this->get('/blog/essay')->assertOk();
+
+    // Old addresses keep working (query string, e.g. utm_*, included).
+    $this->get('/blog/nota-kue?utm_source=whatsapp')->assertRedirect('/works/nota-kue?utm_source=whatsapp')->assertStatus(301);
+    $this->get('/category/works')->assertRedirect('/works')->assertStatus(301);
+    $this->get('/old/nota-kue')->assertRedirect('/works/nota-kue');
+    $this->get('/works/missing')->assertNotFound();
+
+    $this->get('/sitemap.xml')->assertSee('/works/nota-kue', false)->assertSee('/blog/essay', false)->assertDontSee('/blog/nota-kue', false);
+    $this->get('/rss.xml')->assertSee('/works/nota-kue', false);
+});
+
+test('a url prefix cannot shadow an existing route, page or other prefix', function () {
+    $admin = adminUser();
+    Page::factory()->create(['slug' => 'about', 'status' => 'published']);
+    Category::create(['name' => 'Taken', 'slug' => 'taken', 'url_prefix' => 'taken']);
+
+    foreach (['blog', 'admin', 'category', 'about', 'taken'] as $path) {
+        $this->actingAs($admin)->post('/admin/categories', ['name' => "Try {$path}", 'url_prefix' => $path])->assertSessionHasErrors('url_prefix');
+    }
+
+    $this->actingAs($admin)->post('/admin/categories', ['name' => 'Works', 'url_prefix' => 'works'])->assertSessionHasNoErrors();
+    expect(Category::where('url_prefix', 'works')->exists())->toBeTrue();
+});

@@ -243,6 +243,7 @@ class PostController extends Controller
 
         $post = DB::transaction(function () use ($data, $action, $post, $user, $isNew) {
             $oldSlug = $post->slug;
+            $oldPrefix = $isNew ? null : Category::whereKey($post->category_id)->value('url_prefix');
             $wasPublic = in_array($post->status, ['published', 'archived'], true);
 
             $post->title = $data['title'];
@@ -268,7 +269,8 @@ class PostController extends Controller
                 $post->captureRevision($user->id);
             }
             if ($wasPublic && $oldSlug && $oldSlug !== $post->slug) {
-                Redirect::record("/blog/{$oldSlug}", "/blog/{$post->slug}"); // BR-12
+                $post->load('category:id,url_prefix');
+                Redirect::record('/'.($oldPrefix ?: 'blog')."/{$oldSlug}", $post->path()); // BR-12
             }
 
             AuditLog::record($isNew ? 'post.created' : 'post.updated', $post);

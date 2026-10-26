@@ -69,6 +69,12 @@ class Post extends Model
         return $query->where('status', 'published')->where('published_at', '<=', now());
     }
 
+    /** The public address of the post: under its category's url_prefix, else /blog (needs the category loaded with url_prefix). */
+    public function path(): string
+    {
+        return '/'.($this->category->url_prefix ?: 'blog')."/{$this->slug}";
+    }
+
     /** Left out of the home list, /blog and the feed when its category is marked "hide from blog". */
     public function scopeInBlog(Builder $query): Builder
     {

@@ -6,6 +6,13 @@ Definition of Done (PRD section 11) is met.
 
 ## [Unreleased]
 
+## [1.6.0] - 2026-10-26 — Categories with their own address
+### Added
+- Categories have a "URL path" (for example `works`). Its posts then live at `/works/{slug}` instead of `/blog/{slug}`, and the category page at `/works`. The old addresses (`/blog/{slug}`, `/category/{slug}`) forward permanently to the new ones, keeping the query string so `utm_*` tags on already-shared links survive. Menus, cards, the sitemap, the RSS feed and the analytics link builder use the new addresses. A path cannot reuse a name the site already uses (blog, admin, a page, another category). Updating runs one small migration.
+
+### Fixed
+- The WhatsApp, Facebook, X and Telegram share links were hidden for visitors whose ad blocker or social filter removes share links. They are now buttons that open the share dialog, still tagged with `utm_source`.
+
 ## [1.5.0] - 2026-10-26 — Share buttons
 ### Added
 - Every post and page ends with share buttons for WhatsApp, Facebook, X and Telegram, plus Instagram (which copies the link, since Instagram has no web share link). Each link carries `utm_source` (the network), `utm_medium=social` and `utm_campaign=share`, so Analytics reports visits from shared links under the right source, even from in-app browsers that send no referrer.
