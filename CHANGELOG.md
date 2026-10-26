@@ -6,6 +6,13 @@ Definition of Done (PRD section 11) is met.
 
 ## [Unreleased]
 
+## [1.6.1] - 2026-10-27 — No admin route table for signed-out visitors
+### Security
+- Every page carried the full route table (Ziggy, about 30 KB of inline script) in its source, which listed all admin routes to anyone who viewed the source. Signed-out visitors now only get the few routes the public, sign-in and error pages use (`config/ziggy.php`, group `public`); signed-in users still get everything. A test checks that every `route()` call on those pages is covered.
+- Signing in (and the 2FA step) now ends with a full page load instead of an in-page visit, so the dashboard always starts with the complete route table.
+### Changed
+- Public pages are about 30 KB lighter in the HTML.
+
 ## [1.6.0] - 2026-10-26 — Categories with their own address
 ### Added
 - Categories have a "URL path" (for example `works`). Its posts then live at `/works/{slug}` instead of `/blog/{slug}`, and the category page at `/works`. The old addresses (`/blog/{slug}`, `/category/{slug}`) forward permanently to the new ones, keeping the query string so `utm_*` tags on already-shared links survive. Menus, cards, the sitemap, the RSS feed and the analytics link builder use the new addresses. A path cannot reuse a name the site already uses (blog, admin, a page, another category). Updating runs one small migration.

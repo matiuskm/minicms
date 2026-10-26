@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Inertia\Response;
+use Symfony\Component\HttpFoundation\Response as BaseResponse;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -26,7 +27,7 @@ class AuthenticatedSessionController extends Controller
         ]);
     }
 
-    public function store(LoginRequest $request): RedirectResponse
+    public function store(LoginRequest $request): BaseResponse
     {
         $user = $request->authenticate();
 
@@ -46,7 +47,7 @@ class AuthenticatedSessionController extends Controller
         return $this->finishLogin($request, $user, $request->boolean('remember'));
     }
 
-    public static function finishLogin(Request $request, User $user, bool $remember): RedirectResponse
+    public static function finishLogin(Request $request, User $user, bool $remember): BaseResponse
     {
         Auth::login($user, $remember);
         $request->session()->regenerate();
@@ -64,7 +65,8 @@ class AuthenticatedSessionController extends Controller
         }
         AuditLog::record('login.success', $user, [], $user->id);
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        // A full page load, not an Inertia visit: the sign-in page only carries the public routes, the dashboard needs all of them.
+        return Inertia::location(redirect()->intended(route('dashboard', absolute: false))->getTargetUrl());
     }
 
     public function destroy(Request $request): RedirectResponse

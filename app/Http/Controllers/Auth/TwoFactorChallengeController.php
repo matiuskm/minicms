@@ -13,6 +13,7 @@ use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 use PragmaRX\Google2FA\Google2FA;
+use Symfony\Component\HttpFoundation\Response as BaseResponse;
 
 class TwoFactorChallengeController extends Controller
 {
@@ -23,7 +24,7 @@ class TwoFactorChallengeController extends Controller
             : redirect()->route('login');
     }
 
-    public function store(Request $request, Google2FA $google2fa): RedirectResponse
+    public function store(Request $request, Google2FA $google2fa): BaseResponse
     {
         $user = $this->pendingUser($request);
         if (! $user) {
