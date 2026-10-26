@@ -69,6 +69,12 @@ class Post extends Model
         return $query->where('status', 'published')->where('published_at', '<=', now());
     }
 
+    /** Left out of the home list, /blog and the feed when its category is marked "hide from blog". */
+    public function scopeInBlog(Builder $query): Builder
+    {
+        return $query->whereDoesntHave('category', fn ($c) => $c->where('hide_from_blog', true));
+    }
+
     protected static function booted(): void
     {
         static::saving(fn (self $post) => $post->reading_minutes = HtmlSanitizer::readingMinutes((string) $post->body));

@@ -9,11 +9,12 @@ interface Props {
     heading: string;
     intro: string | null;
     search?: string;
+    list?: boolean;
     posts: Card[];
     pager: PagerData | null;
 }
 
-export default function Archive({ site, seo, heading, intro, search, posts, pager }: Props) {
+export default function Archive({ site, seo, heading, intro, search, list, posts, pager }: Props) {
     return (
         <PublicLayout site={site} seo={seo}>
             <h1 className="site-section-title" style={{ fontSize: '2rem' }}>
@@ -33,7 +34,7 @@ export default function Archive({ site, seo, heading, intro, search, posts, page
             )}
 
             {posts.length > 0 ? (
-                <div className="site-grid">
+                <div className={list ? 'site-grid site-grid-list' : 'site-grid'}>
                     {posts.map((p) => (
                         <PostCard key={p.id} post={p} />
                     ))}

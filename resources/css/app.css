@@ -417,6 +417,27 @@
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 1.25rem;
 }
+/* One wide card per row: image on the left, text on the right (collapses to the stacked card on phones). */
+.site-grid-list {
+    grid-template-columns: 1fr;
+}
+@media (min-width: 861px) {
+    .site-grid-list .site-card {
+        display: grid;
+        grid-template-columns: 15rem minmax(0, 1fr);
+        column-gap: 1.25rem;
+        align-content: start;
+        align-items: start;
+    }
+    .site-grid-list .site-card-image {
+        grid-row: 1 / span 4;
+        height: 100%;
+    }
+    .site-grid-list .site-card > :not(.site-card-image) {
+        grid-column: 2;
+        margin-inline: 0 0.6rem;
+    }
+}
 .site-card {
     display: flex;
     flex-direction: column;
