@@ -545,6 +545,31 @@
     gap: 0.5rem;
     margin-top: 2rem;
 }
+.site-share {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--site-border);
+    font-size: 0.75rem;
+}
+.site-share span {
+    color: var(--site-muted);
+}
+.site-share a,
+.site-share button {
+    padding: 0.3rem 0.75rem;
+    border-radius: 999px;
+    background: var(--site-soft);
+    color: var(--site-text);
+    cursor: pointer;
+}
+.site-share a:hover,
+.site-share button:hover {
+    color: var(--site-primary);
+}
 .site-search {
     display: flex;
     gap: 0.5rem;
