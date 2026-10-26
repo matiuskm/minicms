@@ -6,6 +6,12 @@ Definition of Done (PRD section 11) is met.
 
 ## [Unreleased]
 
+## [1.4.0] - 2026-10-26 — Portfolio-friendly categories
+### Added
+- Categories have a "Hide from blog" option. Posts in such a category stay out of the home list, `/blog` and the RSS feed, but remain on their own category page, at their post URL, in the sitemap and in home grids that use that category. Handy for portfolio or project posts.
+- Categories have a "List layout" option. Its page shows one wide card per row (image beside the text) instead of the three-column grid; phones keep the stacked card.
+- Both options are in Admin → Categories. Updating runs two small migrations.
+
 ## [1.3.7] - 2026-10-26 — Updates can switch releases
 ### Fixed
 - One-click updates on installer-made servers ended with "The new version did not respond": the release archive's root folder was packed with mode 0700 (a temporary folder), so the unpacked release could not be entered by the web server. The archive now has 0755, the build refuses an archive that does not, and the updater sets the folder's mode after unpacking.
