@@ -19,6 +19,7 @@ const targets = [
     { source: 'telegram', label: 'Telegram', href: (u: string, t: string) => `https://t.me/share/url?url=${q(u)}&text=${q(t)}` },
 ];
 
+/** Buttons rather than links: ad blockers hide share links by their href. */
 export function ShareButtons({ url, title }: { url: string; title: string }) {
     const [copied, setCopied] = useState(false);
 
@@ -37,9 +38,13 @@ export function ShareButtons({ url, title }: { url: string; title: string }) {
         <div className="site-share" aria-label="Share">
             <span>Share</span>
             {targets.map((t) => (
-                <a key={t.source} href={t.href(tagged(url, t.source), title)} target="_blank" rel="noopener noreferrer">
+                <button
+                    key={t.source}
+                    type="button"
+                    onClick={() => window.open(t.href(tagged(url, t.source), title), '_blank', 'noopener,noreferrer')}
+                >
                     {t.label}
-                </a>
+                </button>
             ))}
             <button type="button" onClick={copyForInstagram}>
                 {copied ? 'Link copied, paste it in Instagram' : 'Instagram'}

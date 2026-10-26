@@ -6,6 +6,20 @@ Definition of Done (PRD section 11) is met.
 
 ## [Unreleased]
 
+## [1.6.0] - 2026-10-26 — Categories with their own address
+### Added
+- Categories have a "URL path" (for example `works`). Its posts then live at `/works/{slug}` instead of `/blog/{slug}`, and the category page at `/works`. The old addresses (`/blog/{slug}`, `/category/{slug}`) forward permanently to the new ones, keeping the query string so `utm_*` tags on already-shared links survive. Menus, cards, the sitemap, the RSS feed and the analytics link builder use the new addresses. A path cannot reuse a name the site already uses (blog, admin, a page, another category). Updating runs one small migration.
+
+- On a category with "List layout", each card also shows the post's tags (first three, then "+N") and the full date with the year.
+- Subtle hover motion on cards (a small lift and shadow), on the featured post (slow image zoom) and on pills and share buttons. It only runs for pointers that can hover and is switched off for visitors who prefer reduced motion. No JavaScript is involved.
+- New JPG, PNG and WebP uploads are stored as WebP (quality 82, `cms.uploads.webp_quality`), including the thumb, medium and large variants. GIFs keep their format, and so do all uploads on a PHP without WebP support in GD. Pages load noticeably lighter, which helps the Lighthouse LCP score.
+- `php artisan media:webp` converts the JPG/PNG images uploaded before: it writes the WebP files, points the media record at them and rewrites the image URLs in posts and pages. The old files stay (so revisions and home blocks that still mention them keep working) and are removed when the media is deleted. `--dry-run` lists what would change. On an installer-made server run it as the site user: `sudo -u www-data php artisan media:webp`.
+- `install.sh` and `docs/DEPLOY.md` set larger `fastcgi_buffer_size` / `fastcgi_buffers` for the PHP location. Without them, admin pages could answer 502 with "upstream sent too big header" in the Nginx log. Servers installed earlier need the same three lines added to their site config (then `nginx -t && systemctl reload nginx`).
+
+### Fixed
+- Page speed (Lighthouse): the post's header image now carries its width and height, so the page no longer shifts when it loads (layout shift). Images above the fold (the first three cards and the first split block on the home page) are no longer lazy-loaded, and the first one is fetched with high priority, since they are usually the largest contentful paint.
+- The WhatsApp, Facebook, X and Telegram share links were hidden for visitors whose ad blocker or social filter removes share links. They are now buttons that open the share dialog, still tagged with `utm_source`.
+
 ## [1.5.0] - 2026-10-26 — Share buttons
 ### Added
 - Every post and page ends with share buttons for WhatsApp, Facebook, X and Telegram, plus Instagram (which copies the link, since Instagram has no web share link). Each link carries `utm_source` (the network), `utm_medium=social` and `utm_campaign=share`, so Analytics reports visits from shared links under the right source, even from in-app browsers that send no referrer.

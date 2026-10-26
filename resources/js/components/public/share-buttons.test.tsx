@@ -10,15 +10,19 @@ describe('ShareButtons', () => {
         expect(tagged(url, 'whatsapp')).toBe('https://example.com/blog/hello?utm_source=whatsapp&utm_medium=social&utm_campaign=share');
     });
 
-    it('links each network with its own utm_source, opening safely in a new tab', () => {
+    it('opens each network share dialog with its own utm_source, safely in a new tab', () => {
+        const open = vi.spyOn(window, 'open').mockReturnValue(null);
         render(<ShareButtons url={url} title="Hello & welcome" />);
 
-        const wa = screen.getByRole('link', { name: 'WhatsApp' });
-        expect(decodeURIComponent(wa.getAttribute('href')!)).toContain('utm_source=whatsapp');
-        expect(wa.getAttribute('href')).toContain(encodeURIComponent('Hello & welcome'));
-        expect(wa).toHaveAttribute('rel', 'noopener noreferrer');
-        expect(wa).toHaveAttribute('target', '_blank');
-        expect(decodeURIComponent(screen.getByRole('link', { name: 'Telegram' }).getAttribute('href')!)).toContain('utm_source=telegram');
+        fireEvent.click(screen.getByRole('button', { name: 'WhatsApp' }));
+        const [wa, target, features] = open.mock.calls[0];
+        expect(String(wa)).toContain('https://wa.me/');
+        expect(decodeURIComponent(String(wa))).toContain('utm_source=whatsapp');
+        expect(String(wa)).toContain(encodeURIComponent('Hello & welcome'));
+        expect([target, features]).toEqual(['_blank', 'noopener,noreferrer']);
+
+        fireEvent.click(screen.getByRole('button', { name: 'Telegram' }));
+        expect(decodeURIComponent(String(open.mock.calls[1][0]))).toContain('utm_source=telegram');
     });
 
     it('copies the instagram-tagged link to the clipboard', async () => {

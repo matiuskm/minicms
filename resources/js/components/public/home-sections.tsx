@@ -46,7 +46,7 @@ function Featured({ featured, latest }: { featured: Card | null; latest: Card[] 
     return (
         <section className="site-hero" aria-label="Featured">
             <Link href={featured.url} className="site-feature">
-                {featured.image && <img src={featured.image.large} alt={featured.image.alt ?? ''} />}
+                {featured.image && <img src={featured.image.large} alt={featured.image.alt ?? ''} fetchPriority="high" decoding="async" />}
                 <div className="site-feature-body">
                     <span className="site-pill">{featured.category.name}</span>
                     <h2>{featured.title}</h2>
@@ -160,8 +160,8 @@ function Grid({ title, posts }: { title: string; posts: Card[] }) {
         <section aria-label={title || 'Posts'}>
             {title && <h2 className="site-section-title">{title}</h2>}
             <div className="site-grid">
-                {posts.map((p) => (
-                    <PostCard key={p.id} post={p} />
+                {posts.map((p, i) => (
+                    <PostCard key={p.id} post={p} eager={i < 3} />
                 ))}
             </div>
         </section>
@@ -185,7 +185,15 @@ export function HomeSections({ sections, pager }: { sections: Section[]; pager: 
                                 {s.html && <div className="site-prose" dangerouslySetInnerHTML={{ __html: s.html }} />}
                                 {s.button && <LinkButton button={s.button} />}
                             </div>
-                            {s.image && <img src={s.image.large} alt={s.image.alt ?? ''} loading="lazy" decoding="async" />}
+                            {s.image && (
+                                <img
+                                    src={s.image.large}
+                                    alt={s.image.alt ?? ''}
+                                    loading={i === 0 ? 'eager' : 'lazy'}
+                                    fetchPriority={i === 0 ? 'high' : undefined}
+                                    decoding="async"
+                                />
+                            )}
                         </section>
                     )}
                     {s.type === 'slider' && <Slider slides={s.slides} autoplay={s.autoplay} />}

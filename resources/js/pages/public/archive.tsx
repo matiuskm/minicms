@@ -35,8 +35,8 @@ export default function Archive({ site, seo, heading, intro, search, list, posts
 
             {posts.length > 0 ? (
                 <div className={list ? 'site-grid site-grid-list' : 'site-grid'}>
-                    {posts.map((p) => (
-                        <PostCard key={p.id} post={p} />
+                    {posts.map((p, i) => (
+                        <PostCard key={p.id} post={p} list={list} eager={i < 3} />
                     ))}
                 </div>
             ) : (

@@ -30,12 +30,12 @@ class MenuItem extends Model
         $menus = ['header' => [], 'footer' => []];
 
         $items = static::query()->orderBy('sort_order')->orderBy('id')
-            ->with(['page:id,slug,status,deleted_at', 'category:id,slug'])->get();
+            ->with(['page:id,slug,status,deleted_at', 'category:id,slug,url_prefix'])->get();
 
         foreach ($items as $m) {
             $href = match ($m->type) {
                 'page' => $m->page && $m->page->status === 'published' ? '/'.$m->page->slug : null,
-                'category' => $m->category ? '/category/'.$m->category->slug : null,
+                'category' => $m->category?->path(),
                 default => $m->url,
             };
 

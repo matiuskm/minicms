@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\AuditLog;
 use App\Models\Media;
 use App\Models\Setting;
+use App\Support\ImageVariants;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -13,8 +14,6 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
-use Intervention\Image\Drivers\Gd\Driver;
-use Intervention\Image\ImageManager;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class MediaController extends Controller
@@ -72,22 +71,23 @@ class MediaController extends Controller
             throw ValidationException::withMessages(['file' => 'The file is not a valid PDF.']);
         }
 
+        $storedExt = $imageExt ? ImageVariants::storedExt($imageExt) : null;
         $uuid = (string) Str::uuid();
         $dir = ($isPdf ? 'files/' : 'uploads/').now()->format('Y/m');
-        $path = "{$dir}/{$uuid}.".($isPdf ? 'pdf' : $imageExt);
+        $path = "{$dir}/{$uuid}.".($isPdf ? 'pdf' : $storedExt);
         $width = $height = null;
 
         if ($isPdf) {
             Storage::disk('local')->putFileAs($dir, $file, basename($path));
             $size = $file->getSize();
         } else {
-            [$width, $height, $size] = $this->storeImage($file->getRealPath(), $path, $imageExt);
+            [$width, $height, $size] = ImageVariants::store($file->getRealPath(), $path, $storedExt);
         }
 
         $media = Media::create([
             'uuid' => $uuid, 'uploader_id' => $request->user()->id, 'path' => $path,
             'original_name' => mb_substr($file->getClientOriginalName(), 0, 255),
-            'mime' => $mime, 'size' => $size, 'width' => $width, 'height' => $height,
+            'mime' => $storedExt === 'webp' ? 'image/webp' : $mime, 'size' => $size, 'width' => $width, 'height' => $height,
             'alt_text' => $request->string('alt_text'),
         ]);
         AuditLog::record('media.uploaded', $media, ['mime' => $mime]);
@@ -130,31 +130,5 @@ class MediaController extends Controller
             'X-Content-Type-Options' => 'nosniff',
             'Content-Security-Policy' => "sandbox; default-src 'none'",
         ], 'attachment');
-    }
-
-    /**
-     * Decode + re-encode (strips EXIF and any trailing payload) and write variants.
-     *
-     * @return array{int, int, int} width, height, stored bytes
-     */
-    private function storeImage(string $source, string $path, string $ext): array
-    {
-        $manager = new ImageManager(new Driver);
-        $disk = Storage::disk('public');
-
-        // ponytail: GD keeps only the first frame of animated GIFs; use Imagick if animation matters.
-        $encode = fn ($image) => $image->encodeUsingFileExtension($ext, quality: 85);
-
-        $main = $manager->decodePath($source)->scaleDown(width: 4000, height: 4000);
-        $bytes = (string) $encode($main);
-        $disk->put($path, $bytes);
-
-        foreach (config('cms.uploads.variants') as $name => $size) {
-            $variant = $manager->decodePath($source);
-            $variant = $name === 'thumb' ? $variant->cover($size, $size) : $variant->scaleDown(width: $size);
-            $disk->put(Media::variantPath($path, $name), (string) $encode($variant));
-        }
-
-        return [$main->width(), $main->height(), strlen($bytes)];
     }
 }

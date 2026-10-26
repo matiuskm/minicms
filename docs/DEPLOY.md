@@ -122,6 +122,9 @@ server {
         fastcgi_pass unix:/run/php/php8.4-fpm.sock;
         fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
         include fastcgi_params;
+        fastcgi_buffer_size 32k;        # admin pages send long response headers: the 4k/8k default gives a 502 ("upstream sent too big header")
+        fastcgi_buffers 16 32k;
+        fastcgi_busy_buffers_size 64k;
     }
     location ~ ^/(?!index\.php).+\.php$ { return 404; }   # only index.php may execute
 }

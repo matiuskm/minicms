@@ -26,7 +26,17 @@ export default function Post({ site, seo, post }: Props) {
                     <i />
                     <span>{post.reading_minutes} min read</span>
                 </div>
-                {post.image && <img className="site-article-image" src={post.image.large} alt={post.image.alt ?? ''} />}
+                {post.image && (
+                    <img
+                        className="site-article-image"
+                        src={post.image.large}
+                        alt={post.image.alt ?? ''}
+                        width={post.image.width ?? undefined}
+                        height={post.image.height ?? undefined}
+                        fetchPriority="high"
+                        decoding="async"
+                    />
+                )}
                 {/* Sanitised on save and rendered server-side (ContentRenderer): the only HTML we inject. */}
                 <div className="site-prose" dangerouslySetInnerHTML={{ __html: post.body }} />
                 {post.tags.length > 0 && (

@@ -11,7 +11,8 @@ export interface Card {
     reading_minutes: number;
     category: { name: string; url: string };
     author: { name: string; url: string };
-    image: { large: string; medium: string; thumb: string; alt: string | null } | null;
+    image: { large: string; medium: string; thumb: string; alt: string | null; width?: number | null; height?: number | null } | null;
+    tags?: { name: string; url: string }[];
 }
 
 export function Meta({ post }: { post: Pick<Card, 'date' | 'reading_minutes'> }) {
@@ -24,14 +25,18 @@ export function Meta({ post }: { post: Pick<Card, 'date' | 'reading_minutes'> })
     );
 }
 
-export function PostCard({ post }: { post: Card }) {
-    return (
-        <article className="site-card">
-            {post.image ? (
-                <img className="site-card-image" src={post.image.medium} alt={post.image.alt ?? ''} loading="lazy" />
-            ) : (
-                <div className="site-card-image" aria-hidden />
-            )}
+const MAX_TAGS = 3;
+
+/** `eager` is for cards above the fold (they are often the LCP, so they must not be lazy-loaded). `list` is the one-card-per-row layout: the full date and the technology tags show, with the overflow as "+N". */
+export function PostCard({ post, list = false, eager = false }: { post: Card; list?: boolean; eager?: boolean }) {
+    const image = post.image ? (
+        <img className="site-card-image" src={post.image.medium} alt={post.image.alt ?? ''} loading={eager ? 'eager' : 'lazy'} decoding="async" />
+    ) : (
+        <div className="site-card-image" aria-hidden />
+    );
+    const tags = post.tags ?? [];
+    const body = (
+        <>
             <div>
                 <Link href={post.category.url} className="site-pill">
                     {post.category.name}
@@ -41,7 +46,24 @@ export function PostCard({ post }: { post: Card }) {
                 <h3>{post.title}</h3>
             </Link>
             {post.excerpt && <p>{post.excerpt}</p>}
-            <Meta post={post} />
+            {list && tags.length > 0 && (
+                <div className="site-card-tags">
+                    {tags.slice(0, MAX_TAGS).map((t) => (
+                        <Link key={t.url} href={t.url}>
+                            {t.name}
+                        </Link>
+                    ))}
+                    {tags.length > MAX_TAGS && <span>+{tags.length - MAX_TAGS}</span>}
+                </div>
+            )}
+            <Meta post={list ? { ...post, date: post.date_long } : post} />
+        </>
+    );
+
+    return (
+        <article className="site-card">
+            {image}
+            {list ? <div className="site-card-body">{body}</div> : body}
         </article>
     );
 }

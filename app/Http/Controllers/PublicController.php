@@ -41,16 +41,21 @@ class PublicController extends Controller
         return $this->archive($request, 'Blog', 'All posts', fn ($q) => $q->inBlog(), '/blog', 'blog');
     }
 
-    public function category(Request $request, string $slug): Response|RedirectResponse
+    /** @param ?string $at the address it is served from when that is not /category/{slug} (a category with a url_prefix lives at /{prefix}) */
+    public function category(Request $request, string $slug, ?string $at = null): Response|RedirectResponse
     {
         $category = Category::where('slug', $slug)->with('children:id,parent_id')->first();
         if (! $category) {
             return $this->redirectOrFail($request);
         }
 
+        if ($at === null && $category->url_prefix) {
+            return $this->moved($request, $category->path());
+        }
+
         $ids = [$category->id, ...$category->children->pluck('id')];
 
-        return $this->archive($request, $category->name, $category->description, fn ($q) => $q->whereIn('category_id', $ids), "/category/{$slug}", "category.{$slug}", $category->list_layout);
+        return $this->archive($request, $category->name, $category->description, fn ($q) => $q->whereIn('category_id', $ids), $at ?? "/category/{$slug}", "category.{$slug}", $category->list_layout);
     }
 
     public function tag(Request $request, string $slug): Response|RedirectResponse
@@ -128,9 +133,20 @@ class PublicController extends Controller
             return $this->redirectOrFail($request);
         }
 
+        // Any other address for this post (/blog/x after its category got a prefix, an old prefix) forwards to the real one.
+        if ('/'.$request->path() !== $data['post']['url']) {
+            return $this->moved($request, $data['post']['url']);
+        }
+
         $request->attributes->set('analytics.key', 'post:'.$data['post']['id']);
 
-        return $this->render('public/post', ['post' => $data['post']], $data['seo'], $request, canonical: "/blog/{$slug}");
+        return $this->render('public/post', ['post' => $data['post']], $data['seo'], $request, canonical: $data['post']['url']);
+    }
+
+    /** /{url_prefix}/{slug}: the same post page, at the address its category gives it. */
+    public function prefixedPost(Request $request, string $prefix, string $slug): Response|RedirectResponse
+    {
+        return $this->post($request, $slug);
     }
 
     public function page(Request $request, string $slug): Response|RedirectResponse
@@ -149,7 +165,9 @@ class PublicController extends Controller
         });
 
         if ($data === null) {
-            return $this->redirectOrFail($request);
+            $category = Category::where('url_prefix', $slug)->first(['slug']);
+
+            return $category ? $this->category($request, $category->slug, "/{$slug}") : $this->redirectOrFail($request);
         }
 
         $request->attributes->set('analytics.key', 'page:'.$data['page']['id']);
@@ -163,7 +181,7 @@ class PublicController extends Controller
         $request->attributes->set('analytics.key', str_replace('.', ':', $cacheKey));
 
         $data = PublicCache::remember("archive.{$cacheKey}.{$page}", function () use ($scope, $path, $page, $heading, $intro, $list) {
-            $posts = $scope($this->published())->paginate(PublicData::perPage(), ['*'], 'page', $page);
+            $posts = $scope($this->published())->when($list, fn ($q) => $q->with('tags:id,name,slug'))->paginate(PublicData::perPage(), ['*'], 'page', $page);
 
             return $posts->isEmpty() && $page > 1 ? null : [
                 'heading' => $heading,
@@ -189,6 +207,14 @@ class PublicController extends Controller
     private function pageNumber(Request $request): int
     {
         return max(1, min(10000, (int) $request->query('page', 1)));
+    }
+
+    /** A permanent redirect that keeps the query string, so utm_* tags on shared links survive. */
+    private function moved(Request $request, string $to): RedirectResponse
+    {
+        $query = $request->getQueryString();
+
+        return redirect($to.($query ? "?{$query}" : ''), 301);
     }
 
     /** An old address recorded when a slug changed (BR-12); anything else is a plain 404. */

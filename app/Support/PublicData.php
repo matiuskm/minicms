@@ -15,7 +15,7 @@ class PublicData
     public const POST_COLUMNS = ['id', 'author_id', 'category_id', 'featured_media_id', 'title', 'slug', 'excerpt', 'reading_minutes', 'published_at', 'updated_at'];
 
     /** Relations to eager-load for cards (keeps public pages at a constant query count). */
-    public const POST_WITH = ['category:id,name,slug', 'author:id,name,display_name,author_slug', 'featuredMedia'];
+    public const POST_WITH = ['category:id,name,slug,url_prefix', 'author:id,name,display_name,author_slug', 'featuredMedia'];
 
     /** @return array<string, mixed> */
     public static function site(): array
@@ -57,15 +57,16 @@ class PublicData
         return [
             'id' => $post->id,
             'title' => $post->title,
-            'url' => "/blog/{$post->slug}",
+            'url' => $post->path(),
             'excerpt' => $post->excerpt,
             'date' => $at->format('M j'),
             'date_long' => $at->format('F j, Y'),
             'date_iso' => $post->published_at->toIso8601String(),
             'reading_minutes' => $post->reading_minutes,
-            'category' => ['name' => $post->category->name, 'url' => "/category/{$post->category->slug}"],
+            'category' => ['name' => $post->category->name, 'url' => $post->category->path()],
             'author' => ['name' => $post->author->publicName(), 'url' => "/author/{$post->author->author_slug}"],
-            'image' => $media ? ['large' => $media->url('large'), 'medium' => $media->url('medium'), 'thumb' => $media->url('thumb'), 'alt' => $media->alt_text] : null,
+            'tags' => $post->relationLoaded('tags') ? $post->tags->map(fn ($t) => ['name' => $t->name, 'url' => "/tag/{$t->slug}"])->values()->all() : [],
+            'image' => $media ? ['large' => $media->url('large'), 'medium' => $media->url('medium'), 'thumb' => $media->url('thumb'), 'alt' => $media->alt_text, 'width' => $media->width, 'height' => $media->height] : null,
         ];
     }
 

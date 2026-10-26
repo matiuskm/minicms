@@ -11,11 +11,17 @@ class Category extends Model
 {
     use BustsPublicCache;
 
-    protected $fillable = ['name', 'slug', 'description', 'parent_id', 'hide_from_blog', 'list_layout'];
+    protected $fillable = ['name', 'slug', 'description', 'parent_id', 'hide_from_blog', 'list_layout', 'url_prefix'];
 
     protected function casts(): array
     {
         return ['is_system' => 'boolean', 'hide_from_blog' => 'boolean', 'list_layout' => 'boolean'];
+    }
+
+    /** The public address of the category page (needs slug and url_prefix loaded). */
+    public function path(): string
+    {
+        return '/'.($this->url_prefix ?: "category/{$this->slug}");
     }
 
     public function parent(): BelongsTo

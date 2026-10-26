@@ -41,7 +41,7 @@ class AnalyticsController extends Controller
                     ['label' => 'Home page', 'path' => '/'],
                     ['label' => 'Blog', 'path' => '/blog'],
                     ...Page::published()->orderBy('title')->limit(50)->get(['title', 'slug'])->map(fn ($p) => ['label' => "Page: {$p->title}", 'path' => "/{$p->slug}"])->all(),
-                    ...Post::published()->latest('published_at')->limit(100)->get(['title', 'slug'])->map(fn ($p) => ['label' => $p->title, 'path' => "/blog/{$p->slug}"])->all(),
+                    ...Post::published()->with('category:id,url_prefix')->latest('published_at')->limit(100)->get(['title', 'slug', 'category_id'])->map(fn ($p) => ['label' => $p->title, 'path' => $p->path()])->all(),
                 ],
             ],
         ]);
