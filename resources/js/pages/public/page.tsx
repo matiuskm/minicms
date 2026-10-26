@@ -1,5 +1,6 @@
 import { PublicLayout, type Site } from '@/components/public/layout';
 import { type Seo } from '@/components/public/seo';
+import { ShareButtons } from '@/components/public/share-buttons';
 
 interface Props {
     site: Site;
@@ -13,6 +14,7 @@ export default function Page({ site, seo, page }: Props) {
             <article className="site-article">
                 <h1>{page.title}</h1>
                 <div className="site-prose" dangerouslySetInnerHTML={{ __html: page.body }} />
+                <ShareButtons url={seo.canonical} title={page.title} />
             </article>
         </PublicLayout>
     );

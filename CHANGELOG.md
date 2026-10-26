@@ -6,6 +6,10 @@ Definition of Done (PRD section 11) is met.
 
 ## [Unreleased]
 
+## [1.5.0] - 2026-10-26 — Share buttons
+### Added
+- Every post and page ends with share buttons for WhatsApp, Facebook, X and Telegram, plus Instagram (which copies the link, since Instagram has no web share link). Each link carries `utm_source` (the network), `utm_medium=social` and `utm_campaign=share`, so Analytics reports visits from shared links under the right source, even from in-app browsers that send no referrer.
+
 ## [1.4.0] - 2026-10-26 — Portfolio-friendly categories
 ### Added
 - Categories have a "Hide from blog" option. Posts in such a category stay out of the home list, `/blog` and the RSS feed, but remain on their own category page, at their post URL, in the sitemap and in home grids that use that category. Handy for portfolio or project posts.

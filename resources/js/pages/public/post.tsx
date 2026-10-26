@@ -3,6 +3,7 @@ import { Link } from '@inertiajs/react';
 import { PublicLayout, type Site } from '@/components/public/layout';
 import { type Card } from '@/components/public/post-card';
 import { type Seo } from '@/components/public/seo';
+import { ShareButtons } from '@/components/public/share-buttons';
 
 interface Props {
     site: Site;
@@ -37,6 +38,7 @@ export default function Post({ site, seo, post }: Props) {
                         ))}
                     </div>
                 )}
+                <ShareButtons url={seo.canonical} title={post.title} />
             </article>
         </PublicLayout>
     );
