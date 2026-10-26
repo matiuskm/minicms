@@ -22,14 +22,14 @@ class CategoryController extends Controller
         // FR-23: published-post counter as a subquery, still one query for the whole list.
         $all = Category::query()->orderBy('name')
             ->withCount(['posts as posts_count' => fn ($q) => $q->published()])
-            ->get(['id', 'parent_id', 'name', 'slug', 'description', 'is_system', 'hide_from_blog']);
+            ->get(['id', 'parent_id', 'name', 'slug', 'description', 'is_system', 'hide_from_blog', 'list_layout']);
 
         // One query; the parent name is resolved in memory (no N+1).
         $names = $all->pluck('name', 'id');
 
         return Inertia::render('admin/categories/index', [
             'categories' => $all->map(fn (Category $c) => [
-                ...$c->only('id', 'parent_id', 'name', 'slug', 'description', 'is_system', 'hide_from_blog', 'posts_count'),
+                ...$c->only('id', 'parent_id', 'name', 'slug', 'description', 'is_system', 'hide_from_blog', 'list_layout', 'posts_count'),
                 'parent' => $c->parent_id ? $names[$c->parent_id] : null,
             ])->values(),
         ]);
@@ -86,6 +86,7 @@ class CategoryController extends Controller
             'slug' => ['nullable', 'string', 'max:120', 'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/', Rule::unique('categories', 'slug')->ignore($category?->id)],
             'description' => ['nullable', 'string', 'max:255'],
             'hide_from_blog' => ['boolean'],
+            'list_layout' => ['boolean'],
             'parent_id' => ['nullable', 'integer', 'exists:categories,id'],
         ]);
 

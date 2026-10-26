@@ -11,11 +11,11 @@ class Category extends Model
 {
     use BustsPublicCache;
 
-    protected $fillable = ['name', 'slug', 'description', 'parent_id', 'hide_from_blog'];
+    protected $fillable = ['name', 'slug', 'description', 'parent_id', 'hide_from_blog', 'list_layout'];
 
     protected function casts(): array
     {
-        return ['is_system' => 'boolean', 'hide_from_blog' => 'boolean'];
+        return ['is_system' => 'boolean', 'hide_from_blog' => 'boolean', 'list_layout' => 'boolean'];
     }
 
     public function parent(): BelongsTo

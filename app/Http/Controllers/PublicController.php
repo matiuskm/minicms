@@ -50,7 +50,7 @@ class PublicController extends Controller
 
         $ids = [$category->id, ...$category->children->pluck('id')];
 
-        return $this->archive($request, $category->name, $category->description, fn ($q) => $q->whereIn('category_id', $ids), "/category/{$slug}", "category.{$slug}");
+        return $this->archive($request, $category->name, $category->description, fn ($q) => $q->whereIn('category_id', $ids), "/category/{$slug}", "category.{$slug}", $category->list_layout);
     }
 
     public function tag(Request $request, string $slug): Response|RedirectResponse
@@ -157,17 +157,18 @@ class PublicController extends Controller
         return $this->render('public/page', ['page' => $data['page']], $data['seo'], $request, canonical: "/{$slug}");
     }
 
-    private function archive(Request $request, string $heading, ?string $intro, callable $scope, string $path, string $cacheKey): Response
+    private function archive(Request $request, string $heading, ?string $intro, callable $scope, string $path, string $cacheKey, bool $list = false): Response
     {
         $page = $this->pageNumber($request);
         $request->attributes->set('analytics.key', str_replace('.', ':', $cacheKey));
 
-        $data = PublicCache::remember("archive.{$cacheKey}.{$page}", function () use ($scope, $path, $page, $heading, $intro) {
+        $data = PublicCache::remember("archive.{$cacheKey}.{$page}", function () use ($scope, $path, $page, $heading, $intro, $list) {
             $posts = $scope($this->published())->paginate(PublicData::perPage(), ['*'], 'page', $page);
 
             return $posts->isEmpty() && $page > 1 ? null : [
                 'heading' => $heading,
                 'intro' => $intro,
+                'list' => $list,
                 'posts' => $posts->getCollection()->map(fn (Post $p) => PublicData::card($p))->values(),
                 'pager' => PublicData::pager($posts, $path),
             ];

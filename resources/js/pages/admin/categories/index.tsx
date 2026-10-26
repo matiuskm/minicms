@@ -20,6 +20,7 @@ interface Category {
     description: string | null;
     is_system: boolean;
     hide_from_blog: boolean;
+    list_layout: boolean;
     posts_count: number;
 }
 
@@ -33,6 +34,7 @@ function Row({ category, parents }: { category: Category; parents: Category[] })
         description: category.description ?? '',
         parent_id: category.parent_id ? String(category.parent_id) : '',
         hide_from_blog: category.hide_from_blog,
+        list_layout: category.list_layout,
     });
 
     const save: FormEventHandler = (e) => {
@@ -76,14 +78,24 @@ function Row({ category, parents }: { category: Category; parents: Category[] })
                             <InputError message={form.errors.parent_id} />
                         </div>
                         <Input aria-label="Description" value={form.data.description} onChange={(e) => form.setData('description', e.target.value)} />
-                        <label className="flex items-center gap-2 text-sm">
-                            <input
-                                type="checkbox"
-                                checked={form.data.hide_from_blog}
-                                onChange={(e) => form.setData('hide_from_blog', e.target.checked)}
-                            />
-                            Hide from blog
-                        </label>
+                        <div className="grid gap-1 text-sm">
+                            <label className="flex items-center gap-2">
+                                <input
+                                    type="checkbox"
+                                    checked={form.data.hide_from_blog}
+                                    onChange={(e) => form.setData('hide_from_blog', e.target.checked)}
+                                />
+                                Hide from blog
+                            </label>
+                            <label className="flex items-center gap-2">
+                                <input
+                                    type="checkbox"
+                                    checked={form.data.list_layout}
+                                    onChange={(e) => form.setData('list_layout', e.target.checked)}
+                                />
+                                List layout
+                            </label>
+                        </div>
                         <div className="flex gap-2">
                             <Button size="sm" disabled={form.processing}>
                                 Save
@@ -133,7 +145,7 @@ function Row({ category, parents }: { category: Category; parents: Category[] })
 
 export default function Categories({ categories }: { categories: Category[] }) {
     const errors = usePage().props.errors as Record<string, string>;
-    const create = useForm({ name: '', description: '', parent_id: '', hide_from_blog: false as boolean });
+    const create = useForm({ name: '', description: '', parent_id: '', hide_from_blog: false as boolean, list_layout: false as boolean });
     const topLevel = categories.filter((c) => c.parent_id === null);
 
     const submit: FormEventHandler = (e) => {
@@ -176,14 +188,24 @@ export default function Categories({ categories }: { categories: Category[] }) {
                         <Label htmlFor="description">Description</Label>
                         <Input id="description" value={create.data.description} onChange={(e) => create.setData('description', e.target.value)} />
                     </div>
-                    <label className="flex h-9 items-center gap-2 text-sm">
-                        <input
-                            type="checkbox"
-                            checked={create.data.hide_from_blog}
-                            onChange={(e) => create.setData('hide_from_blog', e.target.checked)}
-                        />
-                        Hide from blog
-                    </label>
+                    <div className="grid gap-1 text-sm">
+                        <label className="flex items-center gap-2">
+                            <input
+                                type="checkbox"
+                                checked={create.data.hide_from_blog}
+                                onChange={(e) => create.setData('hide_from_blog', e.target.checked)}
+                            />
+                            Hide from blog
+                        </label>
+                        <label className="flex items-center gap-2">
+                            <input
+                                type="checkbox"
+                                checked={create.data.list_layout}
+                                onChange={(e) => create.setData('list_layout', e.target.checked)}
+                            />
+                            List layout
+                        </label>
+                    </div>
                     <Button disabled={create.processing}>Add category</Button>
                 </form>
 

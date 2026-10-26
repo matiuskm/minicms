@@ -295,3 +295,11 @@ test('a category marked hide-from-blog stays out of home, blog and rss but keeps
     $this->get('/category/work')->assertOk()->assertSee('Nota Kue project')->assertDontSee('Regular essay');
     $this->get('/blog/nota-kue')->assertOk();
 });
+
+test('a category with list layout tells its page to render one card per row', function () {
+    $work = Category::create(['name' => 'Work', 'slug' => 'work', 'list_layout' => true]);
+    live(['category_id' => $work->id]);
+
+    $this->get('/category/work')->assertOk()->assertInertia(fn ($p) => $p->where('list', true));
+    $this->get('/blog')->assertOk()->assertInertia(fn ($p) => $p->where('list', false));
+});
