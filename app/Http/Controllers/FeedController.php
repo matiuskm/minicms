@@ -55,7 +55,7 @@ class FeedController extends Controller
     {
         $xml = PublicCache::remember('rss', function () {
             $site = PublicData::site();
-            $posts = Post::published()->select(['id', 'author_id', 'category_id', 'title', 'slug', 'excerpt', 'published_at'])
+            $posts = Post::published()->inBlog()->select(['id', 'author_id', 'category_id', 'title', 'slug', 'excerpt', 'published_at'])
                 ->with(['category:id,name', 'author:id,name,display_name'])->orderByDesc('published_at')->limit(20)->get();
 
             $items = $posts->map(fn (Post $p) => '<item><title>'.e($p->title).'</title><link>'.e(url("/blog/{$p->slug}")).'</link>'

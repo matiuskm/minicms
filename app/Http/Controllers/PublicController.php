@@ -38,7 +38,7 @@ class PublicController extends Controller
 
     public function blog(Request $request): Response
     {
-        return $this->archive($request, 'Blog', 'All posts', fn ($q) => $q, '/blog', 'blog');
+        return $this->archive($request, 'Blog', 'All posts', fn ($q) => $q->inBlog(), '/blog', 'blog');
     }
 
     public function category(Request $request, string $slug): Response|RedirectResponse

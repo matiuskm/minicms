@@ -182,14 +182,14 @@ class HomePage
         $blog = $layout->firstWhere('type', 'blog');
         $per = PublicData::perPage();
 
-        $total = $blog ? Post::published()->whereNotIn('id', $heroIds)->count() : 0;
+        $total = $blog ? Post::published()->inBlog()->whereNotIn('id', $heroIds)->count() : 0;
         $last = max(1, (int) ceil($total / $per));
         if ($page > $last) {
             return null;
         }
 
         $media = self::media($layout);
-        $cards = $blog ? $published()->whereNotIn('id', $heroIds)->skip(($page - 1) * $per)->take($per)->get()->map(fn (Post $p) => PublicData::card($p)) : collect();
+        $cards = $blog ? $published()->inBlog()->whereNotIn('id', $heroIds)->skip(($page - 1) * $per)->take($per)->get()->map(fn (Post $p) => PublicData::card($p)) : collect();
         $hero = $heroPosts->map(fn (Post $p) => PublicData::card($p));
 
         $sections = $layout->filter(fn ($s) => $page === 1 || $s['type'] === 'blog')->map(fn (array $s) => ['id' => $s['id'], 'type' => $s['type']] + match ($s['type']) {
@@ -210,7 +210,7 @@ class HomePage
     private static function heroPosts(?int $pinnedId, callable $published): Collection
     {
         $pinned = $pinnedId ? $published()->whereKey($pinnedId)->first() : null;
-        $newest = $published()->when($pinned, fn ($q) => $q->whereKeyNot($pinned->id))->limit(self::FEATURED_POSTS - ($pinned ? 1 : 0))->get();
+        $newest = $published()->inBlog()->when($pinned, fn ($q) => $q->whereKeyNot($pinned->id))->limit(self::FEATURED_POSTS - ($pinned ? 1 : 0))->get();
 
         return $pinned ? $newest->prepend($pinned) : $newest;
     }
@@ -256,7 +256,7 @@ class HomePage
     private static function grid(array $s, callable $published)
     {
         return $published()
-            ->when($s['source'] === 'category', fn ($q) => $q->where('category_id', $s['category_id']))
+            ->when($s['source'] === 'category', fn ($q) => $q->where('category_id', $s['category_id']), fn ($q) => $q->inBlog())
             ->when($s['source'] === 'tag', fn ($q) => $q->whereHas('tags', fn ($t) => $t->where('tags.id', $s['tag_id'])))
             ->limit($s['count'])->get()->map(fn (Post $p) => PublicData::card($p));
     }
