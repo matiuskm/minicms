@@ -18,7 +18,8 @@
 
         {{-- Read by the client so styles injected at runtime (editor, dialogs) carry the nonce too. --}}
         <meta name="csp-nonce" content="{{ Vite::cspNonce() }}">
-        @routes(null, Vite::cspNonce())
+        {{-- Signed-out visitors get the small "public" route group, never the admin route table (see config/ziggy.php). --}}
+        @routes(empty($page['props']['auth']['user']) ? 'public' : null, Vite::cspNonce())
         @viteReactRefresh
         {{-- Public pages also load the self-hosted fonts of the active theme, then the theme stylesheet (it must come last). --}}
         @vite(array_merge(['resources/js/app.tsx', "resources/js/pages/{$page['component']}.tsx"], $page['props']['theme']['fonts'] ?? []))
