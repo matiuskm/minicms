@@ -12,6 +12,8 @@ Definition of Done (PRD section 11) is met.
 
 - On a category with "List layout", each card also shows the post's tags (first three, then "+N") and the full date with the year.
 - Subtle hover motion on cards (a small lift and shadow), on the featured post (slow image zoom) and on pills and share buttons. It only runs for pointers that can hover and is switched off for visitors who prefer reduced motion. No JavaScript is involved.
+- New JPG, PNG and WebP uploads are stored as WebP (quality 82, `cms.uploads.webp_quality`), including the thumb, medium and large variants. GIFs keep their format, and so do all uploads on a PHP without WebP support in GD. Pages load noticeably lighter, which helps the Lighthouse LCP score.
+- `php artisan media:webp` converts the JPG/PNG images uploaded before: it writes the WebP files, points the media record at them and rewrites the image URLs in posts and pages. The old files stay (so revisions and home blocks that still mention them keep working) and are removed when the media is deleted. `--dry-run` lists what would change. On an installer-made server run it as the site user: `sudo -u www-data php artisan media:webp`.
 - `install.sh` and `docs/DEPLOY.md` set larger `fastcgi_buffer_size` / `fastcgi_buffers` for the PHP location. Without them, admin pages could answer 502 with "upstream sent too big header" in the Nginx log. Servers installed earlier need the same three lines added to their site config (then `nginx -t && systemctl reload nginx`).
 
 ### Fixed

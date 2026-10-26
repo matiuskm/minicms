@@ -17,6 +17,7 @@ return [
         'pdf_max_kb' => 10 * 1024,
         'image_mimes' => ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/gif' => 'gif', 'image/webp' => 'webp'],
         'variants' => ['thumb' => 150, 'medium' => 400, 'large' => 1200],
+        'webp_quality' => 82,
     ],
 
     // Display timezone for the public site (storage stays UTC; admin shows browser time).

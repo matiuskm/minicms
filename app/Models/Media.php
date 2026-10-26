@@ -63,7 +63,13 @@ class Media extends Model
 
     public function deleteFiles(): void
     {
-        Storage::disk($this->disk())->delete($this->allPaths());
+        $disk = Storage::disk($this->disk());
+        $disk->delete($this->allPaths());
+
+        if ($this->isImage()) {
+            // Files of the format it had before media:webp converted it (same UUID, other extension).
+            $disk->delete(collect($disk->files(dirname($this->path)))->filter(fn ($f) => str_contains(basename($f), $this->uuid))->all());
+        }
     }
 
     public function url(?string $variant = null): string

@@ -6,6 +6,7 @@ use App\Models\Post;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 beforeEach(function () {
     Storage::fake('public');
@@ -26,7 +27,7 @@ function pdf(int $kb = 10, string $name = 'doc.pdf'): UploadedFile
     return UploadedFile::fake()->createWithContent($name, "%PDF-1.4\n".str_repeat('a', $kb * 1024)."\n%%EOF");
 }
 
-test('TC-F05-02 a valid image is re-encoded under a UUID name with variants', function () {
+test('TC-F05-02 a valid image is re-encoded as WebP under a UUID name with variants', function () {
     $writer = User::factory()->create();
 
     $this->actingAs($writer)->post('/media', [
@@ -35,8 +36,8 @@ test('TC-F05-02 a valid image is re-encoded under a UUID name with variants', fu
     ])->assertSessionHasNoErrors();
 
     $m = Media::firstOrFail();
-    expect($m->mime)->toBe('image/png')->and($m->width)->toBe(800)->and($m->height)->toBe(600)
-        ->and($m->path)->toMatch('#^uploads/\d{4}/\d{2}/[0-9a-f-]{36}\.png$#')
+    expect($m->mime)->toBe('image/webp')->and($m->width)->toBe(800)->and($m->height)->toBe(600)
+        ->and($m->path)->toMatch('#^uploads/\d{4}/\d{2}/[0-9a-f-]{36}\.webp$#')
         ->and($m->uploader_id)->toBe($writer->id);
     foreach ($m->allPaths() as $path) {
         Storage::disk('public')->assertExists($path);
@@ -202,4 +203,45 @@ test('FR-27 media used as a featured image or inside content cannot be deleted',
     Page::query()->forceDelete();
     $this->actingAs($writer)->delete("/media/{$m->id}")->assertSessionHasNoErrors();
     expect(Media::count())->toBe(0);
+});
+
+test('a GIF keeps its format; only JPG, PNG and WebP become WebP', function () {
+    $writer = User::factory()->create();
+
+    $this->actingAs($writer)->post('/media', ['file' => UploadedFile::fake()->image('a.gif', 40, 40), 'alt_text' => 'x'])->assertSessionHasNoErrors();
+
+    expect(Media::firstOrFail()->path)->toEndWith('.gif');
+});
+
+test('media:webp converts old JPG/PNG media, rewrites post and page URLs, keeps the old files and cleans up on delete', function () {
+    $disk = Storage::disk('public');
+    $uuid = (string) Str::uuid();
+    $old = "uploads/2026/10/{$uuid}.png";
+    $png = UploadedFile::fake()->image('old.png', 900, 600)->get();
+    foreach (['', '-thumb', '-medium', '-large'] as $suffix) {
+        $disk->put(str_replace('.png', "{$suffix}.png", $old), $png);
+    }
+    $user = User::factory()->create();
+    $media = Media::create(['uuid' => $uuid, 'uploader_id' => $user->id, 'path' => $old, 'original_name' => 'old.png', 'mime' => 'image/png', 'size' => strlen($png), 'width' => 900, 'height' => 600, 'alt_text' => 'old']);
+    $post = Post::factory()->create(['body' => "<p><img src=\"/storage/uploads/2026/10/{$uuid}-large.png\"></p>"]);
+    $page = Page::factory()->create(['body' => "<p><img src=\"/storage/{$old}\"></p>"]);
+
+    $this->artisan('media:webp', ['--dry-run' => true])->expectsOutputToContain('1 image(s) would be converted')->assertSuccessful();
+    expect($media->fresh()->path)->toBe($old);
+
+    $this->artisan('media:webp')->expectsOutputToContain('1 image(s) converted')->assertSuccessful();
+
+    $media->refresh();
+    expect($media->mime)->toBe('image/webp')->and($media->path)->toBe("uploads/2026/10/{$uuid}.webp");
+    foreach ($media->allPaths() as $path) {
+        $disk->assertExists($path);
+    }
+    expect($post->fresh()->body)->toContain("src=\"/storage/uploads/2026/10/{$uuid}-large.webp\"")
+        ->and($page->fresh()->body)->toContain("src=\"/storage/uploads/2026/10/{$uuid}.webp\"");
+    $disk->assertExists($old); // old files stay until the media is deleted
+
+    $this->artisan('media:webp')->expectsOutputToContain('0 image(s) converted')->assertSuccessful();
+
+    $media->deleteFiles();
+    expect($disk->allFiles('uploads'))->toBe([]);
 });
