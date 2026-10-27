@@ -243,7 +243,7 @@ class PublicController extends Controller
             'theme' => PublicData::theme(),
             'seo' => [
                 ...$seo,
-                'title' => $title ? "{$title} — {$site['name']}" : ($site['tagline'] ? "{$site['name']} — {$site['tagline']}" : $site['name']),
+                'title' => $title ? "{$site['name']} | {$title}" : ($site['tagline'] ? "{$site['name']} — {$site['tagline']}" : $site['name']),
                 'canonical' => url($canonical),
                 'image' => isset($seo['image']) ? url($seo['image']) : null,
                 'jsonld' => $this->jsonLd($seo, $site, url($canonical)),
