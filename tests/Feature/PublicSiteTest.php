@@ -196,12 +196,12 @@ test('SEO meta: titles, descriptions, canonical, article schema', function () {
     Setting::put(['site_name' => 'Essos', 'tagline' => 'Stories']);
     $post = live(['slug' => 'seo', 'title' => 'Plain title', 'meta_title' => 'Custom SEO title', 'meta_description' => 'A custom description', 'excerpt' => 'ignored excerpt'])->first();
 
-    $this->get('/blog/seo')->assertInertia(fn ($p) => $p->where('seo.title', 'Custom SEO title — Essos')->where('seo.description', 'A custom description')
+    $this->get('/blog/seo')->assertInertia(fn ($p) => $p->where('seo.title', 'Essos | Custom SEO title')->where('seo.description', 'A custom description')
         ->where('seo.canonical', url('/blog/seo'))->where('seo.type', 'article')->where('seo.jsonld.@type', 'Article')->where('seo.jsonld.author.name', $post->author->publicName()));
     $this->get('/')->assertInertia(fn ($p) => $p->where('seo.title', 'Essos — Stories'));
 
     $post->update(['meta_title' => null, 'meta_description' => null]);
-    $this->get('/blog/seo')->assertInertia(fn ($p) => $p->where('seo.title', 'Plain title — Essos')->where('seo.description', 'ignored excerpt'));
+    $this->get('/blog/seo')->assertInertia(fn ($p) => $p->where('seo.title', 'Essos | Plain title')->where('seo.description', 'ignored excerpt'));
     $this->get('/blog/seo')->assertSee('application/ld+json', false);
 });
 

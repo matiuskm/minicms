@@ -6,6 +6,10 @@ Definition of Done (PRD section 11) is met.
 
 ## [Unreleased]
 
+## [1.6.2] - 2026-10-27 — Site name first in page titles
+### Changed
+- Page titles now read `Site | Page` (for example `Matius' | Blog`) instead of `Page — Site`. The home page title is unchanged.
+
 ## [1.6.1] - 2026-10-27 — No admin route table for signed-out visitors
 ### Security
 - Every page carried the full route table (Ziggy, about 30 KB of inline script) in its source, which listed all admin routes to anyone who viewed the source. Signed-out visitors now only get the few routes the public, sign-in and error pages use (`config/ziggy.php`, group `public`); signed-in users still get everything. A test checks that every `route()` call on those pages is covered.
