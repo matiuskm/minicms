@@ -6,6 +6,13 @@ Definition of Done (PRD section 11) is met.
 
 ## [Unreleased]
 
+## [1.7.0] - 2026-11-07 — Hidden sign-in address
+### Added
+- `CMS_AUTH_PREFIX` (`.env`): moves the sign-in screens (login, 2FA, password reset, invite) under a secret prefix, for example `/ops-7f3k9x/login`. When set, `/login` is a plain 404 and signed-out visitors opening `/admin/*` or `/dashboard` also get a 404 instead of a redirect to the sign-in page. Empty keeps `/login`. Set it in production; sessions that expire no longer redirect, so bookmark the new address.
+### Security
+- The public header no longer shows a "Login" link to visitors (signed-in users still see "Dashboard").
+- `robots.txt` no longer lists `/login`, and the sign-in routes are only in the route table of the sign-in pages, not in every public page's source.
+
 ## [1.6.2] - 2026-10-27 — Site name first in page titles
 ### Changed
 - Page titles now read `Site | Page` (for example `Matius' | Blog`) instead of `Page — Site`. The home page title is unchanged.
