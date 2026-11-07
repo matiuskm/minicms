@@ -61,7 +61,7 @@ test('logging in answers with a full-page redirect for Inertia requests, so the 
 test('with a secret auth prefix the sign-in screens move and nothing else points at them', function () {
     config(['cms.auth_prefix' => 'ops-x1']);
     app('router')->setRoutes(new Illuminate\Routing\RouteCollection);
-    require base_path('routes/web.php');
+    Illuminate\Support\Facades\Route::middleware('web')->group(base_path('routes/web.php'));
     app('router')->getRoutes()->refreshNameLookups();
 
     $this->get('/ops-x1/login')->assertOk();
