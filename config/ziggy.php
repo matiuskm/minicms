@@ -6,6 +6,11 @@ return [
         // made by the public, sign-in and error pages; tests/Feature/Auth/AnonymousRoutesTest.php checks that.
         'public' => [
             'home', 'blog', 'post', 'post.prefixed', 'page', 'category', 'tag', 'author', 'search',
+            'logout', 'dashboard',
+        ],
+        // Sign-in screens only (guest routes): the secret sign-in URL must not sit in every public page's source.
+        'auth' => [
+            'home', 'blog', 'post', 'post.prefixed', 'page', 'category', 'tag', 'author', 'search',
             'login', 'logout', 'dashboard', 'password.request', 'password.email', 'password.reset', 'password.store', 'invite.*', 'two-factor.challenge',
         ],
     ],

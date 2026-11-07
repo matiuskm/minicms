@@ -11,9 +11,11 @@ export default function Welcome() {
             <Head title={name} />
             <div className="flex min-h-screen flex-col items-center justify-center gap-4">
                 <h1 className="text-2xl font-medium">{name}</h1>
-                <Link href={auth.user ? route('dashboard') : route('login')} className="text-sm underline">
-                    {auth.user ? 'Dashboard' : 'Log in'}
-                </Link>
+                {auth.user && (
+                    <Link href={route('dashboard')} className="text-sm underline">
+                        Dashboard
+                    </Link>
+                )}
             </div>
         </>
     );

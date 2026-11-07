@@ -8,7 +8,7 @@ use App\Http\Controllers\Auth\TwoFactorChallengeController;
 use Illuminate\Support\Facades\Route;
 
 // No public registration: accounts are created by an Admin (invite flow).
-Route::middleware('guest')->group(function () {
+Route::prefix(config('cms.auth_prefix'))->middleware('guest')->group(function () {
     Route::get('login', [AuthenticatedSessionController::class, 'create'])->name('login');
     Route::post('login', [AuthenticatedSessionController::class, 'store'])->middleware('throttle:login');
 

@@ -1,6 +1,10 @@
 <?php
 
 return [
+    // Secret URL prefix for the sign-in screens (e.g. CMS_AUTH_PREFIX=ops-7f3k9x gives /ops-7f3k9x/login). Empty = /login.
+    // When set, /login is a plain 404 and signed-out visitors hitting /admin or /dashboard get a 404, so nothing points at it.
+    'auth_prefix' => trim(env('CMS_AUTH_PREFIX', ''), '/'),
+
     // BR-04: idle timeout in minutes per role.
     'idle_minutes' => ['admin' => 30, 'writer' => 120],
 

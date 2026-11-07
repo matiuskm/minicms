@@ -35,7 +35,7 @@ class SecurityHeaders
         }
 
         // Back-office and account screens must never be indexed.
-        if ($request->is('admin', 'admin/*', 'settings', 'settings/*', 'dashboard', 'media', 'login', 'two-factor-challenge', 'forgot-password', 'reset-password/*', 'invite/*', 'content/*', 'tags/*', 'search')) {
+        if ($request->is('admin', 'admin/*', 'settings', 'settings/*', 'dashboard', 'media', 'login', 'two-factor-challenge', 'forgot-password', 'reset-password/*', 'invite/*', 'content/*', 'tags/*', 'search', ...(config('cms.auth_prefix') ? [config('cms.auth_prefix').'/*'] : []))) {
             $response->headers->set('X-Robots-Tag', 'noindex, nofollow');
         }
 
