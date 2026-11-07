@@ -14,7 +14,7 @@ class Maintenance
     {
         if (! Setting::get('maintenance_mode')
             || $request->user()?->isAdmin()
-            || $request->is('login', 'logout', 'two-factor-challenge', 'forgot-password', 'reset-password/*', 'invite/*', 'invite', 'up')) {
+            || $request->is('login', 'logout', 'two-factor-challenge', 'forgot-password', 'reset-password/*', 'invite/*', 'invite', 'up', ...(config('cms.auth_prefix') ? [config('cms.auth_prefix').'/*'] : []))) {
             return $next($request);
         }
 

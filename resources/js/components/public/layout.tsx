@@ -52,13 +52,9 @@ export function PublicLayout({ site = FALLBACK, seo, children }: { site?: Site |
                         ))}
                     </nav>
                     <div className="site-actions">
-                        {auth?.user ? (
+                        {auth?.user && (
                             <Link href="/dashboard" className="inline-flex items-center gap-1">
                                 Dashboard <ArrowUpRight className="size-3.5" />
-                            </Link>
-                        ) : (
-                            <Link href="/login" className="inline-flex items-center gap-1">
-                                Login <ArrowUpRight className="size-3.5" />
                             </Link>
                         )}
                         {s.cta && (

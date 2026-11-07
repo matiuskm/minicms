@@ -21,6 +21,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        // With a secret sign-in prefix, never reveal it: signed-out visitors on protected URLs just see a 404.
+        $middleware->redirectGuestsTo(fn () => config('cms.auth_prefix') ? abort(404) : route('login'));
         $middleware->alias(['role' => EnsureRole::class]);
         // Global so 404/500 responses (which skip the web group) get headers too.
         $middleware->append(SecurityHeaders::class);

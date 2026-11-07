@@ -46,7 +46,7 @@ class FeedController extends Controller
 
     public function robots(): Response
     {
-        $lines = ['User-agent: *', 'Disallow: /admin', 'Disallow: /settings', 'Disallow: /login', 'Disallow: /dashboard', 'Disallow: /search', '', 'Sitemap: '.url('/sitemap.xml')];
+        $lines = ['User-agent: *', 'Disallow: /admin', 'Disallow: /settings', 'Disallow: /dashboard', 'Disallow: /search', '', 'Sitemap: '.url('/sitemap.xml')];
 
         return response(implode("\n", $lines)."\n", 200, ['Content-Type' => 'text/plain; charset=UTF-8']);
     }
