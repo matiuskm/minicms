@@ -21,9 +21,6 @@ export default defineConfig({
         react(),
         tailwindcss(),
     ],
-    esbuild: {
-        jsx: 'automatic',
-    },
     // The release archive has no node_modules, so the server-side bundle must carry its own dependencies.
     ssr: {
         noExternal: true,

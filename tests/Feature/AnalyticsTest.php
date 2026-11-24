@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Schema;
 
 const BROWSER = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15';
 
-function visit(string $url = '/', array $headers = [], ?string $ua = BROWSER)
+function visitPage(string $url = '/', array $headers = [], ?string $ua = BROWSER)
 {
     $headers = array_filter(['User-Agent' => $ua, 'Accept' => 'text/html'] + $headers, fn ($v) => $v !== null);
 
@@ -72,7 +72,7 @@ test('referral hosts are kept and campaign text is sanitised', function () {
 // ---- tracking ------------------------------------------------------------------------------------------------
 
 test('TC-F14-01 a public visit is counted once with its page and source', function () {
-    visit('/blog/hello?utm_source=ig&utm_campaign=launch')->assertOk();
+    visitPage('/blog/hello?utm_source=ig&utm_campaign=launch')->assertOk();
 
     $row = DB::table('page_views')->first();
     expect(views())->toBe(1);
@@ -85,23 +85,23 @@ test('every kind of public page gets a stable key', function () {
     Page::factory()->create(['slug' => 'about', 'status' => 'published']);
 
     foreach (['/', '/blog', '/category/news', '/about'] as $url) {
-        visit($url)->assertOk();
+        visitPage($url)->assertOk();
     }
 
     expect(DB::table('page_views')->orderBy('id')->pluck('page_key')->all())->toBe(['home', 'blog', 'category:news', 'page:'.Page::first()->id]);
 });
 
 test('the same page is counted again on each load; unique visitors are deduplicated per day', function () {
-    visit('/blog/hello');
-    visit('/blog/hello');
-    visit('/blog/hello', ua: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0 Safari/537.36');
+    visitPage('/blog/hello');
+    visitPage('/blog/hello');
+    visitPage('/blog/hello', ua: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0 Safari/537.36');
 
     expect(views())->toBe(3)->and(DB::table('page_views')->distinct()->count('visitor'))->toBe(2);
 });
 
 test('the visitor hash contains no IP or user agent and changes every day', function () {
     $this->withServerVariables(['REMOTE_ADDR' => '203.0.113.7']);
-    visit('/');
+    visitPage('/');
 
     $row = DB::table('page_views')->first();
     $columns = json_encode($row, JSON_INVALID_UTF8_SUBSTITUTE);
@@ -120,42 +120,42 @@ test('TC-F14-03 bots, link previews, monitors and empty agents are not counted',
         'Twitterbot/1.0', 'TelegramBot (like TwitterBot)', 'Slackbot-LinkExpanding 1.0', 'curl/8.4.0', 'python-requests/2.31', 'Go-http-client/1.1',
         'Mozilla/5.0 HeadlessChrome/120.0', 'UptimeRobot/2.0', 'Mozilla/5.0 (compatible; AhrefsBot/7.0)', 'Lighthouse', 'Mozilla/5.0 (compatible; Applebot/0.1)', '',
     ] as $ua) {
-        visit('/', ua: $ua === '' ? null : $ua);
+        visitPage('/', ua: $ua === '' ? null : $ua);
     }
 
     expect(views())->toBe(0);
 });
 
 test('staff, prefetches, do-not-track and non-page requests are not counted', function () {
-    visit('/', ['DNT' => '1']);
-    visit('/', ['Sec-GPC' => '1']);
-    visit('/', ['Sec-Purpose' => 'prefetch']);
-    visit('/', ['Purpose' => 'prefetch']);
-    visit('/', ['Accept' => 'application/json']);
+    visitPage('/', ['DNT' => '1']);
+    visitPage('/', ['Sec-GPC' => '1']);
+    visitPage('/', ['Sec-Purpose' => 'prefetch']);
+    visitPage('/', ['Purpose' => 'prefetch']);
+    visitPage('/', ['Accept' => 'application/json']);
     expect(views())->toBe(0);
 
     $this->actingAs(User::factory()->create());
-    visit('/blog/hello');
+    visitPage('/blog/hello');
     expect(views())->toBe(0);
     auth()->logout();
     $this->flushSession();
 
     // Not public pages: feeds, search, admin, errors and redirects
     foreach (['/sitemap.xml', '/rss.xml', '/robots.txt', '/theme.css', '/search?q=hello', '/login', '/blog/missing', '/nope'] as $url) {
-        visit($url);
+        visitPage($url);
     }
     expect(views())->toBe(0);
 
     $post = Post::first();
     $this->actingAs(adminUser())->put("/admin/posts/{$post->id}", ['action' => 'save', 'title' => 'Hello', 'body' => $post->body, 'category_id' => $post->category_id, 'version' => $post->version, 'slug' => 'renamed']);
     auth()->logout();
-    visit('/blog/hello')->assertStatus(301);
+    visitPage('/blog/hello')->assertStatus(301);
     expect(views())->toBe(0);
 });
 
 test('inertia navigations count as page views, using the in-site referrer', function () {
-    $version = visit('/')->viewData('page')['version'];
-    visit('/blog/hello', ['X-Inertia' => 'true', 'X-Inertia-Version' => $version, 'X-Requested-With' => 'XMLHttpRequest', 'Accept' => 'text/html, application/xhtml+xml', 'Referer' => url('/')])->assertOk();
+    $version = visitPage('/')->viewData('page')['version'];
+    visitPage('/blog/hello', ['X-Inertia' => 'true', 'X-Inertia-Version' => $version, 'X-Requested-With' => 'XMLHttpRequest', 'Accept' => 'text/html, application/xhtml+xml', 'Referer' => url('/')])->assertOk();
 
     expect(views())->toBe(2)->and(DB::table('page_views')->orderByDesc('id')->value('source'))->toBe('internal');
 });
@@ -163,7 +163,7 @@ test('inertia navigations count as page views, using the in-site referrer', func
 test('tracking can be switched off in settings', function () {
     Setting::put(['analytics_enabled' => false]);
 
-    visit('/');
+    visitPage('/');
 
     expect(views())->toBe(0);
 });
@@ -171,12 +171,12 @@ test('tracking can be switched off in settings', function () {
 test('a failing tracker never breaks the page', function () {
     Schema::drop('page_views');
 
-    visit('/')->assertOk();
+    visitPage('/')->assertOk();
 });
 
 test('a flood from one client is capped', function () {
     foreach (range(1, 130) as $i) {
-        visit('/');
+        visitPage('/');
     }
 
     expect(views())->toBe(120);

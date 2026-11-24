@@ -192,6 +192,17 @@ test('TC-F09-04 sitemap, robots and rss only describe published content', functi
     $this->get('/robots.txt')->assertOk()->assertSee('Disallow: /admin')->assertSee('Sitemap: ', false);
 });
 
+test('feeds always use APP_URL, so a foreign host or plain http cannot poison the cached copy', function () {
+    config(['app.url' => 'https://site.example']);
+    live(['slug' => 'fish']);
+
+    foreach (['/sitemap.xml', '/rss.xml', '/robots.txt'] as $path) {
+        $body = $this->get("http://evil.example{$path}")->assertOk()->getContent();
+        expect($body)->toContain('https://site.example/')->not->toContain('evil.example');
+    }
+    $this->get('/sitemap.xml')->assertSee('<loc>https://site.example/</loc>', false)->assertSee('<loc>https://site.example/blog/fish</loc>', false);
+});
+
 test('SEO meta: titles, descriptions, canonical, article schema', function () {
     Setting::put(['site_name' => 'Essos', 'tagline' => 'Stories']);
     $post = live(['slug' => 'seo', 'title' => 'Plain title', 'meta_title' => 'Custom SEO title', 'meta_description' => 'A custom description', 'excerpt' => 'ignored excerpt'])->first();
