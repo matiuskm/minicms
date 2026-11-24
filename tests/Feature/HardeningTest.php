@@ -28,7 +28,7 @@ function csp(string $url = '/login'): string
 test('TC-F12-01 every kind of response carries the security headers and a strict CSP', function () {
     Post::factory()->status('published')->create(['slug' => 'a']);
 
-    foreach (['/', '/blog/a', '/login', '/does-not-exist', '/sitemap.xml', '/theme.css'] as $url) {
+    foreach (['/', '/blog/a', '/login', '/does-not-exist', '/theme.css'] as $url) {
         $res = $this->get($url);
         $res->assertHeader('X-Content-Type-Options', 'nosniff')->assertHeader('X-Frame-Options', 'DENY')->assertHeader('Referrer-Policy')
             ->assertHeader('Permissions-Policy')->assertHeader('Cross-Origin-Opener-Policy', 'same-origin');
@@ -39,6 +39,12 @@ test('TC-F12-01 every kind of response carries the security headers and a strict
         // Scripts: self + nonce only. (style="" attributes are allowed separately, never script.)
         preg_match('/script-src ([^;]+)/', $policy, $m);
         expect($m[1])->toMatch("/^'self' 'nonce-[A-Za-z0-9+\\/=]+'$/")->not->toContain('unsafe-inline');
+    }
+
+    // Feeds carry their own policy: no scripts at all, inline styles only for the browser's XML viewer.
+    foreach (['/sitemap.xml', '/rss.xml'] as $url) {
+        $policy = $this->get($url)->assertHeader('X-Content-Type-Options', 'nosniff')->headers->get('Content-Security-Policy');
+        expect($policy)->toContain("default-src 'none'")->toContain("frame-ancestors 'none'")->not->toContain('script-src');
     }
 });
 

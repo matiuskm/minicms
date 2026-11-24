@@ -6,6 +6,11 @@ Definition of Done (PRD section 11) is met.
 
 ## [Unreleased]
 
+## [1.7.1] - 2026-11-24 — Sitemap addresses and display
+### Fixed
+- `sitemap.xml`, `rss.xml` and `robots.txt` build their addresses from `APP_URL`. They used the host and scheme of whichever request filled the cache, so a visit over plain http, another host name or a TLS proxy could put wrong addresses in the sitemap for up to 10 minutes.
+- `sitemap.xml` and `rss.xml` display properly in browsers: the site-wide CSP blocked the browser's XML viewer styles.
+
 ## [1.7.0] - 2026-11-07 — Hidden sign-in address
 ### Added
 - `CMS_AUTH_PREFIX` (`.env`): moves the sign-in screens (login, 2FA, password reset, invite) under a secret prefix, for example `/ops-7f3k9x/login`. When set, `/login` is a plain 404 and signed-out visitors opening `/admin/*` or `/dashboard` also get a 404 instead of a redirect to the sign-in page. Empty keeps `/login`. Set it in production; sessions that expire no longer redirect, so bookmark the new address.
