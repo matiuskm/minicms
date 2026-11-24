@@ -4,7 +4,7 @@ import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
     plugins: [react()],
-    resolve: { alias: { '@': path.resolve(__dirname, 'resources/js') } },
+    resolve: { alias: { '@': path.resolve(import.meta.dirname, 'resources/js') } },
     test: {
         environment: 'jsdom',
         include: ['resources/js/**/*.test.{ts,tsx}'],

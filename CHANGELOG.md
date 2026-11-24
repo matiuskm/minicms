@@ -6,10 +6,16 @@ Definition of Done (PRD section 11) is met.
 
 ## [Unreleased]
 
-## [1.7.1] - 2026-11-24 — Sitemap addresses and display
+## [1.8.0] - 2026-11-24 — Laravel 13, sitemap fix
+### Changed
+- Laravel 13, Inertia 3, Vite 8, Pest 5 and every other Composer and npm dependency updated. PHP 8.4 is now the stated minimum (what the installer already sets up). ESLint 9 and TypeScript 6 stay until their plugins support the next major.
+- Requests that browsers mark as same-origin (`Sec-Fetch-Site`) no longer need a CSRF token (Laravel 13 behaviour); cross-site and same-site requests without a token are still refused.
+### Security
+- Fixes the published advisories in `laravel/framework` and Symfony (`http-foundation`, `http-kernel`, `mime`, `routing`, `yaml`).
 ### Fixed
 - `sitemap.xml`, `rss.xml` and `robots.txt` build their addresses from `APP_URL`. They used the host and scheme of whichever request filled the cache, so a visit over plain http, another host name or a TLS proxy could put wrong addresses in the sitemap for up to 10 minutes.
 - `sitemap.xml` and `rss.xml` display properly in browsers: the site-wide CSP blocked the browser's XML viewer styles.
+- Server-rendered pages carry one `<title>` instead of two.
 
 ## [1.7.0] - 2026-11-07 — Hidden sign-in address
 ### Added

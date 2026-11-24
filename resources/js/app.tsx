@@ -1,6 +1,6 @@
 import '../css/app.css';
 
-import { createInertiaApp } from '@inertiajs/react';
+import { createInertiaApp, type ResolvedComponent } from '@inertiajs/react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot } from 'react-dom/client';
 import { route as routeFn } from 'ziggy-js';
@@ -20,7 +20,8 @@ createInertiaApp({
         const appName = document.querySelector<HTMLMetaElement>('meta[name="app-name"]')?.content || 'Laravel';
         return title.includes(appName) ? title : `${title} - ${appName}`;
     },
-    resolve: (name) => resolvePageComponent(`./pages/${name}.tsx`, import.meta.glob(['./pages/**/*.tsx', '!./pages/**/*.test.tsx'])),
+    resolve: (name) =>
+        resolvePageComponent(`./pages/${name}.tsx`, import.meta.glob<ResolvedComponent>(['./pages/**/*.tsx', '!./pages/**/*.test.tsx'])),
     setup({ el, App, props }) {
         const root = createRoot(el);
 

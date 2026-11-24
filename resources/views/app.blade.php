@@ -5,7 +5,6 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title inertia>{{ $page['props']['name'] ?? config('app.name', 'Laravel') }}</title>
         <meta name="app-name" content="{{ $page['props']['name'] ?? config('app.name', 'Laravel') }}">
 
         @if (! empty($page['props']['site']['favicon']))
@@ -26,7 +25,10 @@
         @if (! empty($page['props']['theme']))
             <link rel="stylesheet" href="/theme.css?v={{ $page['props']['theme']['v'] }}">
         @endif
-        @inertiaHead
+        {{-- Server-rendered head, or this title when SSR is down (never both). --}}
+        <x-inertia::head>
+            <title data-inertia="">{{ $page['props']['name'] ?? config('app.name', 'Laravel') }}</title>
+        </x-inertia::head>
     </head>
     <body class="font-sans antialiased">
         @inertia

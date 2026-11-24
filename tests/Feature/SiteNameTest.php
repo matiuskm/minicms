@@ -14,7 +14,7 @@ test('TC-F13-20 the admin shows the configured site name, falling back to APP_NA
     $this->actingAs($admin)->get('/admin/settings')
         ->assertInertia(fn ($p) => $p->where('name', 'My Blog'))
         ->assertSee('<meta name="app-name" content="My Blog">', false)
-        ->assertSee('<title inertia>My Blog</title>', false);
+        ->assertSee('<title data-inertia="">My Blog</title>', false);
 });
 
 test('TC-F09-20 public pages do not put the signed-in user\'s details in the page source', function () {

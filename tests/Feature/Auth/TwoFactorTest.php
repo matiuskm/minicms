@@ -2,7 +2,7 @@
 
 use App\Models\AuditLog;
 use App\Models\User;
-use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
+use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Support\Facades\Hash;
 use PragmaRX\Google2FA\Google2FA;
 
@@ -122,7 +122,7 @@ test('in production the login challenge is never skipped', function () {
     $user = User::factory()->admin()->withTwoFactor(SECRET)->create();
 
     // CSRF skipping is tied to the testing environment, which this test deliberately leaves.
-    $this->withoutMiddleware(ValidateCsrfToken::class);
+    $this->withoutMiddleware(PreventRequestForgery::class);
     $this->post('/login', ['email' => $user->email, 'password' => PW])->assertRedirect('/two-factor-challenge');
     $this->assertGuest();
 });

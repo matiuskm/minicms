@@ -4,7 +4,7 @@ A secure, single-site CMS: posts, pages, categories and tags with a visual edito
 server-side rendering; global colour palettes and fonts; visitor statistics without cookies; content-integrity alerts, lockdown, backups;
 a home page builder, and signed one-click updates. Admin and Writer roles, mandatory 2FA for admins.
 
-Single-site CMS: Laravel 12, React 19, Inertia 2 (SSR), MySQL. Specs live in [`docs/`](docs/)
+Single-site CMS: Laravel 13, React 19, Inertia 3 (SSR), MySQL. Specs live in [`docs/`](docs/)
 (`SA-*` analysis, `PRD-*` requirements, `PROGRESS-*` phase tracker).
 
 ## Local setup (Laravel Herd)
