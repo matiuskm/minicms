@@ -4,6 +4,7 @@ import { createInertiaApp, type ResolvedComponent } from '@inertiajs/react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot } from 'react-dom/client';
 import { route as routeFn } from 'ziggy-js';
+import { pageTitle } from './lib/title';
 
 declare global {
     const route: typeof routeFn;
@@ -18,7 +19,7 @@ createInertiaApp({
     // The name comes from Site settings (sent by the server), not from the build, so renaming the site needs no rebuild.
     title: (title) => {
         const appName = document.querySelector<HTMLMetaElement>('meta[name="app-name"]')?.content || 'Laravel';
-        return title.includes(appName) ? title : `${title} - ${appName}`;
+        return pageTitle(title, appName);
     },
     resolve: (name) =>
         resolvePageComponent(`./pages/${name}.tsx`, import.meta.glob<ResolvedComponent>(['./pages/**/*.tsx', '!./pages/**/*.test.tsx'])),

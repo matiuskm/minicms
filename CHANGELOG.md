@@ -6,6 +6,10 @@ Definition of Done (PRD section 11) is met.
 
 ## [Unreleased]
 
+## [1.8.1] - 2026-11-24 — Site name no longer repeated in titles
+### Fixed
+- Site names with `'`, `"`, `&`, `<` or `>` were added a second time to public page titles in the browser (`Site | Page - Site`), a regression from the Inertia 3 upgrade in 1.8.0.
+
 ## [1.8.0] - 2026-11-24 — Laravel 13, sitemap fix
 ### Changed
 - Laravel 13, Inertia 3, Vite 8, Pest 5 and every other Composer and npm dependency updated. PHP 8.4 is now the stated minimum (what the installer already sets up). ESLint 9 and TypeScript 6 stay until their plugins support the next major.
